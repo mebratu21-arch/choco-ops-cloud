@@ -1,0 +1,51 @@
+{
+  "name": "choco-ops-cloud",
+  "version": "1.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "..\\node_modules\\.bin\\tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:migrate": "..\\node_modules\\.bin\\tsx run-migrations.ts",
+    "db:seed": "..\\node_modules\\.bin\\tsx run-seeds.ts",
+    "db:reset": "npm run db:migrate && npm run db:seed",
+    "db:migrate:cli": "..\\node_modules\\.bin\\tsx ..\\node_modules\\knex\\bin\\cli.js migrate:latest --knexfile knexfile.ts",
+    "db:seed:cli": "..\\node_modules\\.bin\\tsx ..\\node_modules\\knex\\bin\\cli.js seed:run --knexfile knexfile.ts",
+    "db:status": "..\\node_modules\\.bin\\tsx ..\\node_modules\\knex\\bin\\cli.js migrate:status --knexfile knexfile.ts",
+    "db:verify": "..\\node_modules\\.bin\\tsx scripts/test-database.ts",
+    "api:verify": "..\\node_modules\\.bin\\tsx scripts/verify-api.ts",
+    "test": "npm run db:verify && npm run api:verify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "knex": "^3.1.0",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.11",
+    "pg": "^8.17.2",
+    "winston": "^3.19.0",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^25.0.9",
+    "cross-env": "^10.1.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

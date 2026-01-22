@@ -90,19 +90,6 @@ npm run db:reset
 - Type-safe with TypeScript
 - Zod schema validation
 
-## 🔐 Demo Users
-
-All demo users have password: `password123`
-
-| Email | Role | Purpose |
-|-------|------|---------|
-| manager@chocoops.com | MANAGER | Overall management |
-| warehouse@chocoops.com | WAREHOUSE | Inventory management |
-| production@chocoops.com | PRODUCTION | Production operations |
-| qc@chocoops.com | QC | Quality control |
-| mechanic@chocoops.com | MECHANIC | Equipment maintenance |
-| controller@chocoops.com | CONTROLLER | Financial control |
-| admin@chocoops.com | ADMIN | System administration |
 
 ## 📝 Scripts
 

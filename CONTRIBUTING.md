@@ -1,4 +1,4 @@
-# Contributing to ChocoOps Cloud
+ # Contributing to ChocoOps Cloud
 
 Thank you for your interest in contributing! We want to make it as easy as possible for you to get started.
 

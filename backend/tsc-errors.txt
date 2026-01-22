@@ -1,0 +1,41 @@
+﻿src/app.ts(5,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './config/environment.js'?
+src/app.ts(6,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './config/logger.js'?
+src/app.ts(7,30): error TS2307: Cannot find module './middleware/error.middleware' or its corresponding type declarations.
+src/app.ts(8,27): error TS2307: Cannot find module './middleware/request-id.middleware' or its corresponding type declarations.
+src/app.ts(9,32): error TS2307: Cannot find module './middleware/rate-limit.middleware' or its corresponding type declarations.
+src/app.ts(10,20): error TS2834: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Consider adding an extension to the import path.
+src/config/database.ts(2,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './environment.js'?
+src/controllers/auth.controller.ts(2,29): error TS2307: Cannot find module '../services/auth.service' or its corresponding type declarations.
+src/controllers/auth.controller.ts(3,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/logger.js'?
+src/middleware/auth.middleware.ts(2,35): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../utils/jwt.js'?
+src/middleware/auth.middleware.ts(3,51): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../utils/errors.js'?
+src/middleware/auth.middleware.ts(4,32): error TS2307: Cannot find module '../repositories/user.repository' or its corresponding type declarations.
+src/middleware/error.middleware.ts(2,26): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../utils/errors.js'?
+src/middleware/error.middleware.ts(3,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/logger.js'?
+src/middleware/error.middleware.ts(15,27): error TS2339: Property 'statusCode' does not exist on type 'Error'.
+src/middleware/rate-limit.middleware.ts(2,38): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../utils/errors.js'?
+src/middleware/validate.middleware.ts(3,33): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../utils/errors.js'?
+src/repositories/user.repository.ts(1,20): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/database.js'?
+src/repositories/user.repository.ts(2,23): error TS2307: Cannot find module '../types/auth.types' or its corresponding type declarations.
+src/routes/index.ts(2,24): error TS2307: Cannot find module './v1/auth.routes' or its corresponding type declarations.
+src/routes/v1/auth.routes.ts(2,32): error TS2307: Cannot find module '../../controllers/auth.controller' or its corresponding type declarations.
+src/routes/v1/auth.routes.ts(3,30): error TS2307: Cannot find module '../../middleware/auth.middleware' or its corresponding type declarations.
+src/routes/v1/auth.routes.ts(4,26): error TS2307: Cannot find module '../../middleware/validate.middleware' or its corresponding type declarations.
+src/routes/v1/auth.routes.ts(5,29): error TS2307: Cannot find module '../../middleware/rate-limit.middleware' or its corresponding type declarations.
+src/routes/v1/auth.routes.ts(6,79): error TS2307: Cannot find module '../../schemas/auth.schema' or its corresponding type declarations.
+src/server.ts(1,17): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './app.js'?
+src/server.ts(2,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './config/environment.js'?
+src/server.ts(3,32): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './config/database.js'?
+src/server.ts(4,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './config/logger.js'?
+src/services/auth.service.ts(2,20): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/database.js'?
+src/services/auth.service.ts(3,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/environment.js'?
+src/services/auth.service.ts(4,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/logger.js'?
+src/services/auth.service.ts(5,32): error TS2307: Cannot find module '../repositories/user.repository' or its corresponding type declarations.
+src/services/auth.service.ts(11,8): error TS2307: Cannot find module '../types/auth.types' or its corresponding type declarations.
+src/services/auth.service.ts(15,8): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../utils/errors.js'?
+src/services/auth.service.ts(21,8): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../utils/jwt.js'?
+src/services/inventory.service.ts(1,20): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/database.js'?
+src/services/inventory.service.ts(2,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/logger.js'?
+src/services/inventory.service.ts(3,31): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../utils/errors.js'?
+src/utils/jwt.ts(3,24): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../config/environment.js'?
+src/utils/jwt.ts(4,29): error TS2307: Cannot find module '../types/auth.types' or its corresponding type declarations.

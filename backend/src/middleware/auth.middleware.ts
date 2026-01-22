@@ -45,3 +45,20 @@ export const requireRole = (roles: string[]) => {
     next();
   };
 };
+
+// Alias with rest params syntax for convenience
+export const restrictTo = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        error: 'Forbidden - you do not have the required role',
+      });
+    }
+    next();
+  };
+};
+
+// Alias for backward compatibility
+export const authMiddleware = authenticate;
+

@@ -4,6 +4,7 @@ import userRoutes from './v1/user.routes.js';
 import supplierRoutes from './v1/supplier.routes.js';
 import rawMaterialRoutes from './v1/raw-material.routes.js';
 import ingredientRoutes from './v1/ingredient.routes.js';
+import inventoryRoutes from './v1/inventory.routes.js';
 import recipeRoutes from './v1/recipe.routes.js';
 import productionRoutes from './v1/production.routes.js';
 import qualityRoutes from './v1/quality.routes.js';
@@ -23,6 +24,7 @@ router.use('/users', userRoutes);
 router.use('/suppliers', supplierRoutes);
 router.use('/raw-materials', rawMaterialRoutes);
 router.use('/ingredients', ingredientRoutes);
+router.use('/inventory', inventoryRoutes);
 
 // Production
 router.use('/recipes', recipeRoutes);

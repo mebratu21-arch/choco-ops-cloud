@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { InventoryService } from '../services/inventory.service.js';
-import { InventoryFilters, StockUpdateInput } from '../types/inventory.types.js';
+import { logger } from '../config/logger.js';
 import { AppError } from '../utils/errors.js';
 
 export class InventoryController {
   static async getAllStock(req: Request, res: Response) {
     try {
-      const filters: InventoryFilters = {
+      const filters = {
         low_stock_only: req.query.low_stock_only === 'true',
         expiring_soon_days: req.query.expiring_soon_days ? Number(req.query.expiring_soon_days) : undefined,
         supplier_id: req.query.supplier_id as string,
@@ -17,8 +17,9 @@ export class InventoryController {
 
       const stock = await InventoryService.getAllStock(filters);
       res.json({ success: true, count: stock.length, data: stock });
-    } catch (error) {
-      res.status(500).json({ success: false, error: 'Failed to fetch stock' });
+    } catch (err) {
+      logger.error('getAllStock failed', { error: (err as Error).message });
+      res.status(500).json({ success: false, error: 'Failed to fetch inventory' });
     }
   }
 
@@ -26,17 +27,17 @@ export class InventoryController {
     try {
       const items = await InventoryService.getLowStock();
       res.json({ success: true, count: items.length, data: items });
-    } catch (error) {
+    } catch (err) {
       res.status(500).json({ success: false, error: 'Failed to fetch low stock' });
     }
   }
 
   static async getExpiringSoon(req: Request, res: Response) {
     try {
-      const days = req.query.days ? Number(req.query.days) : 30;
+      const days = Number(req.query.days) || 30;
       const items = await InventoryService.getExpiringSoon(days);
       res.json({ success: true, count: items.length, days, data: items });
-    } catch (error) {
+    } catch (err) {
       res.status(500).json({ success: false, error: 'Failed to fetch expiring items' });
     }
   }
@@ -46,39 +47,34 @@ export class InventoryController {
       const { id } = req.params;
       const item = await InventoryService.getIngredientById(id);
       res.json({ success: true, data: item });
-    } catch (error: any) {
-      if (error instanceof AppError) {
-        return res.status(error.statusCode || 404).json({
-          success: false,
-          error: error.message,
-        });
-      }
-      res.status(500).json({ success: false, error: 'Failed to fetch ingredient' });
+    } catch (err: any) {
+      res.status(err.statusCode || 500).json({
+        success: false,
+        error: err.message || 'Failed to fetch ingredient',
+      });
     }
   }
 
   static async updateStock(req: Request & { user?: any }, res: Response) {
     try {
-      const input: StockUpdateInput = req.body;
+      const input = req.body;
+      // Fixed: use req.user.id (common JWT payload)
       const userId = req.user?.id;
 
-      if (!userId) throw new AppError('User not authenticated', 401);
+      if (!userId) throw new AppError('Not authenticated', 401);
 
       const result = await InventoryService.updateStock(input, userId);
 
       res.json({
         success: true,
-        message: 'Stock updated successfully',
+        message: 'Stock updated',
         data: result,
       });
-    } catch (error: any) {
-      if (error instanceof AppError) {
-        return res.status(error.statusCode || 400).json({
-          success: false,
-          error: error.message,
-        });
-      }
-      res.status(500).json({ success: false, error: 'Failed to update stock' });
+    } catch (err: any) {
+      res.status(err.statusCode || 400).json({
+        success: false,
+        error: err.message || 'Failed to update stock',
+      });
     }
   }
 }

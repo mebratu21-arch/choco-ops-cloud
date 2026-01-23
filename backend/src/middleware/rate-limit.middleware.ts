@@ -9,11 +9,12 @@ export const authLimiter = rateLimit({
 });
 
 export const inventoryLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // max 10 updates per minute per IP
-  message: { success: false, error: 'Too many stock updates — slow down' },
+  windowMs: 60 * 1000, // 1 min
+  max: 10,
+  message: { success: false, error: 'Too many stock updates — wait 60s' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req: any) => req.user?.id || req.ip, // prefer user ID
 });
 
 export const generalLimiter = rateLimit({

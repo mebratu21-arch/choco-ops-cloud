@@ -2,12 +2,19 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 import { config } from './config/environment.js';
 import { logger } from './config/logger.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { requestId } from './middleware/request-id.middleware.js';
 import { generalLimiter } from './middleware/rate-limit.middleware.js';
 import routes from './routes/index.js';
+import { db } from './config/database.js';
+
+// Routes
+// Note: routes are already imported and mounted in ./routes/index.ts
+// including dashboard routes which we need to add to index.ts first
 
 const app = express();
 
@@ -19,6 +26,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
     },
   },
 }));
@@ -40,16 +48,31 @@ app.use(generalLimiter);
 // Request tracking
 app.use(requestId);
 
+// Swagger Docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // API Routes
 app.use('/api/v1', routes);
 
-// Health check
-app.get('/health', (req: Request, res: Response) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    environment: config.NODE_ENV,
-  });
+// Health Check
+app.get('/health', async (req: Request, res: Response) => {
+  try {
+    await db.raw('SELECT 1');
+    res.json({
+      status: 'healthy',
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+      environment: config.NODE_ENV,
+    });
+  } catch (error) {
+    logger.error('Health check failed', { error });
+    res.status(503).json({
+      status: 'unhealthy',
+      database: 'disconnected',
+      timestamp: new Date().toISOString(),
+      environment: config.NODE_ENV,
+    });
+  }
 });
 
 // 404 handler

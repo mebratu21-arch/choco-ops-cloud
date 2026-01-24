@@ -7,10 +7,13 @@ import ingredientRoutes from './v1/ingredient.routes.js';
 import inventoryRoutes from './v1/inventory.routes.js';
 import recipeRoutes from './v1/recipe.routes.js';
 import productionRoutes from './v1/production.routes.js';
-import qualityRoutes from './v1/quality.routes.js';
+import qcRoutes from './v1/qc.routes.js';
+import mechanicsRoutes from './v1/mechanics.routes.js';
 import warehouseRoutes from './v1/warehouse.routes.js';
 import salesRoutes from './v1/sales.routes.js';
 import auditRoutes from './v1/audit.routes.js';
+import adminRoutes from './v1/admin.routes.js';
+import dashboardRoutes from './v1/dashboard.routes.js';
 
 const router = Router();
 
@@ -30,8 +33,10 @@ router.use('/inventory', inventoryRoutes);
 router.use('/recipes', recipeRoutes);
 router.use('/production', productionRoutes);
 
-// Quality
-router.use('/quality', qualityRoutes);
+// Quality (QC)
+router.use('/qc', qcRoutes);
+// Mechanics
+router.use('/mechanics', mechanicsRoutes);
 
 // Warehouse
 router.use('/warehouse', warehouseRoutes);
@@ -39,7 +44,9 @@ router.use('/warehouse', warehouseRoutes);
 // Sales & Orders
 router.use('/sales', salesRoutes);
 
-// Audit
+// Admin & Audit
+router.use('/admin', adminRoutes);
+router.use('/dashboard', dashboardRoutes);
 router.use('/audit', auditRoutes);
 
 export default router;

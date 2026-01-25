@@ -1,16 +1,22 @@
+import http from 'http';
 import app from './app.js';
-import { config } from './config/environment.js';
+import { env } from './config/environment.js';
 import { testConnection } from './config/database.js';
-import { logger } from './config/logger.js';
+import { logger } from './utils/logger.js';
+import { initSocket } from './config/socket.js';
+
+const server = http.createServer(app);
 
 const start = async () => {
   try {
     await testConnection();
     
-    app.listen(config.PORT, () => {
-      logger.info(`🚀 Server running on port ${config.PORT}`, {
-        environment: config.NODE_ENV,
-        url: `http://localhost:${config.PORT}`,
+    initSocket(server);
+
+    server.listen(env.PORT, () => {
+      logger.info(`STARTUP: Server running on port ${env.PORT}`, {
+        environment: env.NODE_ENV,
+        url: `http://localhost:${env.PORT}`,
       });
     });
   } catch (error) {

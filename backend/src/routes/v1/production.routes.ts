@@ -1,22 +1,24 @@
 import { Router } from 'express';
 import { ProductionController } from '../../controllers/production.controller.js';
-import { authenticate, requireRole } from '../../middleware/auth.middleware.js';
+import { authMiddleware, restrictTo } from '../../middleware/auth.middleware.js';
+import { validate } from '../../middleware/validate.middleware.js';
+import { CreateBatchBodySchema } from '../../schemas/production.schema.js';
 
 const router = Router();
 
-router.use(authenticate);
+router.use(authMiddleware);
 
-// Batches
-router.get('/batches', ProductionController.getAllBatches);
-router.get('/batches/stats', ProductionController.getStats);
-router.get('/batches/status/:status', ProductionController.getBatchesByStatus);
-router.get('/batches/:id', ProductionController.getBatchById);
-router.post('/batches', requireRole(['ADMIN', 'MANAGER', 'PRODUCTION']), ProductionController.createBatch);
-router.put('/batches/:id', requireRole(['ADMIN', 'MANAGER', 'PRODUCTION']), ProductionController.updateBatch);
+router.post(
+  '/create',
+  restrictTo('PRODUCTION', 'MANAGER', 'ADMIN'),
+  validate(CreateBatchBodySchema),
+  ProductionController.createBatch
+);
 
-// Production Batches (line details)
-router.get('/production-batches', ProductionController.getProductionBatches);
-router.post('/production-batches', requireRole(['ADMIN', 'MANAGER', 'PRODUCTION']), ProductionController.createProductionBatch);
-router.put('/production-batches/:id', requireRole(['ADMIN', 'MANAGER', 'PRODUCTION']), ProductionController.updateProductionBatch);
+router.get(
+  '/',
+  restrictTo('PRODUCTION', 'MANAGER', 'ADMIN', 'WAREHOUSE'),
+  ProductionController.getBatches
+);
 
 export default router;

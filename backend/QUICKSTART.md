@@ -1,6 +1,6 @@
 # ChocoOps Cloud - Quick Start Guide
 
-## 🚀 5-Minute Setup
+##  5-Minute Setup
 
 ### Step 1: Install PostgreSQL
 
@@ -92,7 +92,7 @@ SELECT email, role FROM users;
 \q
 ```
 
-## 🎯 Common Commands
+##  Common Commands
 
 ```bash
 # Development
@@ -111,7 +111,7 @@ npm run seed:run           # Run seed files
 npm run db:reset           # Rollback + Migrate + Seed
 ```
 
-## 🔐 Demo Login
+##  Demo Login
 
 All users have password: `password123`
 
@@ -123,7 +123,7 @@ All users have password: `password123`
 - controller@chocoops.com
 - admin@chocoops.com
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### "Connection refused"
 - PostgreSQL not running: `sudo systemctl start postgresql`
@@ -140,13 +140,13 @@ All users have password: `password123`
 - Check PostgreSQL version (>= 14 recommended)
 - Ensure database is empty or run `npm run db:reset`
 
-## 📚 Next Steps
+##  Next Steps
 
-1. ✅ Database setup complete
-2. 🔨 Build REST API layer
-3. 🔐 Implement authentication endpoints
-4. 📊 Create dashboard frontend
-5. 🧪 Write integration tests
+1.  Database setup complete
+2.  Build REST API layer
+3.  Implement authentication endpoints
+4.  Create dashboard frontend
+5.  Write integration tests
 
 ## 🆘 Need Help?
 

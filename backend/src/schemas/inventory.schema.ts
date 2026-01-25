@@ -23,7 +23,7 @@ export const UpdateStockBodySchema = z.object({
   ingredient_id: z.string().uuid('Invalid ingredient ID'),
   quantity_change: z.number()
     .refine(val => val !== 0, { message: 'Quantity change cannot be zero' })
-    .refine(val => Math.abs(val) <= 10000, { message: 'Change too large (max ±10,000)' }),
+    .refine(val => Math.abs(val) <= 10000, { message: 'Change too large (max 10,000)' }),
   reason: z.enum([...STOCK_UPDATE_REASONS])
     .optional()
     .default('MANUAL_ADJUSTMENT'),

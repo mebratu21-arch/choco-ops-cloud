@@ -63,7 +63,7 @@ export async function seed(knex) {
                 },
             ]);
         }
-        console.log('✅ Demo data seeded');
+        console.log(' Demo data seeded');
         console.log('Login: manager@chocoops.com / password123');
     });
 }

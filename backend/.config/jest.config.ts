@@ -15,7 +15,8 @@ const config: Config = {
       },
     ],
   },
-  testMatch: ['**/__tests__/**/*.test.ts'],
+  rootDir: '..',
+  testMatch: ['<rootDir>/tests/**/*.test.ts'],
 };
 
 export default config;

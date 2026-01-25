@@ -1,5 +1,5 @@
 import { db } from '../config/database.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 import { AdminRepository } from '../repositories/admin.repository.js';
 import { AdminUserInput } from '../types/admin.types.js';
 import bcrypt from 'bcryptjs';

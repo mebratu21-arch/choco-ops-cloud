@@ -2,7 +2,13 @@
 
 Production-grade PostgreSQL database layer for chocolate manufacturing operations.
 
-## 🚀 Quick Start
+##  Quick Start
+
+###  API Documentation
+Full API documentation is available via **Swagger UI**:
+> **http://localhost:5000/api-docs**
+
+Verify all endpoints and schemas interactively.
 
 ### Prerequisites
 - Node.js >= 18.0.0
@@ -48,7 +54,7 @@ npm run dev
 npm run db:reset
 ```
 
-## 📊 Database Schema
+##  Database Schema
 
 ### Tables (12)
 
@@ -67,31 +73,31 @@ npm run db:reset
 
 ### Key Features
 
-✅ **Advanced Constraints**
+ **Advanced Constraints**
 - Check constraints for data integrity
 - Unique constraints for business rules
 - Foreign key relationships with appropriate cascade rules
 
-✅ **Performance Optimization**
+ **Performance Optimization**
 - Strategic B-tree indexes
 - GIN indexes for JSONB columns
 - Partial indexes for common queries
 - Composite indexes for multi-column queries
 
-✅ **Audit & Compliance**
+ **Audit & Compliance**
 - Soft delete support (deleted_at)
 - Comprehensive audit logging
 - Change tracking with old/new values
 - IP address and user agent tracking
 
-✅ **Production Ready**
+ **Production Ready**
 - Environment-aware configuration
 - Connection pooling
 - Type-safe with TypeScript
 - Zod schema validation
 
 
-## 📝 Scripts
+##  Scripts
 
 | Command | Description |
 |---------|-------------|
@@ -105,7 +111,7 @@ npm run db:reset
 | `npm run db:reset` | Reset database (rollback, migrate, seed) |
 | `npm run test:connection` | Test database connection |
 
-## 🏗️ Project Structure
+## ️ Project Structure
 
 ```
 backend/
@@ -121,7 +127,7 @@ backend/
 └── .env.example        # Environment template
 ```
 
-## 🔧 Environment Variables
+##  Environment Variables
 
 Required:
 - `DATABASE_URL` - PostgreSQL connection string
@@ -129,11 +135,10 @@ Required:
 
 Optional:
 - `JWT_REFRESH_SECRET` - Refresh token secret
-- `GEMINI_API_KEY` - AI integration key
 - `NODE_ENV` - Environment (development/production)
 - `PORT` - Server port (default: 5000)
 
-## 📚 Database Best Practices
+##  Database Best Practices
 
 ### Migrations
 - Never modify existing migrations
@@ -153,7 +158,7 @@ Optional:
 - Validate input with Zod schemas
 - Implement proper RBAC
 
-## 🤝 Contributing
+##  Contributing
 
 1. Create feature branch
 2. Make changes
@@ -161,6 +166,6 @@ Optional:
 4. Create migration if needed
 5. Submit pull request
 
-## 📄 License
+##  License
 
 MIT

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { InventoryService } from '../services/inventory.service.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 import { AppError } from '../utils/errors.js';
 
 export class InventoryController {

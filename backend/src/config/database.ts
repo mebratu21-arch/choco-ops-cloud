@@ -1,35 +1,34 @@
 import knex from 'knex';
-import { config } from './environment.js';
+import { env } from './environment.js';
+import { logger } from '../utils/logger.js';
 
 export const db = knex({
   client: 'pg',
-  connection: config.DATABASE_URL,
-  pool: {
-    min: 2,
-    max: 10,
-    acquireTimeoutMillis: 60000,
-    createTimeoutMillis: 30000,
-    destroyTimeoutMillis: 5000,
-    idleTimeoutMillis: 30000,
-    reapIntervalMillis: 1000,
-    createRetryIntervalMillis: 200,
-  },
-  acquireConnectionTimeout: 60000,
-  migrations: {
-    directory: './migrations',
-    extension: 'ts',
-  },
-  seeds: {
-    directory: './seeds',
-  },
+  connection: env.DATABASE_URL,
+  pool: { min: 2, max: 10 },
+  migrations: { directory: './migrations', extension: 'ts' },
+  searchPath: ['public'],
 });
 
-export async function testConnection() {
+export const checkConnection = async () => {
   try {
     await db.raw('SELECT 1');
-    console.log('✅ Database connected');
-  } catch (error) {
-    console.error('❌ Database connection failed:', error);
-    process.exit(1);
+    logger.info('PostgreSQL connected');
+  } catch (err) {
+    logger.error('Database connection failed', { err });
+    throw err;
   }
-}
+};
+
+export const disconnectDB = async () => {
+  await db.destroy();
+};
+
+export const testConnection = async () => {
+    try {
+        await db.raw('SELECT 1');
+        return true;
+    } catch (error) {
+        throw error;
+    }
+};

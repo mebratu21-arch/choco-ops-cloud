@@ -6,7 +6,7 @@ const options = {
     info: {
       title: 'ChocoOps Cloud API',
       version: '1.0.0',
-      description: 'Full-stack ERP for chocolate manufacturing – inventory, production, sales, quality, maintenance.',
+      description: 'Full-stack ERP for chocolate manufacturing - inventory, production, sales, quality, maintenance.',
       contact: { name: 'Mebratu Mengstu' },
     },
     servers: [

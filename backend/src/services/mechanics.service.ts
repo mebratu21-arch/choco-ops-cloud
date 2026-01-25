@@ -1,5 +1,5 @@
 import { db } from '../config/database.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 import { MechanicsRepository } from '../repositories/mechanics.repository.js';
 import { MachineFixInput } from '../types/mechanics.types.js';
 

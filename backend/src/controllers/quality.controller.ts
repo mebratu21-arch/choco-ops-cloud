@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { QualityRepository } from '../repositories/quality.repository.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 
 export class QualityController {
   static async getAllControls(req: Request, res: Response, next: NextFunction) {

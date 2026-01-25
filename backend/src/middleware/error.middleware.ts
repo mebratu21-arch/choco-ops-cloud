@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 
 export function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
   logger.error('Error caught in global handler', {

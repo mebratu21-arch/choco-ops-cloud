@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { DashboardService } from '../services/dashboard.service.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 
 export class DashboardController {
   static async getStats(req: Request & { user?: any }, res: Response) {

@@ -66,7 +66,7 @@ export async function seed(knex: Knex): Promise<void> {
         ]);
     }
 
-    console.log('✅ Demo data seeded');
+    console.log(' Demo data seeded');
     console.log('Login: manager@chocoops.com / password123');
   });
 }

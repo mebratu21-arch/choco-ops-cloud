@@ -1,5 +1,5 @@
 import { db } from '../config/database.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 import { QcRepository } from '../repositories/qc.repository.js';
 import { QualityUpdateInput } from '../types/qc.types.js';
 import { NotFoundError } from '../utils/errors.js';

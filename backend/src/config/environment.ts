@@ -1,14 +1,23 @@
-import { z } from 'zod';
+import Joi from 'joi';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
-export const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.coerce.number().default(5000),
-  DATABASE_URL: z.string().url('DATABASE_URL must be a valid URL'),
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
-  JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
-  BCRYPT_ROUNDS: z.coerce.number().default(10),
+const schema = Joi.object({
+  PORT: Joi.number().default(5000),
+  NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+  DATABASE_URL: Joi.string().required(),
+  JWT_SECRET: Joi.string().min(32).required(),
+  GEMINI_API_KEY: Joi.string().required(),
+  REDIS_URL: Joi.string().default('redis://localhost:6379'),
+  FRONTEND_URL: Joi.string().uri().default('http://localhost:3000'),
+  LOG_LEVEL: Joi.string().valid('error', 'warn', 'info', 'debug').default('info'),
 });
 
-export const config = envSchema.parse(process.env);
+const { error, value } = schema.validate(process.env, { abortEarly: false, allowUnknown: true });
+
+if (error) {
+  throw new Error(`Environment validation failed:\n${error.details.map(d => `- ${d.message}`).join('\n')}`);
+}
+
+export const env = value;

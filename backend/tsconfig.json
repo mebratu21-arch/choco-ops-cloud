@@ -9,9 +9,10 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.test.ts"],
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules"],
   "typeRoots": ["./node_modules/@types", "./src/types"]
 }

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { RawMaterialRepository } from '../repositories/raw-material.repository.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 
 export class RawMaterialController {
   static async getAll(req: Request, res: Response, next: NextFunction) {

@@ -1,5 +1,5 @@
 import { db } from '../config/database.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 
 export class DashboardService {
   static async getStats() {
@@ -27,7 +27,7 @@ export class DashboardService {
         // Low Stock Count
         db('ingredients')
           .count('* as count')
-          .whereRaw('current_stock < minimum_stock')
+          .whereRaw('current_stock < optimal_stock')
           .whereNull('deleted_at')
           .first(),
 

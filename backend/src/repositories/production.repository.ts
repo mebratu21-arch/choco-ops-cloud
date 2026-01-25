@@ -1,77 +1,51 @@
 import { db } from '../config/database.js';
-import { Batch, ProductionBatch } from '../types/domain.types.js';
+import { Batch } from '../types/production.types.js';
 
 export class ProductionRepository {
-  // Batches
-  static async findAllBatches(): Promise<Batch[]> {
-    return db('batches')
+  static async getRecipeWithIngredients(recipeId: string, trx: any) {
+    return trx('recipe_ingredients')
+      .where({ recipe_id: recipeId })
+      .join('ingredients', 'recipe_ingredients.ingredient_id', 'ingredients.id')
+      .select(
+        'ingredients.id',
+        'ingredients.name',
+        'ingredients.current_stock',
+        'recipe_ingredients.quantity_per_batch',
+        'recipe_ingredients.unit',
+        'ingredients.cost_per_unit'  // for cost calc
+      )
+      .whereNull('ingredients.deleted_at')
+      .forUpdate();
+  }
+
+  static async createBatch(data: Partial<Batch>, trx: any): Promise<Batch> {
+    const [batch] = await trx('batches')
+      .insert({
+        ...data,
+        status: 'COMPLETED',
+        started_at: trx.fn.now(),
+        completed_at: trx.fn.now(),
+      })
+      .returning('*');
+    return batch;
+  }
+
+  static async insertBatchIngredient(batchId: string, ing: any, needed: number, trx: any) {
+    await trx('batch_ingredients').insert({
+      batch_id: batchId,
+      ingredient_id: ing.id,
+      quantity_used: needed,
+      unit: ing.unit,
+      cost_at_time: ing.cost_per_unit,
+    });
+  }
+
+  static async findAll(trx?: any): Promise<Batch[]> {
+    const connection = trx || db;
+    return connection('batches')
       .leftJoin('recipes', 'batches.recipe_id', 'recipes.id')
       .select('batches.*', 'recipes.name as recipe_name')
+      .whereNull('batches.deleted_at')
       .orderBy('batches.created_at', 'desc');
-  }
-
-  static async findBatchById(id: string): Promise<Batch | undefined> {
-    return db('batches')
-      .leftJoin('recipes', 'batches.recipe_id', 'recipes.id')
-      .select('batches.*', 'recipes.name as recipe_name')
-      .where('batches.id', id)
-      .first();
-  }
-
-  static async findBatchesByStatus(status: string): Promise<Batch[]> {
-    return db('batches')
-      .where({ status })
-      .orderBy('created_at', 'desc');
-  }
-
-  static async createBatch(data: Partial<Batch>): Promise<Batch> {
-    const [batch] = await db('batches')
-      .insert(data)
-      .returning('*');
-    return batch;
-  }
-
-  static async updateBatch(id: string, data: Partial<Batch>): Promise<Batch> {
-    const [batch] = await db('batches')
-      .where({ id })
-      .update({ ...data, updated_at: new Date() })
-      .returning('*');
-    return batch;
-  }
-
-  // Production Batches (line details)
-  static async findProductionBatches(batchId?: string): Promise<ProductionBatch[]> {
-    let query = db('production_batches')
-      .leftJoin('batches', 'production_batches.batch_id', 'batches.id')
-      .select('production_batches.*', 'batches.batch_number');
-    
-    if (batchId) {
-      query = query.where('production_batches.batch_id', batchId);
-    }
-    
-    return query.orderBy('production_batches.created_at', 'desc');
-  }
-
-  static async createProductionBatch(data: Partial<ProductionBatch>): Promise<ProductionBatch> {
-    const [pb] = await db('production_batches')
-      .insert(data)
-      .returning('*');
-    return pb;
-  }
-
-  static async updateProductionBatch(id: string, data: Partial<ProductionBatch>): Promise<ProductionBatch> {
-    const [pb] = await db('production_batches')
-      .where({ id })
-      .update({ ...data, updated_at: new Date() })
-      .returning('*');
-    return pb;
-  }
-
-  // Statistics
-  static async getBatchStats(): Promise<{ status: string; count: number }[]> {
-    return db('batches')
-      .select('status')
-      .count('* as count')
-      .groupBy('status');
   }
 }

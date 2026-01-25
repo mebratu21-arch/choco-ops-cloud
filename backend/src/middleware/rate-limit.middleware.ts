@@ -11,10 +11,9 @@ export const authLimiter = rateLimit({
 export const inventoryLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 min
   max: 10,
-  message: { success: false, error: 'Too many stock updates — wait 60s' },
+  message: { success: false, error: 'Too many stock updates - wait 60s' },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: any) => req.user?.id || req.ip, // prefer user ID
 });
 
 export const generalLimiter = rateLimit({

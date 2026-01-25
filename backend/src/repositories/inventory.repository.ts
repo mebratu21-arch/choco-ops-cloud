@@ -23,8 +23,9 @@ export class InventoryRepository {
     return query.orderBy('name');
   }
 
-  static async findLowStock(): Promise<Ingredient[]> {
-    return db('ingredients')
+  static async findLowStock(trx?: any): Promise<Ingredient[]> {
+    const connection = trx || db;
+    return connection('ingredients')
       .select(
         'id',
         'name',

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../utils/logger.js';
 
 export class AuthController {
   static async register(req: Request, res: Response, next: NextFunction) {

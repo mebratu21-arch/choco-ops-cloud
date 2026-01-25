@@ -4,13 +4,14 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
-import { config } from './config/environment.js';
-import { logger } from './config/logger.js';
+import { env } from './config/environment.js';
+import { logger } from './utils/logger.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { requestId } from './middleware/request-id.middleware.js';
 import { generalLimiter } from './middleware/rate-limit.middleware.js';
 import routes from './routes/index.js';
 import { db } from './config/database.js';
+import healthRoutes from './routes/health.routes.js';
 
 // Routes
 // Note: routes are already imported and mounted in ./routes/index.ts
@@ -31,7 +32,7 @@ app.use(helmet({
   },
 }));
 app.use(cors({
-  origin: config.NODE_ENV === 'production' 
+  origin: env.NODE_ENV === 'production' 
     ? 'https://your-frontend.com' 
     : 'http://localhost:3000',
   credentials: true,
@@ -52,28 +53,9 @@ app.use(requestId);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API Routes
+app.use('/health', healthRoutes);
 app.use('/api/v1', routes);
 
-// Health Check
-app.get('/health', async (req: Request, res: Response) => {
-  try {
-    await db.raw('SELECT 1');
-    res.json({
-      status: 'healthy',
-      database: 'connected',
-      timestamp: new Date().toISOString(),
-      environment: config.NODE_ENV,
-    });
-  } catch (error) {
-    logger.error('Health check failed', { error });
-    res.status(503).json({
-      status: 'unhealthy',
-      database: 'disconnected',
-      timestamp: new Date().toISOString(),
-      environment: config.NODE_ENV,
-    });
-  }
-});
 
 // 404 handler
 app.use((req: Request, res: Response) => {

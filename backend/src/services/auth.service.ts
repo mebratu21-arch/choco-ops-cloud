@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { db } from '../config/database.js';
-import { config } from '../config/environment.js';
-import { logger } from '../config/logger.js';
+import { env } from '../config/environment.js';
+import { logger } from '../utils/logger.js';
 import { UserRepository } from '../repositories/user.repository.js';
 import { 
   ILoginRequest, 
@@ -28,7 +28,7 @@ export class AuthService {
       throw new ConflictError('User with this email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, config.BCRYPT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(data.password, env.BCRYPT_ROUNDS);
 
     const user = await UserRepository.create({
       email: data.email,

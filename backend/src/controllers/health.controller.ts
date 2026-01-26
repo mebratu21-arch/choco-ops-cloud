@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { db } from '../config/database.js';
 import { redis } from '../config/redis.js';
-import { env } from '../config/environment.js';
-import { logger } from '../utils/logger.js';
+import { env } from '../config/env.js';
+import { logger } from '../config/logger.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { io } from '../config/socket.js';
 
@@ -98,5 +98,13 @@ export class HealthController {
       checks: allChecks,
       response_time_ms: Date.now() - start,
     });
+  }
+
+  static async health(req: Request, res: Response) { 
+    return HealthController.liveness(req, res); 
+  }
+
+  static async ready(req: Request, res: Response) { 
+    return HealthController.readiness(req, res); 
   }
 }

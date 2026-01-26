@@ -5,7 +5,7 @@
 
 import { db } from '../config/database.js';
 import { Knex } from 'knex';
-import { logger } from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 
 // ────────────────────────────────────────────
 // INTERFACES
@@ -369,14 +369,15 @@ export class SalesRepository {
   /**
    * Create online order with validation
    */
-  static async createOnlineOrder(input: OnlineOrderCreateInput): Promise<OnlineOrder> {
+  static async createOnlineOrder(input: OnlineOrderCreateInput, trx?: Knex.Transaction): Promise<OnlineOrder> {
     try {
+      const connection = trx || db;
       // Validate input
       SalesValidator.validateOnlineOrderInput(input);
 
       // Verify batch if provided
       if (input.batch_id) {
-        const batch = await db('ingredients')
+        const batch = await connection('batches')
           .where('id', input.batch_id)
           .whereNull('deleted_at')
           .first();
@@ -388,9 +389,9 @@ export class SalesRepository {
       }
 
       // Create order
-      const [order] = await db('online_orders')
+      const [order] = await connection('online_orders')
         .insert({
-          id: db.raw('gen_random_uuid()'),
+          id: connection.raw('gen_random_uuid()'),
           customer_email: input.customer_email.toLowerCase().trim(),
           customer_name: input.customer_name?.trim() || null,
           batch_id: input.batch_id || null,
@@ -399,9 +400,9 @@ export class SalesRepository {
           total_amount: input.total_amount,
           status: input.status || 'PENDING',
           notes: input.notes || null,
-          order_date: db.fn.now(),
-          created_at: db.fn.now(),
-          updated_at: db.fn.now(),
+          order_date: connection.fn.now(),
+          created_at: connection.fn.now(),
+          updated_at: connection.fn.now(),
         })
         .returning('*');
 
@@ -712,5 +713,20 @@ export class SalesRepository {
       .sum('final_amount as total')
       .first();
     return Number(result?.total || 0);
+  }
+
+  /**
+   * ✅ Get top selling products with recipe names
+   */
+  static async getTopSellingProductsWithRecipeNames(limit = 5) {
+    return db('employee_sales')
+      .join('batches', 'employee_sales.batch_id', 'batches.id')
+      .join('recipes', 'batches.recipe_id', 'recipes.id')
+      .select('recipes.name')
+      .sum('employee_sales.quantity_sold as total_qty')
+      .whereNull('employee_sales.deleted_at')
+      .groupBy('recipes.name')
+      .orderBy('total_qty', 'desc')
+      .limit(limit);
   }
 }

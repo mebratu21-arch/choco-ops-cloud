@@ -29,3 +29,32 @@ export const UpdateStockBodySchema = z.object({
     .default('MANUAL_ADJUSTMENT'),
   notes: z.string().max(500).optional(),
 });
+
+export const CreateIngredientSchema = z.object({
+  body: z.object({
+    name: z.string().min(1, 'Name is required'),
+    current_stock: z.number().min(0).default(0),
+    unit: z.string().min(1, 'Unit is required'),
+    minimum_stock: z.number().min(0).default(10),
+    optimal_stock: z.number().min(0).optional(),
+    supplier_id: z.string().uuid().optional(),
+    aisle: z.string().optional(),
+    shelf: z.string().optional(),
+    bin: z.string().optional(),
+  }),
+});
+
+export const UpdateIngredientSchema = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    minimum_stock: z.number().min(0).optional(),
+    optimal_stock: z.number().min(0).optional(),
+    supplier_id: z.string().uuid().optional(),
+    aisle: z.string().optional(),
+    shelf: z.string().optional(),
+    bin: z.string().optional(),
+  }),
+});
+
+export const update = UpdateIngredientSchema;
+export const create = CreateIngredientSchema;

@@ -5,9 +5,10 @@ import {
 } from '@google/generative-ai';
 import { redis } from '../config/redis.js';
 import { db } from '../config/database.js';
-import { logger } from '../utils/logger.js';
-import { env } from '../config/environment.js';
-import { io } from '../config/socket.js';
+import { logger } from '../config/logger.js';
+import { env } from '../config/env.js';
+import { getIO } from './realtime.service.js';
+import { createBreaker } from '../utils/circuit-breaker.js';
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY || '');
 
@@ -96,12 +97,13 @@ class ImageValidator {
   }
 }
 
-// ────────────────────────────────────────────
-// SERVICE CLASS
-// ────────────────────────────────────────────
+// ... image validation ends above ...
 
 export class AiService {
-  static async chat(
+  /**
+   * Internal raw chat method for circuit breaker
+   */
+  static async _rawChat(
     userMessage: string,
     context: {
       userId: string;
@@ -109,38 +111,30 @@ export class AiService {
       page?: string;
       images?: Array<{ base64: string; mimeType: string }>;
     }
-  ) {
-    if (!env.GEMINI_API_KEY) {
-      logger.error('AI error: Gemini API key missing');
-      return 'מצטער, AI זמנית לא זמין (מפתח API חסר)';
+  ): Promise<string> {
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      safetySettings: SAFETY_SETTINGS,
+    });
+
+    const cacheKey = `chat:${context.userId}:recent`;
+    let history: any[] = [];
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        history = JSON.parse(cached);
+      }
+    } catch (error) {
+      logger.warn('Corrupt chat history in Redis, resetting history', { userId: context.userId });
+      history = [];
     }
 
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
-        safetySettings: SAFETY_SETTINGS,
-      });
+    const recentHistory = history.slice(-HISTORY_MAX_MESSAGES);
+    const historyText = recentHistory
+      .map((m: any) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+      .join('\n\n');
 
-      const cacheKey = `chat:${context.userId}:recent`;
-      let history: any[] = [];
-      try {
-        const cached = await redis.get(cacheKey);
-        if (cached) {
-          history = JSON.parse(cached);
-        }
-      } catch (error) {
-        logger.warn('Corrupt chat history in Redis, resetting history', { userId: context.userId });
-        history = []; // Fallback to empty history so the chat still works
-      }
-
-      // Keep only recent history
-      const recentHistory = history.slice(-HISTORY_MAX_MESSAGES);
-
-      const historyText = recentHistory
-        .map((m: any) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
-        .join('\n\n');
-
-      const systemPrompt = `
+    const systemPrompt = `
 ${ROLE_PROMPTS[context.userRole] || ROLE_PROMPTS.MANAGER}
 
 Current Context:
@@ -153,48 +147,63 @@ ${historyText || '(No previous history)'}
 Your directive: Provide helpful, motivating, and expert advice. Respond naturally in the language used by the user.
 `;
 
-      const parts: any[] = [{ text: systemPrompt }, { text: `User: ${userMessage}` }];
+    const parts: any[] = [{ text: systemPrompt }, { text: `User: ${userMessage}` }];
 
-      if (context.images?.length) {
-        context.images.forEach(img => {
-          ImageValidator.validateImage(img);
-          parts.push({
-            inlineData: {
-              data: img.base64,
-              mimeType: img.mimeType
-            }
-          });
+    if (context.images?.length) {
+      context.images.forEach(img => {
+        ImageValidator.validateImage(img);
+        parts.push({
+          inlineData: {
+            data: img.base64,
+            mimeType: img.mimeType
+          }
         });
-      }
-
-      const result = await model.generateContent(parts);
-      const response = await result.response.text();
-
-      // Update Cache
-      history.push({ role: 'user', content: userMessage });
-      history.push({ role: 'assistant', content: response });
-      await redis.set(cacheKey, JSON.stringify(history), 'EX', CACHE_TTL_SECONDS);
-
-      // Persistent Log
-      await db('chat_history').insert({
-        user_id: context.userId,
-        user_message: userMessage,
-        ai_response: response,
       });
+    }
 
-      // Emit via Socket.IO
-      if (io) {
-        io.to(`user:${context.userId}`).emit('ai:chat', {
-          userMessage,
-          aiResponse: response,
-          role: context.userRole,
-        });
-      }
+    const result = await model.generateContent(parts);
+    const response = await result.response.text();
 
-      return response;
-    } catch (err: any) {
-      logger.error('AI chat failed', { error: err.message, userId: context.userId });
-      return 'מצטער, חלה שגיאה בתקשורת עם ה-AI. נסה שוב מאוחר יותר.';
+    // Update Cache
+    history.push({ role: 'user', content: userMessage });
+    history.push({ role: 'assistant', content: response });
+    await redis.set(cacheKey, JSON.stringify(history), 'EX', CACHE_TTL_SECONDS);
+
+    // Persistent Log
+    await db('chat_history').insert({
+      id: db.raw('gen_random_uuid()'),
+      user_id: context.userId,
+      user_message: userMessage,
+      ai_response: response,
+    });
+
+    const io = getIO();
+    if (io) {
+      io.to(`user:${context.userId}`).emit('ai:chat', {
+        userMessage,
+        aiResponse: response,
+        role: context.userRole,
+      });
+    }
+
+    return response;
+  }
+
+  // Circuit Breaker Instance
+  private static breaker = createBreaker(AiService._rawChat.bind(AiService), 'GeminiAI');
+
+  /**
+   * Public chat method with circuit breaker protection
+   */
+  static async chat(userMessage: string, context: any): Promise<string> {
+    if (!env.GEMINI_API_KEY) {
+      return 'שירות ה-AI כרגע לא זמין (מפתח API חסר).';
+    }
+
+    try {
+      return await AiService.breaker.fire(userMessage, context);
+    } catch (err) {
+      return 'שירות ה-AI כרגע לא זמין. נסה שוב מאוחר יותר.';
     }
   }
 }

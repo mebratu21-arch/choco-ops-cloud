@@ -1,77 +1,56 @@
 import { db } from '../config/database.js';
-import { logger } from '../utils/logger.js';
 import { InventoryRepository } from '../repositories/inventory.repository.js';
-import {
-  Ingredient,
-  InventoryFilters,
-  StockUpdateInput,
-  StockUpdateResult,
-  STOCK_UPDATE_REASONS,
-} from '../types/inventory.types.js';
-import { AppError, NotFoundError, ValidationError } from '../utils/errors.js';
+import { Audit } from '../utils/audit.js';
+import { logger } from '../config/logger.js';
+import { AppError } from '../utils/errors.js';
 
 export class InventoryService {
-  static async getAllStock(filters: InventoryFilters = {}): Promise<Ingredient[]> {
-    return InventoryRepository.findAll(filters);
-  }
+  /**
+   * Manual Stock Adjustment (Audit Mandatory)
+   */
+  static async adjustStock(userId: string, ingredientId: string, adjustment: number, reason: string) {
+    return await db.transaction(async (trx) => {
+      const ingredient = await trx('ingredients').where('id', ingredientId).forUpdate().first();
+      if (!ingredient) throw new AppError(404, 'Ingredient not found');
+      
+      const oldStock = Number(ingredient.current_stock);
+      const newStock = oldStock + adjustment;
 
-  static async getLowStock(): Promise<Ingredient[]> {
-    return InventoryRepository.findLowStock();
-  }
+      if (newStock < 0) throw new AppError(400, 'Adjustment would result in negative stock');
 
-  static async getExpiringSoon(days: number = 30): Promise<Ingredient[]> {
-    return InventoryRepository.findExpiringSoon(days);
-  }
+      const updated = await InventoryRepository.updateStock(ingredientId, newStock, trx);
 
-  static async getIngredientById(id: string): Promise<Ingredient> {
-    const item = await InventoryRepository.findById(id);
-    if (!item) throw new NotFoundError(`Ingredient ${id} not found`);
-    return item;
-  }
-
-  static async updateStock(input: StockUpdateInput, userId: string): Promise<StockUpdateResult> {
-    const { ingredient_id, quantity_change, reason = 'MANUAL_ADJUSTMENT', notes } = input;
-
-    if (!STOCK_UPDATE_REASONS.includes(reason)) {
-      throw new ValidationError(`Invalid reason. Allowed: ${STOCK_UPDATE_REASONS.join(', ')}`);
-    }
-
-    return db.transaction(async (trx) => {
-      // Pass trx to get locked/consistent read
-      const ingredient = await InventoryRepository.findById(ingredient_id, trx);
-      if (!ingredient) throw new NotFoundError('Ingredient not found');
-
-      const previousStock = Number(ingredient.current_stock);
-      const newStock = previousStock + quantity_change;
-
-      if (newStock < 0) {
-        throw new ValidationError(`Cannot reduce below zero (current: ${previousStock})`);
-      }
-
-      await InventoryRepository.updateStock(ingredient_id, newStock, trx);
-
-      // Audit log
-      await trx('audit_logs').insert({
-        user_id: userId,
-        action: quantity_change > 0 ? 'STOCK_ADDED' : 'STOCK_REMOVED',
-        resource: 'ingredients',
-        resource_id: ingredient_id,
-        old_values: { current_stock: previousStock },
-        new_values: { current_stock: newStock },
-        reason,
-        notes,
-      });
-
-      return {
-        ingredient_id,
-        previous_stock: previousStock,
+      await Audit.logAction(userId, 'STOCK_ADJUSTMENT', 'inventory', {
+        ingredient_id: ingredientId,
+        old_stock: oldStock,
         new_stock: newStock,
-        change: quantity_change,
-        reason,
-        notes,
-        updated_by: userId,
-        updated_at: new Date().toISOString(),
-      };
+        reason
+      }, trx);
+
+      logger.info(`Stock adjusted for ${ingredient.name}`, { adjustment, reason });
+      return updated;
     });
+  }
+
+  /**
+   * Dashboard intelligence
+   */
+  static async getDashboardMetrics() {
+    const lowStock = await InventoryRepository.getLowStock();
+    const expiring = await InventoryRepository.getExpiringSoon();
+    return { lowStock, expiring };
+  }
+
+  /**
+   * Standard reads
+   */
+  static async getAllIngredients() {
+      return await db('ingredients').whereNull('deleted_at').select('*');
+  }
+
+  static async createIngredient(data: any, userId: string) {
+      const ingredient = await InventoryRepository.createIngredient(data);
+      await Audit.logAction(userId, 'CREATE_INGREDIENT', 'inventory', { id: ingredient.id, name: ingredient.name });
+      return ingredient;
   }
 }

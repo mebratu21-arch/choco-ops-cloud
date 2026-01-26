@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { env } from './environment.js';
+import { env } from './env.js';
 
 export let io: Server;
 

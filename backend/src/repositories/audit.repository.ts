@@ -48,4 +48,13 @@ export class AuditRepository {
       .whereBetween('created_at', [startDate, endDate])
       .orderBy('created_at', 'desc');
   }
+
+  static async countOpenMechanicIssues(since: Date): Promise<number> {
+    const result = await db('audit_logs')
+      .count('* as count')
+      .where('action', 'MACHINE_FIX')
+      .where('created_at', '>=', since)
+      .first();
+    return Number(result?.count || 0);
+  }
 }

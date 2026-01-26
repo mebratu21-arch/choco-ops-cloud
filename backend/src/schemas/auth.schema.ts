@@ -17,8 +17,15 @@ export const LoginRequestSchema = z.object({
   }),
 });
 
-export const RefreshTokenSchema = z.object({
+const RefreshTokenSchema = z.object({
   body: z.object({
     refresh_token: z.string().min(1, 'Refresh token is required'),
-  }),
+    refreshToken: z.string().min(1).optional() // supporting both
+  }).transform(data => ({
+      refresh_token: data.refresh_token || data.refreshToken
+  })),
 });
+
+export const register = RegisterRequestSchema;
+export const login = LoginRequestSchema;
+export const refresh = RefreshTokenSchema;

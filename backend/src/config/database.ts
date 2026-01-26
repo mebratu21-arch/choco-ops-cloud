@@ -1,13 +1,27 @@
 import knex from 'knex';
-import { env } from './environment.js';
-import { logger } from '../utils/logger.js';
+import { env } from './env.js';
+import { logger } from '../config/logger.js';
 
 export const db = knex({
   client: 'pg',
   connection: env.DATABASE_URL,
-  pool: { min: 2, max: 10 },
+  pool: { 
+    min: 2, 
+    max: 10,
+    afterCreate: (conn: any, cb: any) => {
+        conn.on('error', (err: any) => {
+            logger.error('Database connection error in pool', { err });
+        });
+        cb(null, conn);
+    }
+  },
   migrations: { directory: './migrations', extension: 'ts' },
   searchPath: ['public'],
+});
+
+process.on('SIGTERM', async () => {
+    await db.destroy();
+    logger.info('Database connections closed via SIGTERM');
 });
 
 export const checkConnection = async () => {

@@ -162,7 +162,7 @@ export interface QualityControl {
   updated_at: Date;
 }
 
-export type QCStatus = 'PENDING' | 'PASSED' | 'FAILED' | 'REQUIRES_REVIEW';
+export type QCStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'QUARANTINE';
 
 export interface QualityCheck {
   id: string;

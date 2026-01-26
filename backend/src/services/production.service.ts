@@ -1,76 +1,67 @@
 import { db } from '../config/database.js';
-import { logger } from '../utils/logger.js';
 import { ProductionRepository } from '../repositories/production.repository.js';
-import { InventoryRepository } from '../repositories/inventory.repository.js';
-import { CreateBatchInput, Batch } from '../types/production.types.js';
-import { NotFoundError, ValidationError } from '../utils/errors.js';
+import { Audit } from '../utils/audit.js';
+import { AppError } from '../utils/errors.js';
+import { logger } from '../config/logger.js';
 
 export class ProductionService {
-  static async createBatch(input: CreateBatchInput, userId: string): Promise<Batch> {
-    return db.transaction(async (trx) => {
-      // 1. Get recipe + ingredients (locked)
-      const ingredients = await ProductionRepository.getRecipeWithIngredients(input.recipe_id, trx);
+  /**
+   * Create Batch with Automatic Ingredient Deduction
+   */
+  static async createBatch(input: { recipe_id: string; quantity_produced: number; produced_by: string }) {
+    return await db.transaction(async (trx) => {
+      // 1. Fetch the recipe and its required ingredients
+      const recipeIngredients = await trx('recipe_ingredients')
+        .where('recipe_id', input.recipe_id)
+        .select('ingredient_id', 'quantity as required_per_unit');
 
-      if (!ingredients.length) {
-        throw new NotFoundError('Recipe not found or has no ingredients');
+      if (!recipeIngredients.length) {
+        throw new AppError(400, 'Recipe has no ingredients defined');
       }
 
-      // 2. Check stock availability & Calculate Cost
-      let totalCost = 0;
-      for (const ing of ingredients) {
-        const needed = Number(ing.quantity_per_batch) * input.quantity_produced;
-        if (Number(ing.current_stock) < needed) {
-          throw new ValidationError(
-            `Insufficient ${ing.name}: need ${needed} ${ing.unit}, have ${ing.current_stock}`
+      // 2. Check and Deduct stock for each ingredient
+      for (const item of recipeIngredients) {
+        const totalNeeded = Number(item.required_per_unit) * input.quantity_produced;
+        
+        // Lock the row for update to prevent race conditions
+        const ingredient = await trx('ingredients')
+          .where('id', item.ingredient_id)
+          .forUpdate()
+          .first();
+
+        if (!ingredient || Number(ingredient.current_stock) < totalNeeded) {
+          throw new AppError(
+            400, 
+            `Insufficient stock for ${ingredient?.name || 'ingredient'}. Need ${totalNeeded}, have ${ingredient?.current_stock || 0}`
           );
         }
-        
-        // Deduct stock (update inventory)
-        await InventoryRepository.updateStock(ing.id, Number(ing.current_stock) - needed, trx);
-        
-        // Calculate cost
-        totalCost += needed * Number(ing.cost_per_unit || 0);
+
+        // Deduct the stock
+        await trx('ingredients')
+          .where('id', item.ingredient_id)
+          .decrement('current_stock', totalNeeded);
       }
 
-      // 3. Create batch
-      const batch = await ProductionRepository.createBatch(
-        {
-          recipe_id: input.recipe_id,
-          quantity_produced: input.quantity_produced,
-          produced_by: userId,
-          created_by: userId,
-          notes: input.notes,
-          actual_cost: totalCost,
-        },
-        trx
-      );
+      // 3. Create the Production Batch
+      const batch = await ProductionRepository.createBatch(input, trx);
 
-      // 4. Traceability: Insert batch_ingredients
-      for (const ing of ingredients) {
-        const needed = Number(ing.quantity_per_batch) * input.quantity_produced;
-        await ProductionRepository.insertBatchIngredient(batch.id, ing, needed, trx);
-      }
+      // 4. Audit Log
+      await Audit.logAction(input.produced_by, 'CREATE_BATCH', 'production', {
+        batch_id: batch.id,
+        recipe_id: input.recipe_id,
+        quantity: input.quantity_produced
+      }, trx);
 
-      // 5. Audit log
-      await trx('audit_logs').insert({
-        user_id: userId,
-        action: 'BATCH_CREATED',
-        resource: 'batches',
-        resource_id: batch.id,
-        new_values: { 
-          recipe_id: input.recipe_id, 
-          quantity: input.quantity_produced,
-          cost: totalCost
-        },
-      });
-
-      logger.info('Batch created successfully', { batchId: batch.id, userId, totalCost });
-
+      logger.info('Batch created and ingredients deducted', { batchId: batch.id });
       return batch;
     });
   }
 
-  static async getBatches(): Promise<Batch[]> {
-    return ProductionRepository.findAll();
+  /**
+   * Simple read with repo
+   */
+  static async getBatches(status?: string) {
+      // Assuming a generic findAll exists or adding one to match user request
+      return await db('batches').whereNull('deleted_at').orderBy('created_at', 'desc');
   }
 }

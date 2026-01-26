@@ -1,34 +1,26 @@
-import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerJsdoc from 'swagger-jsdoc';
+import { env } from './env.js';
 
-const options = {
+const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'ChocoOps Cloud API',
+      title: 'Production Management API',
       version: '1.0.0',
-      description: 'Full-stack ERP for chocolate manufacturing - inventory, production, sales, quality, maintenance.',
-      contact: { name: 'Mebratu Mengstu' },
-    },
-    servers: [
-      { url: 'http://localhost:5000', description: 'Development' },
-      // Add production URL later
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
+      description: 'API for managing production, inventory, QC, and sales',
+      contact: {
+        name: 'API Support',
+        email: 'support@example.com',
       },
     },
-    security: [{ bearerAuth: [] }],
+    servers: [
+      {
+        url: `http://localhost:${env.PORT}/api/v1`,
+        description: 'Development server',
+      },
+    ],
   },
-  apis: [
-    './src/routes/v1/*.ts', // Updated path to match structure
-    './src/controllers/*.ts',
-    './src/schemas/*.ts',
-  ],
+  apis: ['./src/routes/**/*.ts', './src/docs/*.yaml'], // Standard location for route annotations
 };
 
-export const swaggerSpec = swaggerJSDoc(options);
+export const swaggerSpec = swaggerJsdoc(options);

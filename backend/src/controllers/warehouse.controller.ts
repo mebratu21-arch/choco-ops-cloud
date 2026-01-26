@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { WarehouseRepository } from '../repositories/warehouse.repository.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 
 export class WarehouseController {
   // Stock

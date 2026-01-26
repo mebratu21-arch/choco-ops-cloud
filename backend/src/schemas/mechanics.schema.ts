@@ -5,3 +5,13 @@ export const MachineFixSchema = z.object({
   batch_id: z.string().uuid().optional(),
   notes: z.string().max(500).optional(),
 });
+
+export const CreateMaintenanceSchema = MachineFixSchema;
+
+export const create = z.object({
+  body: MachineFixSchema
+});
+
+export const update = z.object({
+  body: MachineFixSchema.partial()
+});

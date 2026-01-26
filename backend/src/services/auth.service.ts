@@ -1,157 +1,98 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 import { db } from '../config/database.js';
-import { env } from '../config/environment.js';
-import { logger } from '../utils/logger.js';
-import { UserRepository } from '../repositories/user.repository.js';
-import { 
-  ILoginRequest, 
-  IRegisterRequest, 
-  IAuthResponse, 
-  IJwtPayload 
-} from '../types/auth.types.js';
-import { 
-  UnauthorizedError, 
-  ConflictError,
-} from '../utils/errors.js';
-import { 
-  generateAccessToken, 
-  generateRefreshToken, 
-  hashToken,
-  verifyRefreshToken
-} from '../utils/jwt.js';
+import { env } from '../config/env.js';
+import { JWTPayload, User } from '../types/index.js';
+import { Audit } from '../utils/audit.js';
 
 export class AuthService {
-  static async register(data: IRegisterRequest): Promise<IAuthResponse> {
-    const existingUser = await UserRepository.findByEmail(data.email);
-    if (existingUser) {
-      logger.warn('Registration attempt with existing email', { email: data.email });
-      throw new ConflictError('User with this email already exists');
-    }
+  /**
+   * Register a new user with transaction and audit logging
+   */
+  static async register(input: { email: string; password_hash: string; role?: string; name?: string }, ipAddress?: string, userAgent?: string) {
+    return await db.transaction(async (trx) => {
+      // 1. Create user
+      const [user] = await trx('users')
+        .insert({
+          id: uuidv4(),
+          email: input.email,
+          password: input.password_hash,
+          role: input.role || 'OPERATOR',
+          name: input.name || null,
+          is_active: true,
+          created_at: trx.fn.now(),
+          updated_at: trx.fn.now(),
+        })
+        .returning(['id', 'email', 'role', 'name']);
 
-    const hashedPassword = await bcrypt.hash(data.password, env.BCRYPT_ROUNDS);
-
-    const user = await UserRepository.create({
-      email: data.email,
-      name: data.name,
-      role: data.role,
-      password_hash: hashedPassword,
-    });
-
-    logger.info('User registered successfully', { userId: user.id, email: user.email });
-
-    const payload: IJwtPayload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
-
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
-    const hashedRefreshToken = await hashToken(refreshToken);
-
-    await db('refresh_tokens').insert({
-      user_id: user.id,
-      hashed_token: hashedRefreshToken,
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    });
-
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
+      // 2. Audit log
+      await Audit.logAction(user.id, 'USER_REGISTERED', 'users', { 
+        email: user.email, 
         role: user.role,
-        is_active: user.is_active,
-        created_at: user.created_at,
-        updated_at: user.updated_at
-      },
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    };
-  }
+        ip: ipAddress,
+        userAgent
+      }, trx);
 
-  static async login(data: ILoginRequest): Promise<IAuthResponse> {
-    const user = await UserRepository.findByEmail(data.email);
-    if (!user || !user.is_active) {
-      logger.warn('Login attempt with invalid credentials', { email: data.email });
-      throw new UnauthorizedError('Invalid credentials');
-    }
-
-    const isValidPassword = await bcrypt.compare(data.password, user.password_hash);
-    if (!isValidPassword) {
-      logger.warn('Login failed - wrong password', { userId: user.id });
-      throw new UnauthorizedError('Invalid credentials');
-    }
-
-    const payload: IJwtPayload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
-
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
-    const hashedRefreshToken = await hashToken(refreshToken);
-
-    await db('refresh_tokens').insert({
-      user_id: user.id,
-      hashed_token: hashedRefreshToken,
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      return user;
     });
-
-    await UserRepository.updateLastLogin(user.id);
-
-    logger.info('User logged in successfully', { userId: user.id });
-
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        is_active: user.is_active,
-        created_at: user.created_at,
-        updated_at: user.updated_at
-      },
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    };
   }
 
-  static async logout(userId: string): Promise<void> {
-    await db('refresh_tokens')
-      .where({ user_id: userId })
-      .del();
-    
-    logger.info('User logged out', { userId });
+  static async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, parseInt(env.BCRYPT_ROUNDS || '10'));
   }
 
-  static async refreshTokens(refreshToken: string): Promise<{ access_token: string }> {
-    const payload = verifyRefreshToken(refreshToken);
-    const user = await UserRepository.findById(payload.id);
-    
-    if (!user || !user.is_active) {
-      throw new UnauthorizedError('Invalid refresh token');
-    }
+  static async verifyPassword(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
 
-    const storedToken = await db('refresh_tokens')
-      .where({ user_id: user.id })
+  static generateAccessToken(payload: JWTPayload): string {
+    return jwt.sign({ ...payload }, env.JWT_SECRET, {
+      expiresIn: env.JWT_EXPIRES_IN as any,
+    });
+  }
+
+  static generateRefreshToken(): string {
+    return uuidv4();
+  }
+
+  static verifyAccessToken(token: string): JWTPayload {
+    return jwt.verify(token, env.JWT_SECRET) as JWTPayload;
+  }
+
+  static async saveRefreshToken(userId: string, token: string, trx?: any): Promise<void> {
+    const connection = trx || db;
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); 
+    
+    await connection('refresh_tokens').insert({
+      id: uuidv4(),
+      token,
+      user_id: userId,
+      expires_at: expiresAt,
+    });
+  }
+
+  static async validateRefreshToken(token: string): Promise<User | null> {
+    const refreshToken = await db('refresh_tokens')
+      .where({ token })
+      .andWhere('expires_at', '>', new Date())
       .first();
-    
-    if (!storedToken) {
-      throw new UnauthorizedError('Refresh token revoked');
-    }
 
-    const newPayload: IJwtPayload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
+    if (!refreshToken) return null;
 
-    const newAccessToken = generateAccessToken(newPayload);
+    const user = await db('users')
+      .where({ id: refreshToken.user_id, is_active: true })
+      .first();
 
-    logger.info('Tokens refreshed', { userId: user.id });
+    return user || null;
+  }
 
-    return { access_token: newAccessToken };
+  static async revokeRefreshToken(token: string): Promise<void> {
+    await db('refresh_tokens').where({ token }).delete();
+  }
+
+  static async revokeAllUserTokens(userId: string): Promise<void> {
+    await db('refresh_tokens').where({ user_id: userId }).delete();
   }
 }

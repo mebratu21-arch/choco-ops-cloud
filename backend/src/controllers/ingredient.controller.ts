@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { InventoryRepository } from '../repositories/inventory.repository.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 
 export class IngredientController {
   static async getAll(req: Request, res: Response, next: NextFunction) {

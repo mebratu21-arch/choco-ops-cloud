@@ -1,72 +1,62 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from './config/swagger.js';
-import { env } from './config/environment.js';
-import { logger } from './utils/logger.js';
+// @ts-ignore
+import morgan from 'morgan';
 import { errorHandler } from './middleware/error.middleware.js';
-import { requestId } from './middleware/request-id.middleware.js';
-import { generalLimiter } from './middleware/rate-limit.middleware.js';
-import routes from './routes/index.js';
-import { db } from './config/database.js';
-import healthRoutes from './routes/health.routes.js';
+import { metricsMiddleware, metricsEndpoint } from './middleware/metrics.middleware.js';
+import { rateLimiter } from './middleware/rate-limit.middleware.js';
+import { features } from './config/features.js';
 
-// Routes
-// Note: routes are already imported and mounted in ./routes/index.ts
-// including dashboard routes which we need to add to index.ts first
+import authRoutes from './routes/auth.routes.js';
+import inventoryRoutes from './routes/inventory.routes.js';
+import productionRoutes from './routes/production.routes.js';
+import mechanicsRoutes from './routes/mechanics.routes.js';
+import qcRoutes from './routes/qc.routes.js';
+import salesRoutes from './routes/sales.routes.js';
+import healthRoutes from './routes/health.routes.js';
+import aiRoutes from './routes/ai.routes.js';
 
 const app = express();
 
-// Security
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
-    },
-  },
-}));
+/**
+ * 1. Global Middleware
+ */
+app.use(helmet());
 app.use(cors({
-  origin: env.NODE_ENV === 'production' 
-    ? 'https://your-frontend.com' 
-    : 'http://localhost:3000',
-  credentials: true,
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
 }));
+app.use(morgan('dev'));
+app.use(express.json());
 
-// Parsing
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-app.use(cookieParser());
+/**
+ * 2. Operational Metrics
+ */
+app.use(metricsMiddleware);
+app.get('/metrics', metricsEndpoint);
 
-// Rate limiting
-app.use(generalLimiter);
+/**
+ * 3. Mount API Routes
+ */
+app.use('/api/auth', authRoutes);
+app.use('/api/inventory', rateLimiter, inventoryRoutes);
+app.use('/api/production', rateLimiter, productionRoutes);
+app.use('/api/mechanics', rateLimiter, mechanicsRoutes);
+app.use('/api/qc', rateLimiter, qcRoutes);
+app.use('/api/sales', rateLimiter, salesRoutes);
+app.use('/api/health', healthRoutes);
 
-// Request tracking
-app.use(requestId);
+/**
+ * 4. Feature Flagged Routes (AI)
+ */
+if (features.AI_CHATBOT) {
+    app.use('/api/ai', rateLimiter, aiRoutes);
+}
 
-// Swagger Docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// API Routes
-app.use('/health', healthRoutes);
-app.use('/api/v1', routes);
-
-
-// 404 handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    success: false,
-    error: 'Route not found',
-    path: req.path,
-  });
-});
-
-// Global error handler
+/**
+ * 5. Error Handling (Bottom Level)
+ */
 app.use(errorHandler);
 
 export default app;

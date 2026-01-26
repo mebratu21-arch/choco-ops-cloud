@@ -1,38 +1,40 @@
 import { db } from '../config/database.js';
-import { logger } from '../utils/logger.js';
-import { QcRepository } from '../repositories/qc.repository.js';
-import { QualityUpdateInput } from '../types/qc.types.js';
-import { NotFoundError } from '../utils/errors.js';
+import { logger } from '../config/logger.js';
+import { Audit } from '../utils/audit.js';
 
 export class QcService {
-  static async updateBatch(input: QualityUpdateInput, userId: string) {
+  static async createCheck(input: any, userId?: string) {
     return db.transaction(async (trx) => {
-      const [batch] = await QcRepository.updateBatch(input.batch_id, {
-        status: input.status,
-        notes: input.notes,
-      }, trx);
+      // Create quality check record
+      const [check] = await trx('quality_checks')
+        .insert({
+          id: db.raw('gen_random_uuid()'),
+          batch_id: input.batch_id,
+          checked_by: userId || input.checked_by,
+          final_status: input.status || input.final_status,
+          notes: input.notes,
+          created_at: db.fn.now(),
+          updated_at: db.fn.now(),
+        })
+        .returning('*');
 
-      if (!batch) throw new NotFoundError('Batch not found');
+      // Update batch status if needed
+      if (input.status || input.final_status) {
+        const finalStatus = input.status || input.final_status;
+        const batchStatus = finalStatus === 'APPROVED' ? 'COMPLETED' : 'FAILED';
+        await trx('batches')
+          .where({ id: input.batch_id })
+          .update({
+            status: batchStatus,
+            updated_at: trx.fn.now(),
+          });
+      }
 
-      await trx('quality_checks').insert({
-        batch_id: input.batch_id,
-        checked_by: userId,
-        final_status: input.status,
-        defect_count: input.defect_count,
-        notes: input.notes,
-      });
+      // Audit log
+      await Audit.logAction(userId, 'CREATE_QC_CHECK', 'qc', { checkId: check.id, batchId: input.batch_id }, trx);
 
-      await trx('audit_logs').insert({
-        user_id: userId,
-        action: 'BATCH_QC_UPDATED',
-        resource: 'batches',
-        resource_id: input.batch_id,
-        new_values: JSON.stringify({ status: input.status }), // Ensure JSON stringify for consistency often required by jsonb/text fields
-      });
-
-      logger.info('Batch QC updated', { batchId: input.batch_id, userId });
-
-      return batch;
+      logger.info('QC Check created', { batchId: input.batch_id, userId });
+      return check;
     });
   }
 }

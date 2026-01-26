@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { env } from '../config/environment.js';
+import { env } from '../config/env.js';
 import { IJwtPayload } from '../types/auth.types.js';
 
 const ACCESS_TOKEN_EXPIRY = '15m';

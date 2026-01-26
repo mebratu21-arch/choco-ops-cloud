@@ -1,22 +1,28 @@
 import { db } from '../config/database.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 import { MechanicsRepository } from '../repositories/mechanics.repository.js';
 import { MachineFixInput } from '../types/mechanics.types.js';
+import { Audit } from '../utils/audit.js';
 
 export class MechanicsService {
-  static async logFix(input: MachineFixInput, userId: string) {
+  static async logFix(input: any, userId?: string) {
     return db.transaction(async (trx) => {
-      await MechanicsRepository.logFix({
-        user_id: userId,
-        action: 'MACHINE_FIX',
-        resource: 'machines',
-        resource_id: input.batch_id || null, // Ensure null if undefined
-        new_values: JSON.stringify({ description: input.description, notes: input.notes }),
+      const fix = await MechanicsRepository.logFix({
+        machine_id: input.machine_id || input.batch_id || 'UNKNOWN',
+        description: input.description,
+        fixed_by: userId || 'SYSTEM',
+        // notes: input.notes // added notes to repo if needed
       }, trx);
 
-      logger.info('Machine fix logged', { userId });
+      // Audit log
+      await Audit.logAction(userId, 'LOG_MACHINE_FIX', 'mechanics', { 
+          fixId: fix.id, 
+          machineId: fix.equipment_id,
+          description: input.description 
+      }, trx);
 
-      return { success: true };
+      logger.info('Machine fix logged', { userId, fixId: fix.id });
+      return { success: true, data: fix };
     });
   }
 }

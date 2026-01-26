@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { db } from '../config/database.js';
 import bcrypt from 'bcryptjs';
-import { logger } from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 
 export class UserController {
   static async getAll(req: Request, res: Response, next: NextFunction) {

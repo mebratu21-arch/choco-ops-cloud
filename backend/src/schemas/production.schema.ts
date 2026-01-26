@@ -24,3 +24,11 @@ export const UpdateBatchBodySchema = z.object({
   actual_cost: z.number().min(0).optional(),
   notes: z.string().max(1000).optional(),
 });
+
+export const create = z.object({
+  body: CreateBatchBodySchema
+});
+
+export const update = z.object({
+  body: UpdateBatchBodySchema
+});

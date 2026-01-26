@@ -37,7 +37,7 @@ describe('ProductionRepository', () => {
         created_by: mgr.id,
       };
 
-      const batch = await ProductionRepository.createBatch(input, trx);
+      const batch = await ProductionRepository.create(input, trx);
 
       expect(batch.status).toBe('COMPLETED');
       expect(Number(batch.quantity_produced)).toBe(500);
@@ -54,11 +54,11 @@ describe('ProductionRepository', () => {
         created_at: new Date(), updated_at: new Date()
       }).returning('*');
 
-      await ProductionRepository.createBatch({ 
+      await ProductionRepository.create({ 
         recipe_id: recipe.id, quantity_produced: 100, produced_by: prod.id, created_by: mgr.id 
       }, trx);
 
-      const batches = await ProductionRepository.findAll(trx);
+      const batches = await ProductionRepository.findAll({}, trx);
       expect(batches.length).toBeGreaterThan(0);
     });
   });

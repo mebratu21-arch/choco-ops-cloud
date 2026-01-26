@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { QualityRepository } from '../repositories/quality.repository.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 
 export class QualityController {
   static async getAllControls(req: Request, res: Response, next: NextFunction) {
@@ -96,4 +96,15 @@ export class QualityController {
       next(error);
     }
   }
+
+  // Aliases for Routes
+  static async listRecords(req: Request, res: Response, next: NextFunction) {
+    return QualityController.getAllControls(req, res, next);
+  }
+
+  static async createRecord(req: Request, res: Response, next: NextFunction) {
+    return QualityController.createControl(req, res, next);
+  }
 }
+
+export const QcController = QualityController;

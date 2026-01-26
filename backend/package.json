@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
     "test": "jest --config .config/jest.config.ts --detectOpenHandles --forceExit",
     "test:watch": "jest --config .config/jest.config.ts --watch",
     "migrate": "knex migrate:latest --knexfile .config/knexfile.ts",
@@ -20,6 +20,7 @@
     "tsc:check": "tsc --noEmit"
   },
   "keywords": [
+    "backend",
     "chocolate",
     "manufacturing",
     "operations",
@@ -42,11 +43,14 @@
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "pg": "^8.11.3",
+    "prom-client": "^15.1.3",
     "socket.io": "^4.8.3",
+    "opossum": "^8.1.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^13.0.0",
     "winston": "^3.19.0",
+    "morgan": "^1.10.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -59,6 +63,8 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.19.30",
     "@types/pg": "^8.10.9",
+    "@types/morgan": "^1.9.9",
+    "@types/prom-client": "^6.1.0",
     "@types/socket.io": "^3.0.1",
     "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",

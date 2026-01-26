@@ -1,80 +1,70 @@
 import { Request, Response } from 'express';
 import { InventoryService } from '../services/inventory.service.js';
-import { logger } from '../utils/logger.js';
-import { AppError } from '../utils/errors.js';
 
 export class InventoryController {
-  static async getAllStock(req: Request, res: Response) {
-    try {
-      const filters = {
-        low_stock_only: req.query.low_stock_only === 'true',
-        expiring_soon_days: req.query.expiring_soon_days ? Number(req.query.expiring_soon_days) : undefined,
-        supplier_id: req.query.supplier_id as string,
-        aisle: req.query.aisle as string,
-        shelf: req.query.shelf as string,
-        bin: req.query.bin as string,
-      };
-
-      const stock = await InventoryService.getAllStock(filters);
-      res.json({ success: true, count: stock.length, data: stock });
-    } catch (err) {
-      logger.error('getAllStock failed', { error: (err as Error).message });
-      res.status(500).json({ success: false, error: 'Failed to fetch inventory' });
-    }
+  static async getAll(req: Request, res: Response) {
+      const items = await InventoryService.getAllIngredients();
+      res.json({ success: true, data: items });
   }
 
-  static async getLowStock(req: Request, res: Response) {
-    try {
-      const items = await InventoryService.getLowStock();
-      res.json({ success: true, count: items.length, data: items });
-    } catch (err) {
-      res.status(500).json({ success: false, error: 'Failed to fetch low stock' });
-    }
+  static async createIngredient(req: Request, res: Response) {
+    const item = await InventoryService.createIngredient(req.body, req.user!.id);
+    res.status(201).json({ success: true, data: item });
+  }
+
+  static async create(req: Request, res: Response) {
+      return InventoryController.createIngredient(req, res);
   }
 
   static async getExpiringSoon(req: Request, res: Response) {
-    try {
-      const days = Number(req.query.days) || 30;
-      const items = await InventoryService.getExpiringSoon(days);
-      res.json({ success: true, count: items.length, days, data: items });
-    } catch (err) {
-      res.status(500).json({ success: false, error: 'Failed to fetch expiring items' });
-    }
+    const metrics = await InventoryService.getDashboardMetrics();
+    res.json({ success: true, data: metrics.expiring });
   }
 
-  static async getIngredient(req: Request, res: Response) {
-    try {
+  /**
+   * Manual Stock Adjustment (Audit Mandatory)
+   */
+  static async adjustStock(req: Request, res: Response) {
       const { id } = req.params;
-      const item = await InventoryService.getIngredientById(id);
-      res.json({ success: true, data: item });
-    } catch (err: any) {
-      res.status(err.statusCode || 500).json({
-        success: false,
-        error: err.message || 'Failed to fetch ingredient',
-      });
-    }
+      const { adjustment, reason } = req.body;
+      const result = await InventoryService.adjustStock(req.user!.id, id, adjustment, reason);
+      res.json({ success: true, data: result });
   }
 
-  static async updateStock(req: Request & { user?: any }, res: Response) {
-    try {
-      const input = req.body;
-      // Fixed: use req.user.id (common JWT payload)
-      const userId = req.user?.id;
+  static async addStock(req: Request, res: Response) {
+    const { id } = req.params;
+    const { quantity } = req.body; 
+    // Forwarding to adjustStock for logic reuse
+    const result = await InventoryService.adjustStock(req.user!.id, id, quantity, 'Incoming stock addition');
+    res.json({ success: true, data: result });
+  }
 
-      if (!userId) throw new AppError('Not authenticated', 401);
+  static async getLowStock(req: Request, res: Response) {
+    const metrics = await InventoryService.getDashboardMetrics();
+    res.json({ success: true, data: metrics.lowStock });
+  }
 
-      const result = await InventoryService.updateStock(input, userId);
-
-      res.json({
-        success: true,
-        message: 'Stock updated',
-        data: result,
-      });
-    } catch (err: any) {
-      res.status(err.statusCode || 400).json({
-        success: false,
-        error: err.message || 'Failed to update stock',
-      });
+  static async updateStock(req: Request, res: Response) {
+    const { id } = req.params;
+    const { current_stock, reason } = req.body;
+    
+    // Calculate adjustment based on current value
+    const ingredients = await InventoryService.getAllIngredients();
+    const target = ingredients.find(i => i.id === id);
+    if (!target) {
+        res.status(404).json({ success: false, error: 'Ingredient not found' });
+        return;
     }
+
+    const adjustment = Number(current_stock) - Number(target.current_stock);
+    
+    const updated = await InventoryService.adjustStock(
+        req.user!.id, 
+        id, 
+        adjustment, 
+        reason || `Manual stock override from ${target.current_stock} to ${current_stock}`
+    );
+
+    res.json({ success: true, data: updated });
   }
 }

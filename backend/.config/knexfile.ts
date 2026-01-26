@@ -1,4 +1,4 @@
-import { env } from '../src/config/environment.js';
+import { env } from '../src/config/env.js';
 
 console.log('Knexfile: env loaded');
 console.log('DATABASE_URL:', env.DATABASE_URL ? 'PRESENT' : 'MISSING');
@@ -8,11 +8,11 @@ export default {
     client: 'pg',
     connection: env.DATABASE_URL,
     migrations: {
-      directory: '../migrations',
+      directory: '../src/db/migrations',
       extension: 'ts',
     },
     seeds: {
-      directory: '../seeds',
+      directory: '../src/db/seeds',
     },
   },
   production: {
@@ -20,8 +20,11 @@ export default {
     connection: env.DATABASE_URL,
     pool: { min: 2, max: 10 },
     migrations: {
-      directory: '../migrations',
+      directory: '../src/db/migrations',
       extension: 'ts',
+    },
+    seeds: {
+      directory: '../src/db/seeds',
     },
   },
 };

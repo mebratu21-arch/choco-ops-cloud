@@ -71,12 +71,63 @@ export class InventoryRepository {
     return row;
   }
 
-  static async updateStock(id: string, newStock: number, trx: any): Promise<void> {
-    await trx('ingredients')
-      .where({ id })
-      .update({
-        current_stock: newStock,
-        updated_at: trx.fn.now(),
-      });
+  static async getLowStock(): Promise<Ingredient[]> {
+    return db('ingredients')
+      .whereRaw('current_stock <= minimum_stock')
+      .orderBy('current_stock', 'asc')
+      .whereNull('deleted_at');
+  }
+
+  static async getExpiringSoon(): Promise<Ingredient[]> {
+    return db('ingredients')
+      .whereNotNull('expiry_date')
+      .whereRaw('expiry_date <= NOW() + INTERVAL \'7 days\'')
+      .orderBy('expiry_date', 'asc')
+      .whereNull('deleted_at');
+  }
+
+  static async updateStock(id: string, newStock: number, trx?: any): Promise<Ingredient | undefined> {
+    const connection = trx || db;
+    const [row] = await connection('ingredients')
+      .where('id', id)
+      .update({ current_stock: newStock, updated_at: connection.fn.now() })
+      .returning('*');
+    return row;
+  }
+
+  static async countLowStock(): Promise<number> {
+    const result = await db('ingredients')
+      .count('* as count')
+      .whereRaw('current_stock < minimum_stock')
+      .whereNull('deleted_at')
+      .first();
+    return Number(result?.count || 0);
+  }
+
+  static async create(data: any): Promise<Ingredient> {
+    const [ingredient] = await db('ingredients')
+      .insert({
+        id: db.raw('gen_random_uuid()'),
+        ...data,
+        created_at: db.fn.now(),
+        updated_at: db.fn.now(),
+      })
+      .returning('*');
+    return ingredient;
+  }
+
+  static async createIngredient(input: { name: string; current_stock: number; minimum_stock: number; unit: string }): Promise<Ingredient> {
+    const [row] = await db('ingredients')
+      .insert({
+        id: db.raw('gen_random_uuid()'),
+        name: input.name,
+        current_stock: input.current_stock,
+        minimum_stock: input.minimum_stock,
+        unit: input.unit,
+        created_at: db.fn.now(),
+        updated_at: db.fn.now(),
+      })
+      .returning('*');
+    return row;
   }
 }

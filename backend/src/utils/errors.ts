@@ -1,47 +1,39 @@
-export class AppError extends Error {
-  public statusCode: number;
-  public isOperational: boolean;
+import { AppError } from '../middleware/error.middleware.js';
 
-  constructor(message: string, statusCode: number, isOperational = true) {
-    super(message);
-    this.statusCode = statusCode;
-    this.isOperational = isOperational;
-    Object.setPrototypeOf(this, AppError.prototype);
-  }
-}
+export { AppError };
 
 export class ValidationError extends AppError {
   constructor(message: string) {
-    super(message, 400);
+    super(400, message);
   }
 }
 
 export class UnauthorizedError extends AppError {
   constructor(message = 'Unauthorized') {
-    super(message, 401);
+    super(401, message);
   }
 }
 
 export class ForbiddenError extends AppError {
   constructor(message = 'Forbidden') {
-    super(message, 403);
+    super(403, message);
   }
 }
 
 export class NotFoundError extends AppError {
   constructor(message = 'Resource not found') {
-    super(message, 404);
+    super(404, message);
   }
 }
 
 export class ConflictError extends AppError {
   constructor(message = 'Resource already exists') {
-    super(message, 409);
+    super(409, message);
   }
 }
 
 export class TooManyRequestsError extends AppError {
   constructor(message = 'Too many requests') {
-    super(message, 429);
+    super(429, message);
   }
 }

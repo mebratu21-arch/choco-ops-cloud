@@ -1,6 +1,6 @@
 import { db, disconnectDB } from '../../src/config/database.js';
-import { AlertRepository } from '../../src/repositories/alert.repository.js';
-import { UserRepository } from '../../src/repositories/user.repository.js';
+import { AlertRepository } from '../../src/repositories/system/alert.repository.js';
+import { UserRepository } from '../../src/repositories/identity/user.repository.js';
 
 describe('AlertRepository', () => {
   let trx: any;

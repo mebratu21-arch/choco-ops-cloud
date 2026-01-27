@@ -1,5 +1,5 @@
 import { db, disconnectDB } from '../../src/config/database.js';
-import { InventoryRepository } from '../../src/repositories/inventory.repository.js';
+import { InventoryRepository } from '../../src/repositories/inventory/inventory.repository.js';
 
 describe('InventoryRepository', () => {
   let trx: any;

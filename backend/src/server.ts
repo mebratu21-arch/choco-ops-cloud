@@ -4,7 +4,7 @@ import { env } from './config/env.js';
 import { db } from './config/database.js';
 import { redis } from './config/redis.js';
 import { logger } from './config/logger.js';
-import { setupRealtime } from './services/realtime.service.js';
+import { setupRealtime } from './services/system/realtime.service.js';
 
 /**
  * 1. Create HTTP Server

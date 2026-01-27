@@ -8,11 +8,11 @@ export default {
     client: 'pg',
     connection: env.DATABASE_URL,
     migrations: {
-      directory: '../src/db/migrations',
+      directory: '../migrations',
       extension: 'ts',
     },
     seeds: {
-      directory: '../src/db/seeds',
+      directory: '../seeds',
     },
   },
   production: {
@@ -20,11 +20,11 @@ export default {
     connection: env.DATABASE_URL,
     pool: { min: 2, max: 10 },
     migrations: {
-      directory: '../src/db/migrations',
+      directory: '../migrations',
       extension: 'ts',
     },
     seeds: {
-      directory: '../src/db/seeds',
+      directory: '../seeds',
     },
   },
 };

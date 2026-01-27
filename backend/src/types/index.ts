@@ -1,18 +1,20 @@
 export interface User {
   id: string;
   email: string;
-  password: string;
-  role: 'ADMIN' | 'MANAGER' | 'OPERATOR' | 'QC' | 'SALES';
+  password?: string; // Optinal for some responses
+  password_hash?: string; // Aligning with naming
+  name?: string;
+  role: 'WAREHOUSE' | 'PRODUCTION' | 'QC' | 'MECHANIC' | 'CONTROLLER' | 'MANAGER' | 'ADMIN' | 'OPERATOR' | 'SALES';
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
 }
 
 export interface JWTPayload {
-  id: string; // Standardize on id
-  userId: string; // Maintain compatibility
+  id: string;
+  userId: string;
   email: string;
-  role: string;
+  role: 'WAREHOUSE' | 'PRODUCTION' | 'QC' | 'MECHANIC' | 'CONTROLLER' | 'MANAGER' | 'ADMIN' | 'OPERATOR' | 'SALES';
 }
 
 export interface RefreshToken {

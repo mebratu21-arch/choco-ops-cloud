@@ -1,7 +1,22 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from backend root (../../.env from src/config)
+const envPath = path.resolve(__dirname, '../../.env');
+const result = dotenv.config({ path: envPath });
+
+console.log(`[DEBUG] CWD: ${process.cwd()}`);
+console.log(`[DEBUG] Loading .env from: ${envPath}`);
+if (result.error) {
+  console.warn('[DEBUG] Failed to load .env file:', result.error.message);
+} else {
+  console.log('[DEBUG] .env loaded successfully');
+}
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -21,7 +36,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error('❌ Invalid environment variables:', parsed.error.format());
+  console.error('❌ Invalid environment variables:', JSON.stringify(parsed.error.format(), null, 2));
   process.exit(1);
 }
 

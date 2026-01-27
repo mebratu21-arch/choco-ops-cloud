@@ -1,6 +1,6 @@
 import { db, disconnectDB } from '../../src/config/database.js';
-import { ChatRepository } from '../../src/repositories/chat.repository.js';
-import { UserRepository } from '../../src/repositories/user.repository.js';
+import { ChatRepository } from '../../src/repositories/system/chat.repository.js';
+import { UserRepository } from '../../src/repositories/identity/user.repository.js';
 
 describe('ChatRepository', () => {
   let trx: any;

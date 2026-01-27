@@ -64,7 +64,6 @@
     "@types/node": "^20.19.30",
     "@types/pg": "^8.10.9",
     "@types/morgan": "^1.9.9",
-    "@types/prom-client": "^6.1.0",
     "@types/socket.io": "^3.0.1",
     "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AdminService } from '../services/admin.service.js';
+import { AdminService } from '../services/system/admin.service.js';
 
 export class AdminController {
   static async createUser(req: Request & { user?: any }, res: Response) {

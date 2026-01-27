@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../services/auth.service.js';
+import { AuthService } from '../services/identity/auth.service.js';
 import { JWTPayload } from '../types/index.js';
 
 declare global {

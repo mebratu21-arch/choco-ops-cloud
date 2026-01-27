@@ -1,5 +1,5 @@
 import { db, disconnectDB } from '../../src/config/database.js';
-import { UserRepository } from '../../src/repositories/user.repository.js';
+import { UserRepository } from '../../src/repositories/identity/user.repository.js';
 
 describe('UserRepository', () => {
   let trx: any;
@@ -60,7 +60,7 @@ describe('UserRepository', () => {
   describe('deactivate', () => {
     it('should soft-delete user', async () => {
       const created = await UserRepository.create(
-        { email: 'delete@example.com', name: 'Delete Me', password_hash: 'hash', role: 'CONTROLLER' as const },
+        { email: 'delete@example.com', name: 'Delete Me', password_hash: 'hash', role: 'MANAGER' },
         trx
       );
 

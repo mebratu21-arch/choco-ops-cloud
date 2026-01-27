@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuditRepository } from '../repositories/audit.repository.js';
+import { AuditRepository } from '../repositories/system/audit.repository.js';
 
 export class AuditController {
   static async getAll(req: Request, res: Response, next: NextFunction) {

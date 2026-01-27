@@ -8,14 +8,25 @@ import { metricsMiddleware, metricsEndpoint } from './middleware/metrics.middlew
 import { rateLimiter } from './middleware/rate-limit.middleware.js';
 import { features } from './config/features.js';
 
-import authRoutes from './routes/auth.routes.js';
-import inventoryRoutes from './routes/inventory.routes.js';
-import productionRoutes from './routes/production.routes.js';
-import mechanicsRoutes from './routes/mechanics.routes.js';
-import qcRoutes from './routes/qc.routes.js';
-import salesRoutes from './routes/sales.routes.js';
-import healthRoutes from './routes/health.routes.js';
-import aiRoutes from './routes/ai.routes.js';
+// Domain Routes
+import authRoutes from './routes/identity/auth.routes.js';
+import userRoutes from './routes/identity/user.routes.js';
+import inventoryRoutes from './routes/inventory/inventory.routes.js';
+import ingredientRoutes from './routes/inventory/ingredient.routes.js';
+import rawMaterialRoutes from './routes/inventory/raw-material.routes.js';
+import supplierRoutes from './routes/inventory/supplier.routes.js';
+import warehouseRoutes from './routes/inventory/warehouse.routes.js';
+import productionRoutes from './routes/production/production.routes.js';
+import recipeRoutes from './routes/production/recipe.routes.js';
+import mechanicsRoutes from './routes/quality/mechanics.routes.js';
+import qcRoutes from './routes/quality/qc.routes.js';
+import qualityRoutes from './routes/quality/quality.routes.js';
+import salesRoutes from './routes/sales/sales.routes.js';
+import healthRoutes from './routes/system/health.routes.js';
+import aiRoutes from './routes/system/ai.routes.js';
+import dashboardRoutes from './routes/system/dashboard.routes.js';
+import adminRoutes from './routes/system/admin.routes.js';
+import auditRoutes from './routes/system/audit.routes.js';
 
 const app = express();
 
@@ -39,13 +50,34 @@ app.get('/metrics', metricsEndpoint);
 /**
  * 3. Mount API Routes
  */
+// Identity
 app.use('/api/auth', authRoutes);
+app.use('/api/users', rateLimiter, userRoutes);
+
+// Inventory
 app.use('/api/inventory', rateLimiter, inventoryRoutes);
+app.use('/api/ingredients', rateLimiter, ingredientRoutes);
+app.use('/api/raw-materials', rateLimiter, rawMaterialRoutes);
+app.use('/api/suppliers', rateLimiter, supplierRoutes);
+app.use('/api/warehouses', rateLimiter, warehouseRoutes);
+
+// Production
 app.use('/api/production', rateLimiter, productionRoutes);
+app.use('/api/recipes', rateLimiter, recipeRoutes);
+
+// Quality
 app.use('/api/mechanics', rateLimiter, mechanicsRoutes);
 app.use('/api/qc', rateLimiter, qcRoutes);
+app.use('/api/quality', rateLimiter, qualityRoutes);
+
+// Sales
 app.use('/api/sales', rateLimiter, salesRoutes);
+
+// System
 app.use('/api/health', healthRoutes);
+app.use('/api/dashboard', rateLimiter, dashboardRoutes);
+app.use('/api/admin', rateLimiter, adminRoutes);
+app.use('/api/audit', rateLimiter, auditRoutes);
 
 /**
  * 4. Feature Flagged Routes (AI)

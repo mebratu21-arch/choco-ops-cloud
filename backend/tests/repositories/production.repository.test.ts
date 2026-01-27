@@ -1,6 +1,6 @@
 import { db, disconnectDB } from '../../src/config/database.js';
-import { ProductionRepository } from '../../src/repositories/production.repository.js';
-import { UserRepository } from '../../src/repositories/user.repository.js';
+import { ProductionRepository } from '../../src/repositories/production/production.repository.js';
+import { UserRepository } from '../../src/repositories/identity/user.repository.js';
 
 describe('ProductionRepository', () => {
   let trx: any;

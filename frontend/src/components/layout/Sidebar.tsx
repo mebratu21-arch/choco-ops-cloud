@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -9,10 +8,46 @@ import {
   Wrench, 
   ClipboardCheck, 
   Settings,
-  Bot
+  Bot,
+  Clipboard
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { UserRole } from '../../types';
+
+import { useLogFix } from '../../services/mechanicService';
+import { toast } from 'sonner';
+
+const SOSButton = () => {
+    const { mutate: logFix, isPending } = useLogFix();
+
+    const handleSOS = () => {
+        logFix({
+            machine_name: 'GENERAL_EMERGENCY',
+            description: 'SOS BUTTON TRIGGERED',
+            priority: 'URGENT'
+        }, {
+            onSuccess: () => {
+                toast.error('SOS SIGNAL SENT - HELP IS ON THE WAY', {
+                    duration: 5000,
+                    style: { background: '#ef4444', color: 'white', fontWeight: 'bold' }
+                });
+            },
+            onError: () => {
+                toast.error('SOS FAILED - CALL MANAGER IMMEDIATELY');
+            }
+        });
+    };
+
+    return (
+        <button
+            onClick={handleSOS}
+            disabled={isPending}
+            className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg flex items-center justify-center gap-2 font-bold shadow-lg shadow-red-900/20 animate-pulse disabled:opacity-50"
+        >
+            <div className="h-2 w-2 bg-white rounded-full animate-ping"></div>
+            {isPending ? 'SENDING SIGNAL...' : 'SOS EMERGENCY'}
+        </button>
+    );
+};
 
 const Sidebar = () => {
   const { user } = useAuth();
@@ -25,14 +60,25 @@ const Sidebar = () => {
   };
 
   const links = [
+    // Core Dashboards
     { to: '/', label: 'Dashboard', icon: LayoutDashboard, roles: ['MANAGER', 'WAREHOUSE', 'PRODUCTION', 'MECHANIC', 'QC', 'ADMIN'] },
-    { to: '/inventory', label: 'Inventory', icon: Package, roles: ['MANAGER', 'WAREHOUSE', 'ADMIN'] },
-    { to: '/production', label: 'Production', icon: Factory, roles: ['MANAGER', 'PRODUCTION', 'ADMIN'] },
-    { to: '/sales', label: 'Sales', icon: ShoppingCart, roles: ['MANAGER', 'WAREHOUSE', 'ADMIN'] },
-    { to: '/mechanics', label: 'Mechanics', icon: Wrench, roles: ['MANAGER', 'MECHANIC', 'ADMIN'] },
+    
+    // Core Modules
+    { to: '/inventory', label: 'Inventory (Warehouse)', icon: Package, roles: ['MANAGER', 'WAREHOUSE', 'ADMIN'] },
+    { to: '/production', label: 'Production Line', icon: Factory, roles: ['MANAGER', 'PRODUCTION', 'ADMIN'] },
     { to: '/qc', label: 'Quality Control', icon: ClipboardCheck, roles: ['MANAGER', 'QC', 'ADMIN'] },
-    { to: '/admin', label: 'Admin', icon: Settings, roles: ['ADMIN'] },
-    { to: '/ai-dashboard', label: 'AI Control', icon: Bot, roles: ['ADMIN', 'MANAGER'] },
+    { to: '/mechanics', label: 'Maintenance', icon: Wrench, roles: ['MANAGER', 'MECHANIC', 'ADMIN'] },
+    
+    // New Feature Modules
+    { to: '/sales', label: 'External Sales', icon: ShoppingCart, roles: ['MANAGER', 'WAREHOUSE', 'ADMIN'] },
+    { to: '/shop', label: 'Staff Shop', icon: ShoppingCart, roles: ['MANAGER', 'PRODUCTION', 'WAREHOUSE', 'QC', 'MECHANIC', 'ADMIN'] }, // Everyone
+    { to: '/recipes', label: 'Recipe Book', icon: Clipboard, roles: ['MANAGER', 'PRODUCTION', 'ADMIN'] },
+
+    // Admin
+    { to: '/admin', label: 'Admin Panel', icon: Settings, roles: ['ADMIN'] },
+    
+    // Tools
+    { to: '/ai-chat', label: 'AI Assistant', icon: Bot, roles: ['MANAGER', 'ADMIN', 'QC', 'MECHANIC'] },
   ];
 
   return (
@@ -68,6 +114,10 @@ const Sidebar = () => {
           );
         })}
       </nav>
+
+      <div className="px-4 mb-4">
+        <SOSButton />
+      </div>
 
       <div className="p-4 border-t border-slate-800">
         <div className="flex items-center gap-3 px-4">

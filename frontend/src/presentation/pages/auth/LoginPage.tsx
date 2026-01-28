@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/presentation/store/auth';
-import api from '@/data/infrastructure/httpClient';
+import { useAuthStore } from '../../store/auth';
+import api from '../../../data/infrastructure/httpClient';
 import axios from 'axios';
 import { toast } from 'sonner';
-import Button from '@/presentation/components/ui/Button';
-import Input from '@/presentation/components/ui/Input';
-import { Label } from '@/presentation/components/ui/Label';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import { Label } from '../../components/ui/Label';
 import { Factory } from 'lucide-react';
 
 export default function LoginPage() {
@@ -59,7 +59,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               placeholder="manager@chocoops.com"
               required
               className="text-right"
@@ -73,7 +73,7 @@ export default function LoginPage() {
               id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               required
               className="text-right"
               dir="ltr"

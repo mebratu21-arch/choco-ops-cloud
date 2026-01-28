@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -20,9 +19,37 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      await authService.login(email, password);
+      const response = await authService.login(email, password);
+      
+      if (!response || !response.user) {
+        throw new Error('Login failed: No user data received');
+      }
+
+      const { user } = response;
       // authService automatically stores tokens and user in authStore
-      navigate('/');
+      
+      // Role-Based Redirects
+      const role = user.role.toUpperCase();
+      switch (role) {
+        case 'ADMIN':
+        case 'MANAGER':
+          navigate('/manager/dashboard');
+          break;
+        case 'MECHANIC':
+          navigate('/mechanic/dashboard');
+          break;
+        case 'PRODUCTION':
+        case 'OPERATOR':
+        case 'PRODUCTION_WORKER':
+          navigate('/production/dashboard');
+          break;
+        case 'QC':
+        case 'QUALITY_CONTROLLER':
+          navigate('/qc/dashboard');
+          break;
+        default:
+          navigate('/');
+      }
     } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Invalid credentials');
     } finally {

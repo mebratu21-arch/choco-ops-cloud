@@ -2,8 +2,9 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../../store/authStore';
 
 // Create axios instance
+// Create axios instance
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001/api', // FIXED: Use IPv4 explicit
   headers: {
     'Content-Type': 'application/json',
   },

@@ -27,4 +27,17 @@ export class AdminController {
       res.status(500).json({ success: false, error: 'Failed to fetch users' });
     }
   }
+
+  static async getSystemStats(req: Request, res: Response) {
+    // Mock robust system stats for dashboard
+    res.json({
+        success: true,
+        data: {
+            users: { total: 12, active: 8, new_this_week: 3 },
+            system: { health: 'OPTIMAL', uptime: '99.99%', version: 'v1.2.0' },
+            revenue: { daily: 14500, monthly: 450000, growth: '+12.5%' },
+            db: { status: 'CONNECTED', latency: '24ms' }
+        }
+    });
+  }
 }

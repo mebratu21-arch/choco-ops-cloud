@@ -26,4 +26,19 @@ export class SalesController {
     const { id } = req.params;
     res.json({ success: true, data: { id, ...req.body, status: 'UPDATED' } });
   }
+
+  static async getAllOrders(req: Request, res: Response) {
+    // Mock data for demo
+    res.json({ 
+        success: true, 
+        data: [
+            { id: 'ORD-001', customer: 'Sweet Tooth Inc', amount: 5000, status: 'PENDING' },
+            { id: 'ORD-002', customer: 'ChocoWorld', amount: 12000, status: 'SHIPPED' }
+        ] 
+    });
+  }
+
+  static async getAllEmployeeSales(req: Request, res: Response) {
+    res.json({ success: true, data: [] });
+  }
 }

@@ -213,8 +213,10 @@ export interface QualityControl {
   batch_number?: string;
   inspector_id: string;
   inspector_name?: string;
+  checked_by: string; // Front-end alias or legacy field
   inspection_date: string;
   status: QCStatus;
+  defect_count: number;
   temperature?: number;
   humidity?: number;
   viscosity?: number;
@@ -307,6 +309,131 @@ export interface StockMovement {
   performed_by: string;
   performed_at: string;
   created_at: string;
+}
+
+// ============ MECHANICS ============
+
+export type MachineStatus = 'OPERATIONAL' | 'NEEDS_MAINTENANCE' | 'BROKEN' | 'UNDER_REPAIR';
+
+export interface MachineFix {
+  id: string;
+  machine_name?: string;
+  description: string;
+  batch_id?: string;
+  batch_number?: string;
+  reported_by: string;
+  reporter_name?: string;
+  fixed_by?: string;
+  mechanic_name?: string;
+  status: 'REPORTED' | 'IN_PROGRESS' | 'FIXED' | 'ESCALATED';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  notes?: string;
+  reported_at: string;
+  fixed_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MachineFixInput {
+  machine_name: string;
+  description: string;
+  batch_id?: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  notes?: string;
+}
+
+export interface MachineManual {
+  id: string;
+  machine_name: string;
+  manual_url?: string;
+  troubleshooting_steps?: string;
+  maintenance_schedule?: string;
+  last_updated: string;
+}
+
+// ============ AI ASSISTANT ============
+
+export interface AIChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  language?: 'en' | 'ar' | 'he' | 'am' | 'ru' | 'uk' | 'fr';
+}
+
+export interface AIChatRequest {
+  message: string;
+  context?: {
+    user_role?: UserRole;
+    current_page?: string;
+    language?: string;
+  };
+}
+
+export interface AIChatResponse {
+  message: string;
+  confidence?: number;
+  suggestions?: string[];
+  actions?: Array<{
+    label: string;
+    action: string;
+    params?: Record<string, any>;
+  }>;
+}
+
+// ============ MANAGER ============
+
+export interface Announcement {
+  id: string;
+  title: string;
+  message: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  target_roles?: UserRole[];
+  created_by: string;
+  created_by_name?: string;
+  created_at: string;
+  expires_at?: string;
+  is_active: boolean;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  assigned_to: string;
+  assigned_to_name?: string;
+  assigned_by: string;
+  assigned_by_name?: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  due_date?: string;
+  completed_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ManagerDashboardData {
+  inventory_summary: {
+    total_items: number;
+    low_stock_count: number;
+    expiring_soon_count: number;
+  };
+  production_summary: {
+    active_batches: number;
+    completed_today: number;
+    planned_batches: number;
+  };
+  qc_summary: {
+    pending_inspections: number;
+    approved_today: number;
+    rejected_today: number;
+    pass_rate: number;
+  };
+  mechanics_summary: {
+    active_alerts: number;
+    machines_operational: number;
+    machines_down: number;
+  };
 }
 
 // ============ AUDIT ============

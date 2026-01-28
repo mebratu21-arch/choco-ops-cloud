@@ -36,6 +36,27 @@ export async function seed(knex: Knex): Promise<void> {
         last_name: 'Warehouse',
         role: 'WAREHOUSE',
       },
+      {
+        email: 'admin@chocoops.com',
+        password_hash: await bcrypt.hash('password123', 10),
+        first_name: 'Super',
+        last_name: 'Admin',
+        role: 'ADMIN',
+      },
+      {
+        email: 'mechanic@chocoops.com',
+        password_hash: await bcrypt.hash('password123', 10),
+        first_name: 'Mike',
+        last_name: 'Mechanic',
+        role: 'MECHANIC',
+      },
+      {
+        email: 'qc@chocoops.com',
+        password_hash: await bcrypt.hash('password123', 10),
+        first_name: 'Quincy',
+        last_name: 'Quality',
+        role: 'QC',
+      },
     ]).returning('*');
 
     // Create ingredients (suppliers won't exist yet as we dropped that migration, so setting supplier_id to null)

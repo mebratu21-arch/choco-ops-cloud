@@ -1,15 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from '@/presentation/pages/auth/LoginPage';
-import DashboardPage from '@/presentation/pages/dashboard/DashboardPage';
-import InventoryPage from '@/presentation/pages/inventory/InventoryPage';
-import ProductionPage from '@/presentation/pages/production/ProductionPage';
-import SalesPage from '@/presentation/pages/sales/SalesPage';
-import AppLayout from '@/presentation/components/layout/AppLayout';
-import { useAuthStore } from '@/presentation/store/auth';
+import LoginPage from './pages/auth/LoginPage';
+import DashboardPage from './pages/dashboard/DashboardPage';
+import InventoryPage from './pages/inventory/InventoryPage';
+import ProductionPage from './pages/production/ProductionPage';
+import SalesPage from './pages/sales/SalesPage';
+import AppLayout from './components/layout/AppLayout';
+import { useAuthStore } from './store/auth';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
-  const isAuth = useAuthStore((s) => s.isAuthenticated());
+  const isAuth = useAuthStore((s: any) => s.isAuthenticated());
   return isAuth ? children : <Navigate to="/login" replace />;
 }
 

@@ -1,6 +1,6 @@
-import { useAuthStore } from '@/presentation/store/auth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/presentation/components/ui/Card';
-import ChatWindow from '@/presentation/components/chat/ChatWindow';
+import { useAuthStore } from '../../store/auth';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import ChatWindow from '../../components/chat/ChatWindow';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();

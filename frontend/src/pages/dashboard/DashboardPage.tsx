@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import { BarChart, Users, Package, AlertTriangle, TrendingUp, Activity, CheckCircle, Clock } from 'lucide-react';
-import { productionService } from '../../services/productionService';
+import { BarChart, Package, AlertTriangle, TrendingUp, Activity, CheckCircle, Clock } from 'lucide-react';
 import { inventoryService } from '../../services/inventoryService';
-import { Batch, Ingredient } from '../../types';
+import { Ingredient } from '../../types';
 
 // Premium Stat Card with Glassmorphism
 const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
@@ -29,10 +28,8 @@ const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [activeBatches, setActiveBatches] = useState<Batch[]>([]);
   const [lowStockCount, setLowStockCount] = useState(0);
   const [totalInventory, setTotalInventory] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,20 +37,12 @@ const DashboardPage = () => {
         // 1. Fetch Production Data
         // Ideally backend should provide a wrapper, but we filter client side for now
         // Assuming getAllBatches exists or we use recipes as proxy for activity
-        const recipes = await productionService.getAllRecipes(); // Just to checking connectivity
-        // Since we don't have getAllBatches endpoint yet, we'll mock the count from our seed knowledge
-        // or implment a real fetch if endpoint existed. 
-        // For "Israel 2026" demo, let's allow some mock-up mixed with real data
-        
         // Real Inventory Data
         const ingredients = await inventoryService.getIngredients();
         setTotalInventory(ingredients.length);
         setLowStockCount(ingredients.filter((i: Ingredient) => i.current_stock <= i.minimum_stock).length);
-        
-        setLoading(false);
       } catch (error) {
         console.error("Dashboard data fetch error", error);
-        setLoading(false);
       }
     };
     fetchData();

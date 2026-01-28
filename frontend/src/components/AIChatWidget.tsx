@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from './ui/Button';
+import { useSendAIMessage } from '../services/aiService';
 import { Card, CardHeader, CardContent, CardFooter } from './ui/Card';
 import { Input } from './ui/Input';
 import { MessageCircle, X, Send, Mic } from 'lucide-react';
@@ -12,19 +13,28 @@ const AIChatWidget = () => {
   ]);
   const [input, setInput] = useState('');
 
+  const { mutate: sendMessageFn, isPending } = useSendAIMessage();
+
   const toggleChat = () => setIsOpen(!isOpen);
 
   const sendMessage = () => {
     if (!input.trim()) return;
     
-    setMessages(prev => [...prev, { role: 'user', text: input }]);
-    const userInput = input;
+    const userText = input;
+    setMessages(prev => [...prev, { role: 'user', text: userText }]);
     setInput('');
 
-    // Simulate AI response
-    setTimeout(() => {
-        setMessages(prev => [...prev, { role: 'assistant', text: `I received your request: "${userInput}". I'm just a demo AI for now, but I will be connected to the backend soon!` }]);
-    }, 1000);
+    sendMessageFn({ 
+        message: userText, 
+        context: { user_role: 'MANAGER', language: 'en' } 
+    }, {
+        onSuccess: (response) => {
+            setMessages(prev => [...prev, { role: 'assistant', text: response.message }]);
+        },
+        onError: () => {
+             setMessages(prev => [...prev, { role: 'assistant', text: "I'm having trouble connecting to the factory brain right now. Please try again." }]);
+        }
+    });
   };
 
   return (
@@ -57,15 +67,16 @@ const AIChatWidget = () => {
                         <Input 
                             value={input} 
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                            onKeyDown={(e) => e.key === 'Enter' && !isPending && sendMessage()}
                             placeholder="Ask me anything..."
                             className="flex-1"
+                            disabled={isPending}
                         />
-                         <Button size="icon" variant="ghost" className="text-slate-500">
+                         <Button size="icon" variant="ghost" className="text-slate-500" disabled={isPending}>
                              <Mic className="h-4 w-4" />
                          </Button>
-                        <Button size="icon" onClick={sendMessage} className="bg-amber-600 hover:bg-amber-700">
-                            <Send className="h-4 w-4" />
+                        <Button size="icon" onClick={sendMessage} className="bg-amber-600 hover:bg-amber-700" disabled={isPending || !input.trim()}>
+                            {isPending ? <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <Send className="h-4 w-4" />}
                         </Button>
                     </div>
                 </CardFooter>

@@ -22,4 +22,15 @@ export class QcController {
       const { id } = req.params;
       res.json({ success: true, data: { id, ...req.body, status: 'UPDATED' } });
   }
+
+  static async getPendingBatches(req: Request, res: Response) {
+      // Mock data for demo
+      res.json({ 
+          success: true, 
+          data: [
+              { id: 'BATCH-001', recipe: 'Dark Chocolate', quantity: 500, status: 'AWAITING_QC' },
+              { id: 'BATCH-002', recipe: 'Milk Chocolate', quantity: 300, status: 'AWAITING_QC' }
+          ] 
+      });
+  }
 }

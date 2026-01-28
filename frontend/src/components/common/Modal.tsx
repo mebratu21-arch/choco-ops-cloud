@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { createPortal } from 'react-dom';
@@ -12,8 +12,6 @@ interface ModalProps {
 }
 
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, className }) => {
-  const overlayRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();

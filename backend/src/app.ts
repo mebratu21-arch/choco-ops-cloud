@@ -7,6 +7,8 @@ import { errorHandler } from './middleware/error.middleware.js';
 import { metricsMiddleware, metricsEndpoint } from './middleware/metrics.middleware.js';
 import { rateLimiter } from './middleware/rate-limit.middleware.js';
 import { features } from './config/features.js';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 
 // Domain Routes
 import authRoutes from './routes/identity/auth.routes.js';
@@ -35,7 +37,7 @@ const app = express();
  */
 app.use(helmet());
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'],
     credentials: true
 }));
 app.use(morgan('dev'));
@@ -71,7 +73,21 @@ app.use('/api/qc', rateLimiter, qcRoutes);
 app.use('/api/quality', rateLimiter, qualityRoutes);
 
 // Sales
+// Root route for API health check or guidance
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'ChocoOps Backend API is running',
+    frontend_url: 'http://localhost:5173',
+    documentation: '/api-docs'
+  });
+});
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use('/api/sales', rateLimiter, salesRoutes);
+import shopRoutes from './routes/sales/shop.routes.js';
+app.use('/api/shop', rateLimiter, shopRoutes);
 
 // System
 app.use('/api/health', healthRoutes);

@@ -1,4 +1,5 @@
 import apiClient from '../lib/api/axios';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   Recipe, 
   RecipeWithIngredients,
@@ -167,3 +168,127 @@ export const productionService = {
     };
   },
 };
+
+// ============ REACT QUERY HOOKS ============
+
+/**
+ * Hook to get all recipes
+ * Usage:
+ * ```ts
+ * const { data: recipes, isLoading } = useRecipes();
+ * ```
+ */
+export const useRecipes = () => {
+  return useQuery({
+    queryKey: ['recipes'],
+    queryFn: () => productionService.getAllRecipes(),
+    staleTime: 1000 * 60 * 5, // 5 minutes - recipes don't change often
+  });
+};
+
+/**
+ * Hook to get a single recipe by ID
+ */
+export const useRecipe = (id: string) => {
+  return useQuery({
+    queryKey: ['recipes', id],
+    queryFn: () => productionService.getRecipeById(id),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+/**
+ * Hook to get recipe with ingredients
+ */
+export const useRecipeWithIngredients = (id: string) => {
+  return useQuery({
+    queryKey: ['recipes', id, 'full'],
+    queryFn: () => productionService.getRecipeWithIngredients(id),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+/**
+ * Hook to create a recipe
+ */
+export const useCreateRecipe = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (recipe: Partial<Recipe>) => productionService.createRecipe(recipe),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recipes'] });
+    },
+  });
+};
+
+/**
+ * Hook to update a recipe
+ */
+export const useUpdateRecipe = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<Recipe> }) => 
+      productionService.updateRecipe(id, updates),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['recipes'] });
+      queryClient.invalidateQueries({ queryKey: ['recipes', id] });
+    },
+  });
+};
+
+/**
+ * Hook to create a batch (automatically deducts ingredient stock)
+ * Usage:
+ * ```ts
+ * const { mutate, isPending } = useCreateBatch();
+ * mutate({ recipe_id: '123', quantity_produced: 100 });
+ * ```
+ */
+export const useCreateBatch = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (request: CreateBatchRequest) => productionService.createBatch(request),
+    onSuccess: () => {
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['batches'] });
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] }); // Stock was deducted
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+};
+
+/**
+ * Hook to get a batch by ID
+ */
+export const useBatch = (id: string) => {
+  return useQuery({
+    queryKey: ['batches', id],
+    queryFn: () => productionService.getBatchById(id),
+    enabled: !!id,
+    staleTime: 1000 * 30, // 30 seconds - batches update frequently
+    refetchInterval: 1000 * 60, // Auto-refresh every minute
+  });
+};
+
+/**
+ * Hook to update a batch
+ */
+export const useUpdateBatch = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateBatchRequest }) => 
+      productionService.updateBatch(id, updates),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['batches'] });
+      queryClient.invalidateQueries({ queryKey: ['batches', id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+};
+

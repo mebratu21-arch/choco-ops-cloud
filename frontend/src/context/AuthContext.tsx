@@ -34,6 +34,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     authService.logout();
     setUser(null);
+    // Redirect to login page
+    window.location.href = '/login';
   };
 
   return (

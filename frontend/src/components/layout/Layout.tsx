@@ -1,6 +1,5 @@
-import React from 'react';
-import Sidebar from './Sidebar';
-import Header from './Header';
+import PurpleSidebar from './PurpleSidebar';
+import PurpleHeader from './PurpleHeader';
 import AIChatWidget from '../AIChatWidget';
 import { useAuthStore } from '../../store/authStore';
 import { Navigate, Outlet } from 'react-router-dom';
@@ -13,10 +12,10 @@ const Layout = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
-            <Sidebar />
-            <Header />
-            <main className="ml-64 p-8">
+        <div className="min-h-screen bg-[#f2edf3]">
+            <PurpleSidebar />
+            <PurpleHeader />
+            <main className="ml-64 pt-[70px] p-8">
                 <Outlet />
             </main>
             <AIChatWidget />

@@ -15,6 +15,9 @@ router.post(
   QcController.createCheck
 );
 
+// MISSING ROUTES ADDED
+router.get('/pending', QcController.getPendingBatches);
+
 router.get('/:id', QcController.getCheck);
 
 router.patch(

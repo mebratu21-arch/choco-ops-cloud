@@ -19,4 +19,10 @@ router.get(
   AdminController.getAllUsers
 );
 
+router.get(
+  '/stats',
+  requireRole(['ADMIN']),
+  AdminController.getSystemStats
+);
+
 export default router;

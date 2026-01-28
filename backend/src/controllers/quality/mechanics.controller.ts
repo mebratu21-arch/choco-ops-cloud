@@ -18,6 +18,16 @@ export class MechanicsController {
       res.json({ success: true, data: { id, description: 'Mocked fix retrieval' } });
   }
 
+  static async getAllFixes(req: Request, res: Response) {
+      try {
+        // Return mock data for now or fetch from service
+        res.json({ success: true, data: [] });
+      } catch (error: any) {
+        logger.error('Get all fixes failed', { error });
+        res.status(500).json({ success: false, error: 'Failed to fetch fixes' });
+      }
+  }
+
   static async updateFix(req: Request, res: Response) {
       const { id } = req.params;
       res.json({ success: true, data: { id, ...req.body, status: 'UPDATED' } });

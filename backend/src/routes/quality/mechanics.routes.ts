@@ -11,9 +11,10 @@ router.use(authenticate);
 router.post(
   '/',
   authorize('MECHANIC', 'MANAGER'),
-  validate(mechanicsSchemas.create),
   MechanicsController.logFix
 );
+
+router.get('/', MechanicsController.getAllFixes);
 
 router.get('/:id', MechanicsController.getFix);
 

@@ -36,4 +36,8 @@ router.patch(
   SalesController.updateOnlineOrder
 );
 
+// MISSING ROUTES ADDED
+router.get('/orders', SalesController.getAllOrders);
+router.get('/employee', SalesController.getAllEmployeeSales);
+
 export default router;

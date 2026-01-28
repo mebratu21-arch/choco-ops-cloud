@@ -4,8 +4,8 @@ import { Card, CardHeader, CardContent, CardTitle, CardFooter } from '../ui/Card
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Modal } from '../common/Modal';
-import { AlertCircle, CheckCircle2, Factory } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { InstructionClarifier } from './InstructionClarifier';
+import { AlertCircle, Factory } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { productionService } from '../../services/productionService';
 import { toast } from 'sonner';
@@ -61,7 +61,27 @@ export const RecipeCard = ({ recipe }: RecipeCardProps) => {
                         <span className="font-medium">Batch Size:</span> {recipe.batch_size} {recipe.batch_unit}
                     </div>
                     {recipe.description && (
-                        <p className="text-xs text-slate-500 line-clamp-2">{recipe.description}</p>
+                        <div className="text-xs text-slate-500 mb-2">{recipe.description}</div>
+                    )}
+                    
+                    {/* Instructions Preview */}
+                    {recipe.instructions && recipe.instructions.length > 0 && (
+                        <div className="mt-3 space-y-2 border-t border-slate-100 pt-2">
+                             <p className="text-xs font-semibold text-cocoa-800 uppercase">Key Steps:</p>
+                             <ul className="space-y-1">
+                                {recipe.instructions.slice(0, 3).map((step, idx) => (
+                                    <li key={idx} className="text-xs text-slate-600 flex justify-between items-start gap-2">
+                                        <span>{idx + 1}. {step}</span>
+                                        <InstructionClarifier instruction={step} stepNumber={idx + 1} />
+                                    </li>
+                                ))}
+                                {recipe.instructions.length > 3 && (
+                                    <li className="text-xs text-slate-400 italic pl-1">
+                                        + {recipe.instructions.length - 3} more steps...
+                                    </li>
+                                )}
+                             </ul>
+                        </div>
                     )}
                 </CardContent>
                 <CardFooter>

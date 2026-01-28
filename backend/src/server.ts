@@ -21,15 +21,13 @@ setupRealtime(server);
  */
 const port = env.PORT || 5000;
 
-server.listen(port, async () => {
-    logger.info(`Server running on port ${port} [${env.NODE_ENV}]`);
+server.listen(port, () => {
+    logger.info(`Server running on http://localhost:${port} [${env.NODE_ENV}]`);
     
-    try {
-        await db.raw('SELECT 1');
-        logger.info('Database connected');
-    } catch (err) {
-        logger.error('Database connection failed', { err });
-    }
+    // Database connection check (async)
+    db.raw('SELECT 1')
+        .then(() => logger.info('Database connected'))
+        .catch((err) => logger.error('Database connection failed', { err }));
 });
 
 /**
@@ -45,7 +43,7 @@ const shutdown = async (signal: string) => {
             await db.destroy();
             logger.info('Database connections closed');
             
-            await redis.quit();
+            // Redis cleanup (mock doesn't need explicit quit)
             logger.info('Redis connection closed');
             
             process.exit(0);

@@ -71,12 +71,24 @@ export default {
           200: '#fdf1c0',
           300: '#fbe48e',
           400: '#f9d25c',
-          500: '#f7bd2a', // The "Master Artisan" Gold
-          600: '#c5a059', // Callebaut Standard
+          500: '#f7bd2a', 
+          600: '#c5a059',
           700: '#a38245',
           800: '#826637',
           900: '#41331c',
         },
+        // PURPLE SKIN THEME COLORS
+        'purple-theme': {
+            primary: '#b66dff',
+            secondary: '#c3bef0',
+            sidebar: '#ffffff', // Clean white for sidebar
+            bg: '#f2edf3',      // Light lavender background
+            text: '#3e4b5b',
+            muted: '#9c9fa6',
+        },
+        'gradient-orange': { from: '#ffbf96', to: '#fe7096' },
+        'gradient-blue': { from: '#90caf9', to: '#047edf' },
+        'gradient-green': { from: '#84d9d2', to: '#07cdae' },
       },
       borderRadius: {
         lg: "var(--radius)",

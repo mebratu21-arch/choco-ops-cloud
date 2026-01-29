@@ -122,10 +122,10 @@ const Sidebar = () => {
       <div className="p-4 border-t border-slate-800">
         <div className="flex items-center gap-3 px-4">
           <div className="h-8 w-8 rounded-full bg-gold-500 flex items-center justify-center text-white font-bold">
-            {(user?.username || user?.full_name || 'U').charAt(0).toUpperCase()}
+            {(user?.username ?? user?.full_name ?? 'U').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-sm font-medium truncate">{user?.full_name || user?.username || 'User'}</p>
+            <p className="text-sm font-medium truncate">{user?.full_name ?? user?.username ?? 'User'}</p>
             <p className="text-xs text-slate-400 truncate uppercase">{user?.role}</p>
           </div>
         </div>

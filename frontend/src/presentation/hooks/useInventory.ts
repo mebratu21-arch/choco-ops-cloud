@@ -15,12 +15,12 @@ export const useInventory = (params: InventoryParams) => {
         mutationFn: ({ id, quantity }: { id: string; quantity: number }) => 
             inventoryRepository.updateStock(id, quantity),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['inventory'] });
+            void queryClient.invalidateQueries({ queryKey: ['inventory'] });
         },
     });
 
     return {
-        items: query.data?.data || [],
+        items: query.data?.data ?? [],
         pagination: query.data?.pagination,
         isLoading: query.isLoading,
         error: query.error,

@@ -23,12 +23,12 @@ export const RecipeCard = ({ recipe }: RecipeCardProps) => {
     const produceMutation = useMutation({
         mutationFn: (request: CreateBatchRequest) => productionService.createBatch(request),
         onSuccess: (data) => {
-            toast.success(`Batch #${data.batch_number || data.id.slice(0, 8)} started successfully!`);
+            toast.success(`Batch #${data.batch_number ?? data.id.slice(0, 8)} started successfully!`);
             setIsModalOpen(false);
             setQuantity(recipe.batch_size);
             setNotes('');
-            queryClient.invalidateQueries({ queryKey: ['batches'] });
-            queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+            void queryClient.invalidateQueries({ queryKey: ['batches'] });
+            void queryClient.invalidateQueries({ queryKey: ['ingredients'] });
         },
         onError: (error) => {
             const errorMessage = error instanceof Error ? error.message : 'Failed to start batch';
@@ -64,20 +64,20 @@ export const RecipeCard = ({ recipe }: RecipeCardProps) => {
                         <div className="text-xs text-slate-500 mb-2">{recipe.description}</div>
                     )}
                     
-                    {/* Instructions Preview */}
-                    {recipe.instructions && recipe.instructions.length > 0 && (
+                     {/* Instructions Preview */}
+                    {recipe.instructions && (
                         <div className="mt-3 space-y-2 border-t border-slate-100 pt-2">
                              <p className="text-xs font-semibold text-cocoa-800 uppercase">Key Steps:</p>
                              <ul className="space-y-1">
-                                {recipe.instructions.slice(0, 3).map((step, idx) => (
+                                {recipe.instructions.split('\n').slice(0, 3).map((step, idx) => (
                                     <li key={idx} className="text-xs text-slate-600 flex justify-between items-start gap-2">
                                         <span>{idx + 1}. {step}</span>
                                         <InstructionClarifier instruction={step} stepNumber={idx + 1} />
                                     </li>
                                 ))}
-                                {recipe.instructions.length > 3 && (
+                                {recipe.instructions.split('\n').length > 3 && (
                                     <li className="text-xs text-slate-400 italic pl-1">
-                                        + {recipe.instructions.length - 3} more steps...
+                                        + {recipe.instructions.split('\n').length - 3} more steps...
                                     </li>
                                 )}
                              </ul>

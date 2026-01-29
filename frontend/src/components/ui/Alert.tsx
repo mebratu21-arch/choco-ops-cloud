@@ -36,7 +36,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
       warning: AlertTriangle,
       error: AlertCircle,
       info: Info,
-    }[variant || 'default'];
+    }[variant ?? 'default'];
 
     return (
       <div

@@ -31,7 +31,7 @@ const MechanicDashboardPage = () => {
 
     const displayFixes = showSOSOnly ? sosAlerts : allFixes;
     const filteredFixes = displayFixes.filter(fix =>
-        fix.machine_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (fix.machine_name ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         fix.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -70,7 +70,7 @@ const MechanicDashboardPage = () => {
             id: fixId,
             updates: {
                 status: 'FIXED',
-                notes: notes || undefined
+                notes: notes ?? undefined
             }
         }, {
             onSuccess: () => toast.success('Ticket marked as fixed')
@@ -216,7 +216,7 @@ const MechanicDashboardPage = () => {
                                 <label className="block text-sm font-medium text-cocoa-900 mb-1">Priority *</label>
                                 <select
                                     value={newFix.priority}
-                                    onChange={(e) => setNewFix({ ...newFix, priority: e.target.value as any })}
+                                    onChange={(e) => setNewFix({ ...newFix, priority: e.target.value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' })}
                                     className="w-full h-10 px-3 py-2 border border-cocoa-200 rounded-md focus:ring-gold-500 focus:border-gold-500 bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     <option value="LOW">Low</option>

@@ -31,7 +31,7 @@ export function BroadcastTranslator() {
         );
 
         await Promise.all(promises);
-    } catch (error) {
+    } catch {
         toast.error("Some broadcasts failed. Check console.");
     }
   };
@@ -97,7 +97,7 @@ export function BroadcastTranslator() {
         </div>
 
         <Button 
-          onClick={handleBroadcast} 
+          onClick={() => void handleBroadcast()} 
           disabled={isPending || !instructions.trim() || targetLanguages.length === 0}
           className="w-full bg-slate-900 hover:bg-slate-800 text-white"
         >

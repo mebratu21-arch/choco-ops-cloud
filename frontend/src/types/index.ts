@@ -374,11 +374,11 @@ export interface AIChatResponse {
   message: string;
   confidence?: number;
   suggestions?: string[];
-  actions?: Array<{
+  actions?: {
     label: string;
     action: string;
     params?: Record<string, any>;
-  }>;
+  }[];
 }
 
 // ============ MANAGER ============
@@ -454,7 +454,7 @@ export interface AuditLog {
 
 // ============ API RESPONSES ============
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;

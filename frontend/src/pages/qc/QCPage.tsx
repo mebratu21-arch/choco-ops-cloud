@@ -7,9 +7,10 @@ import { Input } from '../../components/ui/Input';
 import { ClipboardCheck, Check, X } from 'lucide-react';
 
 const QCPage = () => {
-    const [batches, setBatches] = useState<Batch[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [batches, setBatches] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [notes, setNotes] = useState<{[key: string]: string}>({});
+    const [notes, setNotes] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const fetchBatches = async () => {
@@ -22,7 +23,7 @@ const QCPage = () => {
                 setLoading(false);
             }
         };
-        fetchBatches();
+        void fetchBatches();
     }, []);
 
     const handleAction = async (id: string, status: 'APPROVED' | 'REJECTED') => {
@@ -57,12 +58,12 @@ const QCPage = () => {
                              <CardHeader className="pb-2">
                                  <div className="flex items-center gap-2 text-yellow-800">
                                      <ClipboardCheck className="h-5 w-5" />
-                                     <CardTitle className="text-lg">Batch #{batch.batch_number || batch.id}</CardTitle>
+                                     <CardTitle className="text-lg">Batch #{batch.batch_number ?? batch.id}</CardTitle>
                                  </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div>
-                                    <div className="text-2xl font-bold">{batch.recipe_name || 'Unknown Recipe'}</div>
+                                    <div className="text-2xl font-bold">{batch.recipe_name ?? 'Unknown Recipe'}</div>
                                     <div className="text-sm text-slate-600">{batch.quantity_produced} Units</div>
                                 </div>
                                 
@@ -79,13 +80,13 @@ const QCPage = () => {
                                 <Button 
                                     className="w-full bg-red-100 text-red-700 hover:bg-red-200" 
                                     variant="ghost"
-                                    onClick={() => handleAction(batch.id, 'REJECTED')}
+                                    onClick={() => void handleAction(batch.id, 'REJECTED')}
                                 >
                                     <X className="h-4 w-4 mr-2" /> Reject
                                 </Button>
                                 <Button 
                                     className="w-full bg-green-600 hover:bg-green-700"
-                                    onClick={() => handleAction(batch.id, 'APPROVED')}
+                                    onClick={() => void handleAction(batch.id, 'APPROVED')}
                                 >
                                     <Check className="h-4 w-4 mr-2" /> Approve
                                 </Button>

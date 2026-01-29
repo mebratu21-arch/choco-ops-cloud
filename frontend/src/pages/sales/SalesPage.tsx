@@ -20,7 +20,7 @@ const SalesPage = () => {
                 setLoading(false);
             }
         };
-        fetchOrders();
+        void fetchOrders();
     }, []);
 
     return (
@@ -44,7 +44,7 @@ const SalesPage = () => {
                                                 <ShoppingBag className="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <p className="font-medium">{order.customer_name || order.customer_email}</p>
+                                                <p className="font-medium">{order.customer_name ?? order.customer_email}</p>
                                                 <p className="text-sm text-muted-foreground">${order.total_amount} • {order.status}</p>
                                             </div>
                                         </div>

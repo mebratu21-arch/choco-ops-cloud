@@ -22,7 +22,7 @@ export const aiService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to get AI response');
+    throw new Error(data.error ?? 'Failed to get AI response');
   },
 
   /**
@@ -38,7 +38,7 @@ export const aiService = {
       }
       
       return [];
-    } catch (error) {
+    } catch {
       // If endpoint doesn't exist, return empty array
       return [];
     }
@@ -64,7 +64,7 @@ export const aiService = {
       return data.data.translation;
     }
     
-    throw new Error(data.error || 'Translation failed');
+    throw new Error(data.error ?? 'Translation failed');
   },
 
   /**
@@ -81,7 +81,7 @@ export const aiService = {
       return data.data.languageCode;
     }
     
-    throw new Error(data.error || 'Language detection failed');
+    throw new Error(data.error ?? 'Language detection failed');
   },
 
   /**
@@ -92,8 +92,8 @@ export const aiService = {
     texts: string[],
     targetLanguage: string,
     context?: { domain?: 'recipe' | 'instruction' | 'general' }
-  ): Promise<{ translations: string[]; stats: any }> {
-    const { data } = await apiClient.post<ApiResponse<{ translations: string[]; stats: any }>>(
+  ): Promise<{ translations: string[]; stats: { successful: number; total: number; duration: number } }> {
+    const { data } = await apiClient.post<ApiResponse<{ translations: string[]; stats: { successful: number; total: number; duration: number } }>>(
       '/ai/translate/batch',
       { texts, targetLanguage, context }
     );
@@ -102,7 +102,7 @@ export const aiService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Batch translation failed');
+    throw new Error(data.error ?? 'Batch translation failed');
   },
 };
 
@@ -123,7 +123,7 @@ export const useSendAIMessage = () => {
     mutationFn: (request: AIChatRequest) => aiService.sendMessage(request),
     onSuccess: () => {
       // Invalidate chat history if it exists
-      queryClient.invalidateQueries({ queryKey: ['ai', 'chat-history'] });
+      return queryClient.invalidateQueries({ queryKey: ['ai', 'chat-history'] });
     },
   });
 };

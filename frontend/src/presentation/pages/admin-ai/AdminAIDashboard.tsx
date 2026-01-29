@@ -1,8 +1,6 @@
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/presentation/components/ui/Table'; // Reusing components or assuming they exist
 import { Card as UICard, CardHeader as UICardHeader, CardTitle as UICardTitle, CardContent as UICardContent } from '@/presentation/components/ui/Card';
 import { Badge } from '@/presentation/components/ui/Badge';
-import { Cpu, Settings2, ShieldAlert, LineChart } from 'lucide-react';
-import { Button } from '@/presentation/components/ui/Button';
+import { Cpu, ShieldAlert, LineChart } from 'lucide-react';
 
 export default function AdminAIDashboard() {
   return (

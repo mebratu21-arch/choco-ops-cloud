@@ -43,7 +43,7 @@ export function DefectTranslator({
 
   const handleCopy = () => {
     if (data) {
-      navigator.clipboard.writeText(data);
+      void navigator.clipboard.writeText(data);
       alert('Translation copied to clipboard!');
     }
   };

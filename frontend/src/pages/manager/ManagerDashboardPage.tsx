@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../..
 import { Button } from '../../components/ui/Button';
 import { BroadcastTranslator } from '../../components/manager/BroadcastTranslator';
 import { PurpleStatCard } from '../../components/dashboard/PurpleStatCard';
+import AnimatedBackground from '../../components/ui/AnimatedBackground';
 import { 
   BarChart3, 
   TrendingUp,
@@ -15,7 +16,8 @@ import {
   Package,
   Factory,
   Wrench,
-  ShieldCheck
+  ShieldCheck,
+  Sparkles
 } from 'lucide-react';
 
 const ManagerDashboardPage = () => {
@@ -25,17 +27,22 @@ const ManagerDashboardPage = () => {
 
     if (loadingDashboard) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-600 mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">Loading dashboard...</p>
+            <AnimatedBackground>
+                <div className="flex items-center justify-center h-screen">
+                    <div className="text-center">
+                        <div className="relative inline-block">
+                            <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse" />
+                            <div className="relative animate-spin rounded-full h-16 w-16 border-4 border-white/10 border-t-amber-500 mx-auto mb-4" />
+                        </div>
+                        <p className="text-slate-300 text-lg">Loading Command Center...</p>
+                    </div>
                 </div>
-            </div>
+            </AnimatedBackground>
         );
     }
 
     // Use nested structure from ManagerDashboardData with safe defaults
-    const stats = dashboardData || {
+    const stats = dashboardData ?? {
         inventory_summary: {
             total_items: 0,
             low_stock_count: 0,
@@ -73,12 +80,19 @@ const ManagerDashboardPage = () => {
         : '0.0';
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Command Center</h1>
-                <p className="text-gray-500">Overview of factory operations and performance</p>
-            </div>
+        <AnimatedBackground variant="dashboard">
+            <div className="min-h-screen p-6 space-y-6">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <div className="flex items-center justify-center gap-3 mb-3">
+                        <Sparkles className="h-8 w-8 text-amber-500 animate-pulse" />
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 bg-clip-text text-transparent">
+                            Manager Command Center
+                        </h1>
+                        <Sparkles className="h-8 w-8 text-amber-500 animate-pulse" />
+                    </div>
+                    <p className="text-slate-400">Real-time factory operations & performance analytics</p>
+                </div>
 
             {/* Critical Alerts */}
             {(lowStockItems.length > 0 || sosAlerts.length > 0) && (
@@ -316,7 +330,8 @@ const ManagerDashboardPage = () => {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+            </div>
+        </AnimatedBackground>
     );
 };
 

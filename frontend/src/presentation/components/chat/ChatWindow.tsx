@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Send, Bot, User } from 'lucide-react';
-import Button from '@/presentation/components/ui/Button';
-import Input from '@/presentation/components/ui/Input';
-import { cn } from '@/presentation/lib/utils';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import { cn } from '../../lib/utils'; // Assuming utils is in ../../lib/utils from chat/ folder
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([
@@ -39,7 +39,7 @@ export default function ChatWindow() {
                 onChange={(e) => setInput(e.target.value)} 
                 placeholder="שאל אותי משהו..." 
                 className="text-right"
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
             />
             <Button onClick={handleSend} className="shrink-0 p-2 h-10 w-10 flex items-center justify-center">
                 <Send size={18} />

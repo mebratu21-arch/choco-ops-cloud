@@ -97,6 +97,45 @@ export const redis = {
             }
         }
         return await redisMock.del(key);
+    },
+
+    async ping(): Promise<string> {
+        if (useRealRedis) {
+            try {
+                return await realRedis.ping();
+            } catch (err) {
+                logger.warn('Redis ping failed, using mock');
+                useRealRedis = false;
+                return 'PONG';
+            }
+        }
+        return 'PONG';
+    },
+
+    async incr(key: string): Promise<number> {
+        if (useRealRedis) {
+            try {
+                return await realRedis.incr(key);
+            } catch (err) {
+                logger.warn('Redis incr failed, using mock', { key });
+                useRealRedis = false;
+                return await redisMock.incr(key);
+            }
+        }
+        return await redisMock.incr(key);
+    },
+
+    async expire(key: string, seconds: number): Promise<number> {
+        if (useRealRedis) {
+            try {
+                return await realRedis.expire(key, seconds);
+            } catch (err) {
+                logger.warn('Redis expire failed, using mock', { key });
+                useRealRedis = false;
+                return await redisMock.expire(key, seconds);
+            }
+        }
+        return await redisMock.expire(key, seconds);
     }
 };
 

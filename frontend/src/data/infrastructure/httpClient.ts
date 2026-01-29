@@ -6,8 +6,19 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
+// Refresh token response type
+interface RefreshResponse {
+  token?: string;
+}
+
+// Error data type
+interface ErrorData {
+  error?: { message?: string };
+  message?: string;
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
+  baseURL: (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:5001/api', // Matches backend PORT=5001
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -23,7 +34,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error instanceof Error ? error : new Error('Request failed'))
 );
 
 // Response Interceptor: Handle Errors & Token Refresh
@@ -36,16 +47,16 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomAxiosRequestConfig;
 
-    // Handle 401 - Unauthorized (Token Expired)
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Handle 401 Unauthorized
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
         // Attempt refresh
-        const refreshToken = localStorage.getItem('refreshToken'); // Assuming we store this
+        const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('No refresh token');
 
-        const { data } = await axios.post(`${api.defaults.baseURL}/auth/refresh`, { refreshToken });
+        const { data } = await axios.post<RefreshResponse>(`${api.defaults.baseURL}/auth/refresh`, { refreshToken });
         
         if (data.token) {
           localStorage.setItem('token', data.token);
@@ -61,7 +72,7 @@ api.interceptors.response.use(
         localStorage.removeItem('refreshToken');
         toast.error('Session expired. Please log in again.');
         setTimeout(() => window.location.href = '/login', 1500);
-        return Promise.reject(refreshError);
+        return Promise.reject(refreshError instanceof Error ? refreshError : new Error('Token refresh failed'));
       }
     }
 
@@ -69,8 +80,8 @@ api.interceptors.response.use(
     let message = 'Something went wrong';
     if (error.response?.data && typeof error.response.data === 'object' && 'error' in error.response.data) {
         // specific backend error format
-        const errData = error.response.data as any;
-        message = errData.error?.message || errData.message || message;
+        const errData = error.response.data as ErrorData;
+        message = errData.error?.message ?? errData.message ?? message;
     } else if (error.message) {
         message = error.message;
     }
@@ -84,4 +95,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

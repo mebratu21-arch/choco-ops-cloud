@@ -3,7 +3,7 @@ import { IInventoryRepository, InventoryParams, InventoryResponse } from '../../
 
 export const inventoryRepository: IInventoryRepository = {
     getInventory: async (params: InventoryParams): Promise<InventoryResponse> => {
-        const response = await api.get('/inventory', { params });
+        const response = await api.get<InventoryResponse>('/inventory', { params });
         return response.data;
     },
     updateStock: async (id: string, quantity: number): Promise<void> => {

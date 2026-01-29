@@ -18,8 +18,14 @@ async function check() {
     const auditCols = await db.raw("SELECT column_name FROM information_schema.columns WHERE table_name='audit_logs'");
     console.log('AUDIT columns:', auditCols.rows.map((r: any) => r.column_name).sort());
 
-    const refreshCols = await db.raw("SELECT column_name FROM information_schema.columns WHERE table_name='refresh_tokens'");
-    console.log('REFRESH columns:', refreshCols.rows.map((r: any) => r.column_name).sort());
+    const qcCols = await db.raw("SELECT column_name FROM information_schema.columns WHERE table_name='quality_controls'");
+    console.log('QUALITY_CONTROLS:', qcCols.rows.map((r: any) => r.column_name).sort());
+
+    const maintCols = await db.raw("SELECT column_name FROM information_schema.columns WHERE table_name='maintenance_logs'");
+    console.log('MAINTENANCE_LOGS:', maintCols.rows.map((r: any) => r.column_name).sort());
+
+    const equipCols = await db.raw("SELECT column_name FROM information_schema.columns WHERE table_name='equipment'");
+    console.log('EQUIPMENT:', equipCols.rows.map((r: any) => r.column_name).sort());
 
 
   } catch (e) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { ShieldCheck, UserX, UserCheck, RefreshCw } from 'lucide-react';
@@ -21,11 +21,11 @@ const UserManagement = () => {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const { data } = await apiClient.get('/admin/users');
-            if (data.success) {
+            const { data } = await apiClient.get<Record<string, unknown> & { success: boolean, data: User[] }>('/admin/users');
+            if (data.success && Array.isArray(data.data)) {
                 setUsers(data.data);
             }
-        } catch (error) {
+        } catch {
             toast.error('Failed to load users');
         } finally {
             setLoading(false);
@@ -33,18 +33,18 @@ const UserManagement = () => {
     };
 
     useEffect(() => {
-        fetchUsers();
+        void fetchUsers();
     }, []);
 
-    const toggleStatus = async (userId: string, currentStatus: string) => {
+    const toggleStatus = (userId: string, currentStatus: string) => {
         const newStatus = currentStatus === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
         try {
             // Mock API call since /api/admin/users/:id/status might not exist yet
             // In a real scenario: await apiClient.patch(`/admin/users/${userId}/status`, { status: newStatus });
             
-            setUsers(users.map(u => u.id === userId ? { ...u, status: newStatus as any } : u));
+            setUsers(prevUsers => prevUsers.map(u => u.id === userId ? { ...u, status: newStatus } : u));
             toast.success(`User ${newStatus === 'ACTIVE' ? 'activated' : 'disabled'}`);
-        } catch (error) {
+        } catch {
             toast.error('Failed to update status');
         }
     };
@@ -56,7 +56,7 @@ const UserManagement = () => {
                     <ShieldCheck className="h-5 w-5 text-gold-500" />
                     User Directory
                 </CardTitle>
-                <Button variant="ghost" size="sm" onClick={fetchUsers} disabled={loading}>
+                    <Button variant="ghost" size="sm" onClick={() => void fetchUsers()} disabled={loading}>
                     <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 </Button>
             </CardHeader>
@@ -98,7 +98,7 @@ const UserManagement = () => {
                                             size="sm" 
                                             variant="ghost" 
                                             className={`${u.status === 'ACTIVE' ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300'}`}
-                                            onClick={() => toggleStatus(u.id, u.status)}
+                                            onClick={() => void toggleStatus(u.id, u.status)}
                                         >
                                             {u.status === 'ACTIVE' ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                                         </Button>

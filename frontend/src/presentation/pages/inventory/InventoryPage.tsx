@@ -25,9 +25,9 @@ export default function InventoryPage() {
   } = useInventory({
     page,
     limit,
-    search: search || undefined,
+    search: search ? search : undefined,
     low_stock: lowStockOnly, // Ensure simple parameter name match
-    sortBy: sortBy || undefined,
+    sortBy: sortBy ? sortBy : undefined,
     sortDir: sortBy ? sortDir : undefined,
   });
 

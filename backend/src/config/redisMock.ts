@@ -70,6 +70,45 @@ class RedisMock {
   }
 
   /**
+   * Increment a key's value (for rate limiting)
+   */
+  async incr(key: string): Promise<number> {
+    const entry = this.cache.get(key);
+    let newValue = 1;
+
+    if (entry) {
+      // Check expiration
+      if (entry.expiresAt && Date.now() > entry.expiresAt) {
+        this.cache.delete(key);
+      } else {
+        newValue = parseInt(entry.value, 10) + 1;
+      }
+    }
+
+    this.cache.set(key, {
+      value: String(newValue),
+      expiresAt: entry?.expiresAt ?? null
+    });
+
+    return newValue;
+  }
+
+  /**
+   * Set expiration on a key (in seconds)
+   */
+  async expire(key: string, seconds: number): Promise<number> {
+    const entry = this.cache.get(key);
+    if (!entry) return 0;
+
+    this.cache.set(key, {
+      value: entry.value,
+      expiresAt: Date.now() + (seconds * 1000)
+    });
+
+    return 1;
+  }
+
+  /**
    * Clear expired entries (memory management)
    */
   private cleanup(): void {

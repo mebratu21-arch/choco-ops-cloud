@@ -3,6 +3,7 @@ import PurpleHeader from './PurpleHeader';
 import AIChatWidget from '../AIChatWidget';
 import { useAuthStore } from '../../store/authStore';
 import { Navigate, Outlet } from 'react-router-dom';
+import { SearchProvider } from '../../context/SearchContext';
 
 const Layout = () => {
     const isAuthenticated = useAuthStore(state => state.isAuthenticated());
@@ -12,14 +13,16 @@ const Layout = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#f2edf3]">
-            <PurpleSidebar />
-            <PurpleHeader />
-            <main className="ml-64 pt-[70px] p-8">
-                <Outlet />
-            </main>
-            <AIChatWidget />
-        </div>
+        <SearchProvider>
+            <div className="min-h-screen bg-[#f2edf3]">
+                <PurpleSidebar />
+                <PurpleHeader />
+                <main className="ml-64 pt-[70px] p-8">
+                    <Outlet />
+                </main>
+                <AIChatWidget />
+            </div>
+        </SearchProvider>
     );
 };
 

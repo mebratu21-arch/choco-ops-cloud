@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { MessageSquare, X, Send, Bot, User, Minimize2, Maximize2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Send, Bot, User, Minimize2, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -143,7 +143,7 @@ export function AIChat() {
                     >
                       <Input
                         value={input}
-                        onChange={(e) => setInput(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
                         placeholder="Ask anything..."
                         className="h-10 text-sm"
                       />

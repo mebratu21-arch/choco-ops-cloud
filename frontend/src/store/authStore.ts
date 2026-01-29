@@ -20,7 +20,10 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   // Initialize from localStorage
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
+  user: (() => {
+    const stored = localStorage.getItem('user');
+    return stored ? (JSON.parse(stored) as User) : null;
+  })(),
   accessToken: localStorage.getItem('accessToken'),
   refreshToken: localStorage.getItem('refreshToken'),
   

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRecipes, useRecipeWithIngredients, useCreateBatch } from '../../services/productionService';
 import { useIngredients } from '../../services/inventoryService';
 import { useTranslate } from '../../services/aiService';
-import { Recipe, RecipeIngredient } from '../../types';
+import { Recipe } from '../../types';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -111,7 +111,7 @@ const ProductionBatchPage = () => {
     
     // React Query hooks
     const { data: recipes = [], isLoading: loadingRecipes } = useRecipes();
-    const { data: recipeDetails, isLoading: loadingDetails } = useRecipeWithIngredients(selectedRecipeId || '');
+    const { data: recipeDetails, isLoading: loadingDetails } = useRecipeWithIngredients(selectedRecipeId ?? '');
     const { data: inventory = [] } = useIngredients();
     const { mutate: createBatch, isPending: isCreating } = useCreateBatch();
 
@@ -164,7 +164,7 @@ const ProductionBatchPage = () => {
 
         return recipeDetails.ingredients.map(ing => {
             const required = ing.quantity * batchQuantity;
-            const available = inventory.find(i => i.id === ing.ingredient_id)?.current_stock || 0;
+            const available = inventory.find(i => i.id === ing.ingredient_id)?.current_stock ?? 0;
             const sufficient = available >= required;
 
             return {
@@ -213,7 +213,7 @@ const ProductionBatchPage = () => {
                                     <p className="text-xs font-mono text-slate-500">{recipe.code}</p>
                                 )}
                                 <CardDescription className="line-clamp-2">
-                                    {recipe.description || 'No description available'}
+                                    {recipe.description ?? 'No description available'}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -319,12 +319,12 @@ const ProductionBatchPage = () => {
                         ) : (
                             <div>
                                 <label className="block text-sm font-medium text-cocoa-900 mb-2">
-                                    Required Ingredients ({recipeDetails?.ingredients.length || 0})
+                                    Required Ingredients ({recipeDetails?.ingredients.length ?? 0})
                                 </label>
                                 <div className="bg-slate-50 border border-slate-200 rounded-md p-3 space-y-2">
                                     {recipeDetails?.ingredients.map(ing => (
                                         <div key={ing.id} className="flex items-center justify-between text-sm">
-                                            <span className="text-slate-700">{ing.ingredient_name || `Ingredient ${ing.ingredient_id}`}</span>
+                                            <span className="text-slate-700">{ing.ingredient_name ?? `Ingredient ${ing.ingredient_id}`}</span>
                                             <span className="font-medium text-cocoa-900">
                                                 {ing.quantity * batchQuantity} {ing.unit}
                                             </span>
@@ -405,7 +405,7 @@ const ProductionBatchPage = () => {
                                         <Package className={`h-5 w-5 ${req.sufficient ? 'text-slate-400' : 'text-red-500'}`} />
                                         <div>
                                             <p className="font-medium text-cocoa-900">
-                                                {req.ingredient_name || `Ingredient ${req.ingredient_id}`}
+                                                {req.ingredient_name ?? `Ingredient ${req.ingredient_id}`}
                                             </p>
                                             <p className="text-sm text-slate-600">
                                                 Required: {req.required} {req.unit}

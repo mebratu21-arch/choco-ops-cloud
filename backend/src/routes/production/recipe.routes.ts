@@ -6,6 +6,9 @@ const router = Router();
 
 router.use(authenticate);
 
+// Recipe import - MUST come before /:id to avoid conflict
+router.post('/import', requireRole(['ADMIN', 'MANAGER', 'PRODUCTION', 'QC']), RecipeController.importFromJSON);
+
 router.get('/', RecipeController.getAll);
 router.get('/:id', RecipeController.getById);
 router.get('/:id/full', RecipeController.getWithIngredients);

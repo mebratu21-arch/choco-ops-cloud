@@ -14,7 +14,7 @@ export const mechanicService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch machine fixes');
+    throw new Error(data.error ?? 'Failed to fetch machine fixes');
   },
 
   /**
@@ -28,7 +28,7 @@ export const mechanicService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Machine fix not found');
+    throw new Error(data.error ?? 'Machine fix not found');
   },
 
   /**
@@ -42,7 +42,7 @@ export const mechanicService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to log machine fix');
+    throw new Error(data.error ?? 'Failed to log machine fix');
   },
 
   /**
@@ -56,7 +56,7 @@ export const mechanicService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to update machine fix');
+    throw new Error(data.error ?? 'Failed to update machine fix');
   },
 
   /**
@@ -81,7 +81,7 @@ export const mechanicService = {
       }
       
       return [];
-    } catch (error) {
+    } catch {
       // Return empty array if endpoint doesn't exist
       return [];
     }
@@ -156,9 +156,9 @@ export const useLogFix = () => {
   return useMutation({
     mutationFn: (fixData: MachineFixInput) => mechanicService.logFix(fixData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['machine-fixes'] });
-      queryClient.invalidateQueries({ queryKey: ['machine-fixes', 'sos-alerts'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['machine-fixes'] });
+      void queryClient.invalidateQueries({ queryKey: ['machine-fixes', 'sos-alerts'] });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 };
@@ -173,10 +173,10 @@ export const useUpdateFix = () => {
     mutationFn: ({ id, updates }: { id: string; updates: Partial<MachineFix> }) => 
       mechanicService.updateFix(id, updates),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['machine-fixes'] });
-      queryClient.invalidateQueries({ queryKey: ['machine-fixes', id] });
-      queryClient.invalidateQueries({ queryKey: ['machine-fixes', 'sos-alerts'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['machine-fixes'] });
+      void queryClient.invalidateQueries({ queryKey: ['machine-fixes', id] });
+      void queryClient.invalidateQueries({ queryKey: ['machine-fixes', 'sos-alerts'] });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 };

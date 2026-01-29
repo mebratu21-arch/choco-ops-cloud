@@ -13,59 +13,81 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Mock Product Interface
+// Product Interface matching database schema
 interface Product {
     id: string;
     name: string;
     description: string;
     price: number;
     discount_price?: number;
-    image?: string;
+    image: string;
     rating: number;
     category: string;
     stock: number;
+    piece_count?: number;
 }
 
+// Extracted chocolate products from images
 const MOCK_PRODUCTS: Product[] = [
     {
-        id: '1',
-        name: 'Artisan Dark Chocolate Truffles',
-        description: 'Handcrafted truffles with 70% dark chocolate ganache.',
-        price: 25.00,
-        discount_price: 18.00, // Employee Price
-        rating: 4.8,
-        category: 'Truffles',
-        stock: 50
-    },
-    {
-        id: '2',
-        name: 'Gold Dust Pralines (Box of 12)',
-        description: 'Luxurious pralines dusted with edible gold.',
-        price: 35.00,
-        discount_price: 22.00,
+        id: 'CHOC-AUTO-GEN-001',
+        name: 'ChocoOps Artisan Gift Box Collection',
+        description: 'Luxury assorted chocolate gift box with decorative bow. Premium 12-piece selection.',
+        price: 45.00,
+        discount_price: 36.00, // 20% employee discount
         rating: 4.9,
-        category: 'Pralines',
-        stock: 20
+        category: 'Bonbon',
+        stock: 25,
+        piece_count: 12,
+        image: 'C:/Users/mebra/.gemini/antigravity/brain/c65db79c-6fe8-423f-b58b-262a85d73edc/uploaded_media_0_1769679647422.png'
     },
     {
-        id: '3',
-        name: 'Ruby Chocolate Bar',
-        description: 'Naturally pink chocolate with berry notes.',
-        price: 8.50,
-        discount_price: 5.00,
-        rating: 4.5,
-        category: 'Bars',
-        stock: 100
+        id: 'CHOC-AUTO-GEN-002',
+        name: 'ChocoOps Elegant White Box Assortment',
+        description: 'Sophisticated white gift box with ribbon. Artisan bonbons with nuts and decorative patterns.',
+        price: 38.00,
+        discount_price: 30.50,
+        rating: 4.8,
+        category: 'Bonbon',
+        stock: 30,
+        piece_count: 9,
+        image: 'C:/Users/mebra/.gemini/antigravity/brain/c65db79c-6fe8-423f-b58b-262a85d73edc/uploaded_media_1_1769679647422.png'
     },
     {
-        id: '4',
-        name: 'Hazelnut Spread Classic',
-        description: 'Creamy hazelnut spread made with 40% nuts.',
-        price: 12.00,
-        discount_price: 8.00,
+        id: 'CHOC-AUTO-GEN-003',
+        name: 'ChocoOps Valentine Heart Collection',
+        description: 'Premium heart-shaped chocolates with decorative patterns. Perfect for Valentine\'s Day.',
+        price: 52.00,
+        discount_price: 41.50,
+        rating: 4.9,
+        category: 'Bonbon',
+        stock: 15, // Low stock - Valentine special
+        piece_count: 16,
+        image: 'C:/Users/mebra/.gemini/antigravity/brain/c65db79c-6fe8-423f-b58b-262a85d73edc/uploaded_media_2_1769679647422.png'
+    },
+    {
+        id: 'CHOC-AUTO-GEN-004',
+        name: 'ChocoOps Holiday Truffle Collection',
+        description: 'Festive chocolate truffles with various coatings. Holiday/Christmas edition in red box.',
+        price: 42.00,
+        discount_price: 33.50,
         rating: 4.7,
-        category: 'Spreads',
-        stock: 15
+        category: 'Truffle',
+        stock: 40,
+        piece_count: 9,
+        image: 'C:/Users/mebra/.gemini/antigravity/brain/c65db79c-6fe8-423f-b58b-262a85d73edc/uploaded_media_3_1769679647422.png'
+    },
+    {
+        id: 'CHOC-AUTO-GEN-005',
+        name: 'ChocoOps Love Letter Chocolate Gift',
+        description: 'Ultra-premium custom LOVE design with edible flowers. White and gold luxury packaging.',
+        price: 68.00,
+        discount_price: 54.50,
+        rating: 5.0,
+        category: 'Bonbon',
+        stock: 12, // Low stock - premium item
+        piece_count: 24,
+        image: 'C:/Users/mebra/.gemini/antigravity/brain/c65db79c-6fe8-423f-b58b-262a85d73edc/uploaded_media_4_1769679647422.png'
     }
 ];
 
@@ -119,8 +141,16 @@ const ShopCatalog = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredProducts.map((product) => (
                     <Card key={product.id} className="group overflow-hidden border-cocoa-100 hover:border-gold-200 hover:shadow-xl transition-all duration-300">
-                        <div className="h-48 bg-gradient-to-br from-cocoa-100 to-slate-200 flex items-center justify-center relative">
-                            <ShoppingBag className="h-16 w-16 text-cocoa-300 group-hover:scale-110 transition-transform duration-500" />
+                        <div className="h-48 bg-gradient-to-br from-cocoa-100 to-slate-200 flex items-center justify-center relative overflow-hidden">
+                            {product.image ? (
+                                <img 
+                                    src={product.image} 
+                                    alt={product.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                            ) : (
+                                <ShoppingBag className="h-16 w-16 text-cocoa-300 group-hover:scale-110 transition-transform duration-500" />
+                            )}
                             {product.stock < 20 && (
                                 <Badge variant="secondary" className="absolute top-2 left-2 bg-red-100 text-red-700 hover:bg-red-200">
                                     Low Stock

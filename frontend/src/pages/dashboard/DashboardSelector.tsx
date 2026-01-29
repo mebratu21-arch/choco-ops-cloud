@@ -3,10 +3,8 @@ import { Navigate } from 'react-router-dom';
 
 // Role-specific dashboard imports
 import ManagerDashboardPage from '../manager/ManagerDashboardPage';
-import AdminDashboardPage from '../admin/AdminDashboardPage';
 import MechanicDashboardPage from '../mechanic/MechanicDashboardPage';
 import QCDashboardPage from '../qc/QCDashboardPage';
-import InventoryPage from '../inventory/InventoryPage';
 import ProductionPage from '../production/ProductionPage';
 import WarehouseDashboard from '../inventory/WarehouseDashboard';
 
@@ -45,7 +43,8 @@ const DashboardSelector = () => {
       return <ManagerDashboardPage />;
 
     case 'ADMIN':
-      return <AdminDashboardPage />;
+      // Admin has their own dedicated portal at /admin/dashboard
+      return <Navigate to="/admin/dashboard" replace />;
 
     default:
       // Fallback for unknown roles - show manager dashboard

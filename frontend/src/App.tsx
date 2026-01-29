@@ -23,7 +23,9 @@ const QCDashboardPage = lazy(() => import('./pages/qc/QCDashboardPage'));
 const RecipeList = lazy(() => import('./pages/recipes/RecipeList'));
 const RecipeDetails = lazy(() => import('./pages/recipes/RecipeDetails'));
 const CreateRecipe = lazy(() => import('./pages/recipes/CreateRecipe'));
+const RecipeImportPage = lazy(() => import('./pages/production/RecipeImportPage'));
 const ShopCatalog = lazy(() => import('./pages/shop/ShopCatalog'));
+const WarehouseSales = lazy(() => import('./pages/shop/WarehouseSales'));
 const ProductDetails = lazy(() => import('./pages/shop/ProductDetails'));
 const Orders = lazy(() => import('./pages/shop/Orders'));
 const ManagerDashboardPage = lazy(() => import('./pages/manager/ManagerDashboardPage'));
@@ -52,6 +54,7 @@ function App() {
            {/* Role Protected Routes with Code Splitting */}
            <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'WAREHOUSE', 'ADMIN']} />}>
               <Route path="/inventory" element={<Suspense fallback={<PageLoader />}><InventoryPage /></Suspense>} />
+              <Route path="/warehouse/sales" element={<Suspense fallback={<PageLoader />}><WarehouseSales /></Suspense>} />
               <Route path="/sales" element={<Suspense fallback={<PageLoader />}><SalesPage /></Suspense>} />
            </Route>
 
@@ -63,6 +66,7 @@ function App() {
               <Route path="/recipes" element={<Suspense fallback={<PageLoader />}><RecipeList /></Suspense>} />
               <Route path="/recipes/new" element={<Suspense fallback={<PageLoader />}><CreateRecipe /></Suspense>} />
               <Route path="/recipes/:id" element={<Suspense fallback={<PageLoader />}><RecipeDetails /></Suspense>} />
+              <Route path="/recipes/import" element={<Suspense fallback={<PageLoader />}><RecipeImportPage /></Suspense>} />
            </Route>
 
            <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'MECHANIC', 'ADMIN']} />}>
@@ -94,6 +98,7 @@ function App() {
 
            <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
               <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminDashboardPage /></Suspense>} />
+              <Route path="/admin/dashboard" element={<Suspense fallback={<PageLoader />}><AdminDashboardPage /></Suspense>} />
               <Route path="/ai-dashboard" element={<Suspense fallback={<PageLoader />}><AdminAIDashboard /></Suspense>} />
            </Route>
         </Route>

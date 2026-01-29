@@ -21,7 +21,7 @@ export const managerService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch dashboard stats');
+    throw new Error(data.error ?? 'Failed to fetch dashboard stats');
   },
 
   /**
@@ -35,7 +35,7 @@ export const managerService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to create announcement');
+    throw new Error(data.error ?? 'Failed to create announcement');
   },
 
   /**
@@ -63,7 +63,7 @@ export const managerService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to create task');
+    throw new Error(data.error ?? 'Failed to create task');
   },
 
   /**
@@ -91,7 +91,7 @@ export const managerService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to update task');
+    throw new Error(data.error ?? 'Failed to update task');
   },
 };
 
@@ -134,7 +134,7 @@ export const useCreateAnnouncement = () => {
     mutationFn: (announcement: Partial<Announcement>) => 
       managerService.createAnnouncement(announcement),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['manager', 'announcements'] });
+      void queryClient.invalidateQueries({ queryKey: ['manager', 'announcements'] });
     },
   });
 };
@@ -159,7 +159,7 @@ export const useCreateTask = () => {
   return useMutation({
     mutationFn: (task: Partial<Task>) => managerService.createTask(task),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['manager', 'tasks'] });
+      void queryClient.invalidateQueries({ queryKey: ['manager', 'tasks'] });
     },
   });
 };
@@ -174,7 +174,7 @@ export const useUpdateTask = () => {
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Task> }) => 
       managerService.updateTask(id, updates),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['manager', 'tasks'] });
+      void queryClient.invalidateQueries({ queryKey: ['manager', 'tasks'] });
     },
   });
 };

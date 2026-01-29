@@ -12,7 +12,11 @@ let io: Server | null = null;
 export function setupRealtime(server: http.Server) {
   io = new Server(server, {
     cors: {
-      origin: [env.FRONTEND_URL || 'http://localhost:3000'],
+      origin: [
+        env.FRONTEND_URL || 'http://localhost:3000',
+        'http://localhost:5173',
+        'http://127.0.0.1:5173'
+      ],
       credentials: true,
     },
   });

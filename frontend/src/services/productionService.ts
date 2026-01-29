@@ -23,7 +23,7 @@ export const productionService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch recipes');
+    throw new Error(data.error ?? 'Failed to fetch recipes');
   },
 
   /**
@@ -37,7 +37,7 @@ export const productionService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Recipe not found');
+    throw new Error(data.error ?? 'Recipe not found');
   },
 
   /**
@@ -51,7 +51,7 @@ export const productionService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Recipe not found');
+    throw new Error(data.error ?? 'Recipe not found');
   },
 
   /**
@@ -66,7 +66,7 @@ export const productionService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to create recipe');
+    throw new Error(data.error ?? 'Failed to create recipe');
   },
 
   /**
@@ -81,7 +81,7 @@ export const productionService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to update recipe');
+    throw new Error(data.error ?? 'Failed to update recipe');
   },
 
   /**
@@ -93,7 +93,7 @@ export const productionService = {
     const { data } = await apiClient.delete<ApiResponse>(`/recipes/${id}`);
     
     if (!data.success) {
-      throw new Error(data.error || 'Failed to delete recipe');
+      throw new Error(data.error ?? 'Failed to delete recipe');
     }
   },
 
@@ -118,7 +118,7 @@ export const productionService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to create batch');
+    throw new Error(data.error ?? 'Failed to create batch');
   },
 
   /**
@@ -132,7 +132,7 @@ export const productionService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Batch not found');
+    throw new Error(data.error ?? 'Batch not found');
   },
 
   /**
@@ -147,7 +147,7 @@ export const productionService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to update batch');
+    throw new Error(data.error ?? 'Failed to update batch');
   },
 
   // ============ LEGACY COMPATIBILITY ============
@@ -219,7 +219,7 @@ export const useCreateRecipe = () => {
   return useMutation({
     mutationFn: (recipe: Partial<Recipe>) => productionService.createRecipe(recipe),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['recipes'] });
+      void queryClient.invalidateQueries({ queryKey: ['recipes'] });
     },
   });
 };
@@ -234,8 +234,8 @@ export const useUpdateRecipe = () => {
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Recipe> }) => 
       productionService.updateRecipe(id, updates),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['recipes'] });
-      queryClient.invalidateQueries({ queryKey: ['recipes', id] });
+      void queryClient.invalidateQueries({ queryKey: ['recipes'] });
+      void queryClient.invalidateQueries({ queryKey: ['recipes', id] });
     },
   });
 };
@@ -255,9 +255,9 @@ export const useCreateBatch = () => {
     mutationFn: (request: CreateBatchRequest) => productionService.createBatch(request),
     onSuccess: () => {
       // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ['batches'] });
-      queryClient.invalidateQueries({ queryKey: ['ingredients'] }); // Stock was deducted
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['batches'] });
+      void queryClient.invalidateQueries({ queryKey: ['ingredients'] }); // Stock was deducted
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 };
@@ -285,9 +285,9 @@ export const useUpdateBatch = () => {
     mutationFn: ({ id, updates }: { id: string; updates: UpdateBatchRequest }) => 
       productionService.updateBatch(id, updates),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['batches'] });
-      queryClient.invalidateQueries({ queryKey: ['batches', id] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['batches'] });
+      void queryClient.invalidateQueries({ queryKey: ['batches', id] });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 };

@@ -9,9 +9,9 @@ export class QualityRepository {
       .select(
         'quality_controls.*', 
         'batches.batch_number',
-        db.raw("users.first_name || ' ' || users.last_name as inspector_name")
+        'users.name as inspector_name'
       )
-      .orderBy('quality_controls.inspection_date', 'desc');
+      .orderBy('quality_controls.inspected_at', 'desc');
   }
 
   static async findControlById(id: string): Promise<QualityControl | undefined> {
@@ -21,7 +21,7 @@ export class QualityRepository {
       .select(
         'quality_controls.*', 
         'batches.batch_number',
-        db.raw("users.first_name || ' ' || users.last_name as inspector_name")
+        'users.name as inspector_name'
       )
       .where('quality_controls.id', id)
       .first();
@@ -30,13 +30,13 @@ export class QualityRepository {
   static async findControlsByBatch(batchId: string): Promise<QualityControl[]> {
     return db('quality_controls')
       .where({ batch_id: batchId })
-      .orderBy('inspection_date', 'desc');
+      .orderBy('inspected_at', 'desc');
   }
 
   static async findControlsByStatus(status: string): Promise<QualityControl[]> {
     return db('quality_controls')
       .where({ status })
-      .orderBy('inspection_date', 'desc');
+      .orderBy('inspected_at', 'desc');
   }
 
   static async createControl(data: Partial<QualityControl>): Promise<QualityControl> {

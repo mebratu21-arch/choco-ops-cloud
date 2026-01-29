@@ -1,6 +1,6 @@
 import { ArrowUpDown, AlertTriangle } from 'lucide-react';
-import Badge from '@/presentation/components/ui/Badge';
-import { Table, THead, TBody, TR, TH, TD } from '@/presentation/components/ui/Table';
+import Badge from '../ui/Badge';
+import { Table, THead, TBody, TR, TH, TD } from '../ui/Table';
 import EditableStockCell from './EditableStockCell';
 
 interface InventoryItem {
@@ -18,15 +18,15 @@ export default function InventoryTable({
   updateStock,
 }: {
   items: InventoryItem[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sort: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setSort: Function;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateStock: any;
+  sort: { field: string | null; dir: 'asc' | 'desc' };
+  setSort: React.Dispatch<React.SetStateAction<{ field: string | null; dir: 'asc' | 'desc' }>>;
+  updateStock: {
+    mutate: (data: { id: string; current_stock: number }, options?: { onSuccess?: () => void }) => void;
+    isLoading: boolean;
+  };
 }) {
   const handleSort = (field: string) => {
-    setSort((prev: any) => ({
+    setSort((prev) => ({
       field,
       dir: prev?.field === field && prev.dir === 'asc' ? 'desc' : 'asc',
     }));

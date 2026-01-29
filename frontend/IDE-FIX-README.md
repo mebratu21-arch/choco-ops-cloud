@@ -3,7 +3,8 @@
 ## ✅ Verification Complete
 
 All packages are **confirmed installed**:
-```
+
+```bash
 @playwright/test@1.58.0 ✅
 vitest@4.0.18 ✅
 @testing-library/react@16.3.2 ✅
@@ -23,17 +24,20 @@ Your IDE's TypeScript language service is **caching the old state**. This is 100
 ### **SOLUTION - You MUST do ONE of these:**
 
 #### Option 1: Restart TypeScript Server (Fastest)
+
 1. Press `Ctrl+Shift+P`
 2. Type: `TypeScript: Restart TS Server`
 3. Press Enter
 4. **Wait 5-10 seconds** for re-indexing
 
 #### Option 2: Reload VS Code Window
+
 1. Press `Ctrl+Shift+P`
 2. Type: `Developer: Reload Window`
 3. Press Enter
 
 #### Option 3: Close and Reopen VS Code
+
 1. Close VS Code completely
 2. Reopen the workspace
 3. Wait for TypeScript to initialize
@@ -41,6 +45,7 @@ Your IDE's TypeScript language service is **caching the old state**. This is 100
 ### **After Restart - Expected Result:**
 
 ✅ All 4 errors will **immediately disappear**:
+
 - ❌ Cannot find '@playwright/test' → ✅ GONE
 - ❌ Cannot find 'vitest' → ✅ GONE
 - ❌ Cannot find '@testing-library/react' → ✅ GONE
@@ -49,6 +54,7 @@ Your IDE's TypeScript language service is **caching the old state**. This is 100
 ## Why This Happens
 
 VS Code's TypeScript language service:
+
 1. Loads module definitions on startup
 2. Caches them in memory
 3. Doesn't automatically detect new packages

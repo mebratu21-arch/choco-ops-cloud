@@ -108,7 +108,7 @@ const AIChat = () => {
                         <Globe className="h-4 w-4 text-slate-500" />
                         <select
                             value={language}
-                            onChange={(e) => setLanguage(e.target.value as any)}
+                            onChange={(e) => setLanguage(e.target.value as 'en' | 'ar' | 'he' | 'am' | 'ru' | 'uk' | 'fr')}
                             className="px-3 py-1.5 border border-cocoa-200 rounded-md text-sm focus:ring-gold-500 focus:border-gold-500"
                         >
                             <option value="en">English</option>

@@ -166,7 +166,7 @@ const TranslationDemoPage = () => {
       </Button>
 
       {/* Results */}
-      {batchData && batchData.translations && (
+      {batchData?.translations && (
         <Card className="border-l-4 border-l-green-500">
           <CardHeader>
             <CardTitle className="text-green-900">
@@ -186,7 +186,7 @@ const TranslationDemoPage = () => {
                       </span>
                     </div>
                     <p className="text-lg text-cocoa-800" dir="auto">
-                      {translation}
+                      {String(translation)}
                     </p>
                   </div>
                 );
@@ -198,7 +198,7 @@ const TranslationDemoPage = () => {
               <div className="flex items-center gap-2 text-sm text-slate-600">
                 <Sparkles className="h-4 w-4 text-gold-500" />
                 <span>
-                  Translated {batchData.stats.successful}/{batchData.stats.total} in {batchData.stats.duration}ms
+                  Translated {batchData.stats?.successful ?? 0}/{batchData.stats?.total ?? 0} in {batchData.stats?.duration ?? 0}ms
                 </span>
               </div>
             </div>

@@ -20,7 +20,7 @@ export const inventoryService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch ingredients');
+    throw new Error(data.error ?? 'Failed to fetch ingredients');
   },
 
   /**
@@ -34,7 +34,7 @@ export const inventoryService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Ingredient not found');
+    throw new Error(data.error ?? 'Ingredient not found');
   },
 
   /**
@@ -48,14 +48,14 @@ export const inventoryService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch low stock ingredients');
+    throw new Error(data.error ?? 'Failed to fetch low stock ingredients');
   },
 
   /**
    * Get expiring soon ingredients
    * GET /api/ingredients/expiring-soon?days=X
    */
-  async getExpiringSoon(days: number = 30): Promise<Ingredient[]> {
+  async getExpiringSoon(days = 30): Promise<Ingredient[]> {
     const { data } = await apiClient.get<ApiResponse<Ingredient[]>>('/ingredients/expiring-soon', {
       params: { days },
     });
@@ -64,7 +64,7 @@ export const inventoryService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch expiring ingredients');
+    throw new Error(data.error ?? 'Failed to fetch expiring ingredients');
   },
 
   /**
@@ -78,7 +78,7 @@ export const inventoryService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to update stock');
+    throw new Error(data.error ?? 'Failed to update stock');
   },
 
   // ============ LEGACY COMPATIBILITY ============
@@ -142,7 +142,7 @@ export const useLowStock = () => {
 /**
  * Hook to get expiring soon ingredients
  */
-export const useExpiringSoon = (days: number = 30) => {
+export const useExpiringSoon = (days = 30) => {
   return useQuery({
     queryKey: ['ingredients', 'expiring-soon', days],
     queryFn: () => inventoryService.getExpiringSoon(days),
@@ -187,8 +187,8 @@ export const useUpdateStock = () => {
     },
     // Always refetch after error or success
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
-      queryClient.invalidateQueries({ queryKey: ['ingredients', 'low-stock'] });
+      void queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      void queryClient.invalidateQueries({ queryKey: ['ingredients', 'low-stock'] });
     },
   });
 };

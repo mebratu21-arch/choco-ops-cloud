@@ -1,19 +1,25 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import type { User } from '../types';
 
 interface ProtectedRouteProps {
   allowedRoles?: string[];
+}
+
+// Define the auth store state type
+interface AuthState {
+  user: User | null;
+  accessToken: string | null;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   // Hydration state to prevent redirect before auth context is ready
   const [isHydrated, setIsHydrated] = useState(false);
   
-  // FIXED: Use useMemo to stabilize the selector functions
-  // This prevents the 'getSnapshot' warning and infinite re-render loops
-  const userSelector = useMemo(() => (state: any) => state.user, []);
-  const tokenSelector = useMemo(() => (state: any) => state.accessToken, []);
+  // FIXED: Use properly typed selectors
+  const userSelector = useMemo(() => (state: AuthState) => state.user, []);
+  const tokenSelector = useMemo(() => (state: AuthState) => state.accessToken, []);
 
   const user = useAuthStore(userSelector);
   const accessToken = useAuthStore(tokenSelector);
@@ -45,7 +51,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) 
   }
 
   // Case-insensitive role check
-  if (allowedRoles && user) {
+  if (allowedRoles && user?.role) {
     const hasRole = allowedRoles.some(r => r.toUpperCase() === user.role.toUpperCase());
     if (!hasRole) {
         // Redirect to their appropriate dashboard if they are logged in but unauthorized for this specific route

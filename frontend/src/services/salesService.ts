@@ -13,7 +13,7 @@ export const salesService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch sales');
+    throw new Error(data.error ?? 'Failed to fetch sales');
   },
 
   /**
@@ -27,7 +27,7 @@ export const salesService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Sale not found');
+    throw new Error(data.error ?? 'Sale not found');
   },
 
   /**
@@ -41,7 +41,7 @@ export const salesService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to create sale');
+    throw new Error(data.error ?? 'Failed to create sale');
   },
 
   /**
@@ -55,6 +55,6 @@ export const salesService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch orders');
+    throw new Error(data.error ?? 'Failed to fetch orders');
   },
 };

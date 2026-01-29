@@ -21,7 +21,7 @@ const MechanicPage = () => {
                 setItemsLoading(false);
             }
         };
-        fetchLogs();
+        void fetchLogs();
     }, []);
 
     const isOpen = (status: MachineFix['status']) => status !== 'FIXED';
@@ -54,7 +54,7 @@ const MechanicPage = () => {
                                     <Wrench className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg">{log.machine_name || 'Unknown Machine'}</h3>
+                                    <h3 className="font-bold text-lg">{log.machine_name ?? 'Unknown Machine'}</h3>
                                     <p className="text-slate-600">{log.description}</p>
                                     <p className="text-xs text-muted-foreground mt-1">
                                         Reported: {new Date(log.created_at).toLocaleString()} • Status: {log.status}

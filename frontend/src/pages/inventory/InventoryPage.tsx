@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useIngredients, useLowStock, useExpiringSoon, useUpdateStock } from '../../services/inventoryService';
-import { Ingredient, InventoryFilters } from '../../types';
+import { Ingredient } from '../../types';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { Search, AlertTriangle, Plus, Filter, Package, Calendar, TrendingDown, Edit2, Check, X } from 'lucide-react';
+import { Search, AlertTriangle, Plus, Package, Calendar, TrendingDown, Edit2, Check, X } from 'lucide-react';
 
 type FilterView = 'all' | 'low-stock' | 'expiring';
 
@@ -39,7 +39,7 @@ const InventoryPage = () => {
         if (searchTerm) {
             return data.filter(item =>
                 item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (item.code ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                 [item.aisle, item.shelf, item.bin].filter(Boolean).join('-').toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
@@ -194,7 +194,7 @@ const InventoryPage = () => {
                                         return (
                                             <tr key={item.id} className="hover:bg-cocoa-50/50 transition-colors">
                                                 <td className="px-4 py-3 font-medium text-slate-900">{item.name}</td>
-                                                <td className="px-4 py-3 text-slate-500 font-mono text-xs">{item.code || 'N/A'}</td>
+                                                <td className="px-4 py-3 text-slate-500 font-mono text-xs">{item.code ?? 'N/A'}</td>
                                                 <td className="px-4 py-3 text-slate-500">
                                                     {[item.aisle, item.shelf, item.bin].filter(Boolean).join('-') || 'N/A'}
                                                 </td>

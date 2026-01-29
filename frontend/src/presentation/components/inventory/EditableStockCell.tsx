@@ -2,15 +2,22 @@ import { useState } from 'react';
 import { Edit2, Save, X } from 'lucide-react';
 import Input from '@/presentation/components/ui/Input';
 
+interface EditableStockCellProps {
+  item: {
+    id: string;
+    current_stock: number;
+    [key: string]: any;
+  };
+  updateStock: {
+    mutate: (data: { id: string; current_stock: number }, options?: { onSuccess?: () => void }) => void;
+    isLoading: boolean;
+  };
+}
+
 export default function EditableStockCell({
   item,
   updateStock,
-}: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  item: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateStock: any;
-}) {
+}: EditableStockCellProps) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(item.current_stock.toString());
 

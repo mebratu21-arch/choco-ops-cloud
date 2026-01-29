@@ -8,6 +8,16 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { Label } from '../../components/ui/Label';
 import { Factory } from 'lucide-react';
+import type { User } from '../../../types';
+
+// Define the expected API response structure
+interface LoginResponse {
+  data: {
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+  };
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -18,10 +28,10 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(false);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post<LoginResponse>('/auth/login', { email, password });
       
       const { user, accessToken, refreshToken } = response.data.data;
       
@@ -32,8 +42,13 @@ export default function LoginPage() {
       navigate('/');
     } catch (err: unknown) {
       let msg = 'Login failed. Please check your credentials.';
-      if (axios.isAxiosError(err) && err.response?.data?.error?.message) {
-        msg = err.response.data.error.message;
+      if (axios.isAxiosError(err) && err.response?.data) {
+        interface ErrorResponse {
+          error?: { message?: string };
+          message?: string;
+        }
+        const errorData = err.response.data as ErrorResponse;
+        msg = errorData.error?.message ?? errorData.message ?? msg;
       }
       toast.error(msg);
     } finally {
@@ -52,7 +67,7 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold text-center mb-2 text-cocoa">ChocoOps</h1>
         <p className="text-center text-secondary-500 mb-8">מערכת ניהול ייצור</p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-right block">אימייל</Label>
             <Input

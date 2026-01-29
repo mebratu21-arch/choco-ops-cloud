@@ -1,4 +1,4 @@
-import Input from '@/presentation/components/ui/Input';
+import Input from '../ui/Input';
 import { Search } from 'lucide-react';
 
 interface InventoryFiltersProps {

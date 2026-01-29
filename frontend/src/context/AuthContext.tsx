@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthResponse } from '../types';
+import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
+import { User } from '../types';
 import { authService } from '../services/authService';
 
 interface AuthContextType {
@@ -13,17 +13,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check for existing session
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-    }
-    setIsLoading(false);
-  }, []);
+  // Initialize state from existing session synchronously
+  const [user, setUser] = useState<User | null>(() => authService.getCurrentUser());
+  const [isLoading] = useState(false);
 
   const login = (token: string, userData: User) => {
     localStorage.setItem('token', token);
@@ -32,20 +24,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
-    authService.logout();
+    void authService.logout();
     setUser(null);
     // Redirect to login page
     window.location.href = '/login';
   };
 
+  const value = useMemo(() => ({
+    user,
+    isAuthenticated: !!user,
+    login,
+    logout,
+    isLoading
+  }), [user, isLoading]);
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, isLoading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');

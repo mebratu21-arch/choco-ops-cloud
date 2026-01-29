@@ -6,7 +6,15 @@ import { inventoryService } from '../../services/inventoryService';
 import { Ingredient } from '../../types';
 
 // Premium Stat Card with Glassmorphism
-const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  trend?: boolean;
+}
+
+const StatCard = ({ title, value, icon: Icon, color, trend }: StatCardProps) => (
   <div className="relative overflow-hidden rounded-xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:scale-[1.02] hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900/50">
     <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full ${color} opacity-10 blur-2xl`}></div>
     <div className="flex items-center justify-between">
@@ -45,7 +53,7 @@ const DashboardPage = () => {
         console.error("Dashboard data fetch error", error);
       }
     };
-    fetchData();
+    void fetchData();
   }, []);
 
   return (
@@ -53,7 +61,7 @@ const DashboardPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
-            Welcome back, {user?.name || 'Admin'}
+            Welcome back, {user?.name ?? 'Admin'}
           </h1>
           <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">
             Here's what's happening in your facility today.

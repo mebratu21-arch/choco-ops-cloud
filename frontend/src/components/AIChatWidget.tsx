@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent, CardFooter } from './ui/Card';
 import { Input } from './ui/Input';
 import { MessageCircle, X, Send, Mic } from 'lucide-react';
 import { cn } from '../lib/utils'; // Fixed path
+import { useAuthStore } from '../store/authStore';
 
 const AIChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +13,7 @@ const AIChatWidget = () => {
     { role: 'assistant', text: 'Hello! I am your ChocoOps AI assistant. How can I help you today?' }
   ]);
   const [input, setInput] = useState('');
+  const user = useAuthStore((state) => state.user);
 
   const { mutate: sendMessageFn, isPending } = useSendAIMessage();
 
@@ -26,13 +28,17 @@ const AIChatWidget = () => {
 
     sendMessageFn({ 
         message: userText, 
-        context: { user_role: 'MANAGER', language: 'en' } 
+        context: { 
+          user_role: (user?.role?.toUpperCase() ?? 'MANAGER') as 'MANAGER' | 'WAREHOUSE' | 'PRODUCTION' | 'QC' | 'MECHANIC' | 'CONTROLLER' | 'ADMIN', 
+          language: 'en' 
+        } 
     }, {
         onSuccess: (response) => {
             setMessages(prev => [...prev, { role: 'assistant', text: response.message }]);
         },
-        onError: () => {
-             setMessages(prev => [...prev, { role: 'assistant', text: "I'm having trouble connecting to the factory brain right now. Please try again." }]);
+        onError: (error) => {
+            console.error('AI Chat Error:', error);
+             setMessages(prev => [...prev, { role: 'assistant', text: "I'm having trouble connecting right now. Please try again later or check if the AI service is configured." }]);
         }
     });
   };

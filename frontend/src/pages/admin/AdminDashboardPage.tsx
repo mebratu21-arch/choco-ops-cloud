@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import apiClient from '../../lib/api/axios';
+import { ApiResponse } from '../../types';
 import { 
   Users, 
   Activity, 
@@ -28,8 +29,10 @@ const AdminDashboardPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const statsRes = await apiClient.get('/admin/stats');
-                if (statsRes.data.success) setStats(statsRes.data.data);
+                const statsRes = await apiClient.get<ApiResponse<SystemStats>>('/admin/stats');
+                if (statsRes.data.success && statsRes.data.data) {
+                     setStats(statsRes.data.data);
+                }
             } catch (error) {
                 console.error('Failed to fetch admin data', error);
             } finally {
@@ -37,7 +40,7 @@ const AdminDashboardPage = () => {
             }
         };
 
-        fetchData();
+        void fetchData();
     }, []);
 
     if (loading) {

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, Factory, MessageSquare, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, Factory, LogOut, Settings, BookOpen, ShoppingCart, ShieldCheck, Wrench, Cpu } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const navItems = [
@@ -18,7 +18,7 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen }: SidebarProps) {
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/login';

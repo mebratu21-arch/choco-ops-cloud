@@ -112,18 +112,18 @@ const RecipeDetails = () => {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 font-mono text-sm leading-relaxed whitespace-pre-wrap">
-                                {translatedInstructions || recipe.instructions}
+                                {translatedInstructions ?? recipe.instructions}
                             </div>
                             
                             <div className="flex flex-wrap gap-2 pt-2">
                                 <span className="text-xs font-medium text-slate-500 uppercase tracking-wider py-1.5">Translate to:</span>
-                                <Button size="sm" variant="outline" onClick={() => handleTranslate('Spanish')} disabled={isTranslating} className="h-7 text-xs gap-1">
+                                <Button size="sm" variant="outline" onClick={() => void handleTranslate('Spanish')} disabled={isTranslating} className="h-7 text-xs gap-1">
                                     <Globe className="h-3 w-3" /> Spanish
                                 </Button>
-                                <Button size="sm" variant="outline" onClick={() => handleTranslate('French')} disabled={isTranslating} className="h-7 text-xs gap-1">
+                                <Button size="sm" variant="outline" onClick={() => void handleTranslate('French')} disabled={isTranslating} className="h-7 text-xs gap-1">
                                     <Globe className="h-3 w-3" /> French
                                 </Button>
-                                <Button size="sm" variant="outline" onClick={() => handleTranslate('German')} disabled={isTranslating} className="h-7 text-xs gap-1">
+                                <Button size="sm" variant="outline" onClick={() => void handleTranslate('German')} disabled={isTranslating} className="h-7 text-xs gap-1">
                                     <Globe className="h-3 w-3" /> German
                                 </Button>
                                 {translatedInstructions && (

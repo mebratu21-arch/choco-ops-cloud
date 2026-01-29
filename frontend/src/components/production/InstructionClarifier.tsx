@@ -77,7 +77,7 @@ export function InstructionClarifier({ instruction, stepNumber }: InstructionCla
                     </div>
                 ) : (
                     <p className="text-lg font-medium text-slate-900 leading-relaxed">
-                        {data || "Translation unavailable."}
+                        {data ?? "Translation unavailable."}
                     </p>
                 )}
             </div>

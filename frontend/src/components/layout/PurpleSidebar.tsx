@@ -53,15 +53,28 @@ const PurpleSidebar = () => {
   };
 
   const links = [
-    { to: '/', label: 'Admin Command Center', icon: LayoutDashboard, roles: ['MANAGER', 'WAREHOUSE', 'PRODUCTION', 'MECHANIC', 'QC', 'ADMIN'] },
-    { to: '/inventory', label: 'Inventory (Basic UI)', icon: Package, roles: ['MANAGER', 'WAREHOUSE'] },
-    { to: '/production', label: 'Production (Forms)', icon: Factory, roles: ['MANAGER', 'PRODUCTION'] },
-    { to: '/qc', label: 'Quality Control (Tables)', icon: ClipboardCheck, roles: ['MANAGER', 'QC'] },
-    { to: '/mechanics', label: 'Maintenance (Icons)', icon: Wrench, roles: ['MANAGER', 'MECHANIC'] },
-    { to: '/sales', label: 'Sales (Charts)', icon: ShoppingCart, roles: ['MANAGER', 'WAREHOUSE'] },
-    { to: '/shop', label: 'Company Shop', icon: ShoppingCart, roles: ['MANAGER', 'PRODUCTION', 'WAREHOUSE', 'QC', 'MECHANIC', 'ADMIN'] },
+    // Manager gets their own dashboard
+    { to: '/', label: 'Manager Dashboard', icon: LayoutDashboard, roles: ['MANAGER'] },
+    // Admin gets their own SEPARATE portal
+    { to: '/admin/dashboard', label: 'Admin Portal', icon: LayoutDashboard, roles: ['ADMIN'] },
+    // Other roles get a general dashboard
+    { to: '/', label: 'Dashboard', icon: LayoutDashboard, roles: ['WAREHOUSE', 'PRODUCTION', 'MECHANIC', 'QC'] },
+    
+    // Operational modules (Manager only, ADMIN sees system stuff)
+    { to: '/inventory', label: 'Inventory', icon: Package, roles: ['MANAGER', 'WAREHOUSE'] },
+    { to: '/warehouse/sales', label: 'Warehouse POS', icon: ShoppingCart, roles: ['MANAGER', 'WAREHOUSE', 'ADMIN'] },
+    { to: '/production', label: 'Production', icon: Factory, roles: ['MANAGER', 'PRODUCTION'] },
+    { to: '/qc', label: 'Quality Control', icon: ClipboardCheck, roles: ['MANAGER', 'QC'] },
+    { to: '/mechanics', label: 'Maintenance', icon: Wrench, roles: ['MANAGER', 'MECHANIC'] },
+    { to: '/sales', label: 'Sales Analytics', icon: ShoppingCart, roles: ['MANAGER', 'WAREHOUSE'] },
+    { to: '/shop', label: 'Employee Shop', icon: ShoppingCart, roles: ['MANAGER', 'PRODUCTION', 'WAREHOUSE', 'QC', 'MECHANIC', 'ADMIN'] },
     { to: '/recipes', label: 'Recipes', icon: Clipboard, roles: ['MANAGER', 'PRODUCTION'] },
-    { to: '/admin', label: 'Admin Command Center', icon: Settings, roles: ['ADMIN'] },
+    
+    // Admin-exclusive tools
+    { to: '/admin', label: 'User Management', icon: Settings, roles: ['ADMIN'] },
+    { to: '/ai-dashboard', label: 'AI Analytics', icon: Bot, roles: ['ADMIN'] },
+    
+    // AI Chat for select roles
     { to: '/ai-chat', label: 'AI Assistant', icon: Bot, roles: ['MANAGER', 'ADMIN', 'QC', 'MECHANIC'] },
   ];
 
@@ -81,15 +94,15 @@ const PurpleSidebar = () => {
          <div className="flex items-center gap-3 mb-6">
             <div className="relative">
                 <img 
-                  src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=b66dff&color=fff`} 
+                  src={`https://ui-avatars.com/api/?name=${user?.name ?? 'User'}&background=b66dff&color=fff`} 
                   alt="profile" 
                   className="h-10 w-10 rounded-full border-2 border-purple-100"
                 />
                 <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-400 border-2 border-white rounded-full"></div>
             </div>
             <div>
-                <h3 className="text-sm font-bold text-gray-700">{user?.name || 'David Grey. H'}</h3>
-                <p className="text-xs text-gray-400">{user?.role || 'Project Manager'}</p>
+                <h3 className="text-sm font-bold text-gray-700">{user?.name ?? 'David Grey. H'}</h3>
+                <p className="text-xs text-gray-400">{user?.role ?? 'Project Manager'}</p>
             </div>
          </div>
       </div>

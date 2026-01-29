@@ -3,7 +3,7 @@ import { ISalesRepository, SalesParams, SalesResponse, SalePayload } from '../..
 
 export const salesRepository: ISalesRepository = {
     getOnlineOrders: async (params: SalesParams): Promise<SalesResponse> => {
-        const response = await api.get('/sales/online', { params });
+        const response = await api.get<SalesResponse>('/sales/online', { params });
         return response.data;
     },
     recordEmployeeSale: async (payload: SalePayload): Promise<void> => {

@@ -8,9 +8,9 @@ const loginSchema = z.object({
 
 export type LoginCredentials = z.infer<typeof loginSchema>;
 
-export const login = async (credentials: LoginCredentials) => {
+export const login = async (credentials: LoginCredentials): Promise<{ user: unknown; accessToken: string; refreshToken: string }> => {
   const validated = loginSchema.parse(credentials);
-  const res = await api.post('/auth/login', validated);
+  const res = await api.post<{ data: { user: unknown; accessToken: string; refreshToken: string } }>('/auth/login', validated);
   return res.data.data; // { user, accessToken, refreshToken }
 };
 
@@ -20,6 +20,6 @@ export const register = async (data: {
   password: string;
   role: string;
 }) => {
-  const res = await api.post('/auth/register', data);
+  const res = await api.post<{ data: { user: unknown } }>('/auth/register', data);
   return res.data.data;
 };

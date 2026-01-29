@@ -72,6 +72,14 @@ app.use('/api/mechanics', rateLimiter, mechanicsRoutes);
 app.use('/api/qc', rateLimiter, qcRoutes);
 app.use('/api/quality', rateLimiter, qualityRoutes);
 
+// Shop
+import shopProductsRoutes from './routes/shop/products.routes.js';
+import shopOrdersRoutes from './routes/shop/orders.routes.js';
+import shopAnalyticsRoutes from './routes/shop/analytics.routes.js';
+app.use('/api/shop/products', shopProductsRoutes);
+app.use('/api/shop/orders', shopOrdersRoutes);
+app.use('/api/shop/analytics', shopAnalyticsRoutes);
+
 // Sales
 // Root route for API health check or guidance
 app.get('/', (req, res) => {

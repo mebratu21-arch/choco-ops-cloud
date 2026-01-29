@@ -14,7 +14,7 @@ export const qcService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to fetch quality checks');
+    throw new Error(data.error ?? 'Failed to fetch quality checks');
   },
 
   /**
@@ -28,7 +28,7 @@ export const qcService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Quality check not found');
+    throw new Error(data.error ?? 'Quality check not found');
   },
 
   /**
@@ -42,7 +42,7 @@ export const qcService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to create quality check');
+    throw new Error(data.error ?? 'Failed to create quality check');
   },
 
   /**
@@ -56,22 +56,21 @@ export const qcService = {
       return data.data;
     }
     
-    throw new Error(data.error || 'Failed to update quality check');
+    throw new Error(data.error ?? 'Failed to update quality check');
   },
   /**
    * Get pending batches for QC
    * GET /api/quality/pending
    */
-  async getPendingBatches(): Promise<any[]> {
+  async getPendingBatches(): Promise<QualityControl[]> {
     try {
       // Use the correct filtering endpoint
-      const { data } = await apiClient.get<ApiResponse<any[]>>('/quality/status/PENDING');
+      const { data } = await apiClient.get<ApiResponse<QualityControl[]>>('/quality/status/PENDING');
       if (data.success && data.data) return data.data;
       return [];
-    } catch (error) {
+    } catch {
       // Fallback: This might be because the endpoint doesn't exist yet
       // For demo purposes, returning empty array or mock data
-      // console.warn('Failed to fetch pending batches:', error);
       return [];
     }
   },
@@ -121,9 +120,9 @@ export const useCreateQualityCheck = () => {
   return useMutation({
     mutationFn: (qcData: Partial<QualityControl>) => qcService.createQualityCheck(qcData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quality-checks'] });
-      queryClient.invalidateQueries({ queryKey: ['batches'] }); // Batch status may change
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['quality-checks'] });
+      void queryClient.invalidateQueries({ queryKey: ['batches'] }); // Batch status may change
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 };
@@ -138,10 +137,10 @@ export const useUpdateQualityCheck = () => {
     mutationFn: ({ id, update }: { id: string; update: QualityUpdateInput }) => 
       qcService.updateQualityStatus(id, update),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['quality-checks'] });
-      queryClient.invalidateQueries({ queryKey: ['quality-checks', id] });
-      queryClient.invalidateQueries({ queryKey: ['batches'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['quality-checks'] });
+      void queryClient.invalidateQueries({ queryKey: ['quality-checks', id] });
+      void queryClient.invalidateQueries({ queryKey: ['batches'] });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 };

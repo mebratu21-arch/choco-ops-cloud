@@ -20,7 +20,7 @@ export const authService = {
       return response.data.data;
     }
     
-    throw new Error(response.data.error || 'Login failed');
+    throw new Error(response.data.error ?? 'Login failed');
   },
 
   /**
@@ -33,7 +33,7 @@ export const authService = {
       return response.data.data;
     }
     
-    throw new Error(response.data.error || 'Registration failed');
+    throw new Error(response.data.error ?? 'Registration failed');
   },
 
   /**
@@ -49,7 +49,7 @@ export const authService = {
       return response.data.data;
     }
     
-    throw new Error(response.data.error || 'Token refresh failed');
+    throw new Error(response.data.error ?? 'Token refresh failed');
   },
 
   /**
@@ -81,7 +81,7 @@ export const authService = {
       return response.data.data;
     }
     
-    throw new Error(response.data.error || 'Failed to fetch user');
+    throw new Error(response.data.error ?? 'Failed to fetch user');
   },
 
   /**

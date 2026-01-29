@@ -110,9 +110,9 @@ const MaintenanceTickets: React.FC<MaintenanceTicketsProps> = ({
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 flex-wrap mb-1">
                                                     <h3 className="font-bold text-lg text-cocoa-900">
-                                                        {fix.machine_name || 'Unknown Machine'}
+                                                        {fix.machine_name ?? 'Unknown Machine'}
                                                     </h3>
-                                                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-white/80 border ${priorityConfig.color.split(' ')[2] || 'border-gray-200'} text-gray-800 shadow-sm`}>
+                                                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-white/80 border ${priorityConfig.color.split(' ')[2] ?? 'border-gray-200'} text-gray-800 shadow-sm`}>
                                                         {priorityConfig.label}
                                                     </span>
                                                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold border ${statusConfig.color}`}>

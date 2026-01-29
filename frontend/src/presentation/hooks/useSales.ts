@@ -13,12 +13,12 @@ export const useSales = (params: SalesParams) => {
     const recordSaleMutation = useMutation({
         mutationFn: (payload: SalePayload) => salesRepository.recordEmployeeSale(payload),
         onSuccess: () => {
-             queryClient.invalidateQueries({ queryKey: ['inventory'] });
+             void queryClient.invalidateQueries({ queryKey: ['inventory'] });
         }
     });
 
     return {
-        orders: ordersQuery.data?.data || [],
+        orders: ordersQuery.data?.data ?? [],
         pagination: ordersQuery.data?.pagination,
         isLoadingOrders: ordersQuery.isLoading,
         ordersError: ordersQuery.error,

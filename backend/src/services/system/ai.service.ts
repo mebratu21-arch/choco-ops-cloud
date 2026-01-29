@@ -161,7 +161,7 @@ export class AiService {
     }
   ): Promise<string> {
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
       safetySettings: SAFETY_SETTINGS,
     });
 
@@ -330,7 +330,7 @@ Your directive: Provide helpful, motivating, and expert advice. Respond naturall
 
     // Perform translation
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
       safetySettings: SAFETY_SETTINGS,
     });
 
@@ -409,7 +409,7 @@ Translate the following text while maintaining the artisan chocolate context:`;
     }
 
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
       safetySettings: SAFETY_SETTINGS,
     });
 

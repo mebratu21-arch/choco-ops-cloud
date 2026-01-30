@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { MechanicsController } from '../../controllers/quality/mechanics.controller.js';
-import { authenticate, authorize } from '../../middleware/auth.middleware.js';
+import { authenticate, authorize, requireRole } from '../../middleware/auth.middleware.js';
 import { validate } from '../../middleware/validate.middleware.js';
 import { mechanicsSchemas } from '../../schemas/index.js';
 
@@ -8,18 +8,77 @@ const router = Router();
 
 router.use(authenticate);
 
+// ============= EQUIPMENT/MACHINES =============
 router.post(
-  '/',
+  '/equipment',
+  requireRole(['ADMIN', 'MANAGER']),
+  MechanicsController.createEquipment
+);
+
+router.get('/equipment', MechanicsController.getAllEquipment);
+
+router.get('/equipment/maintenance-needed', MechanicsController.getEquipmentNeedingMaintenance);
+
+router.get('/equipment/:id', MechanicsController.getEquipment);
+
+router.get('/equipment/:id/maintenance', MechanicsController.getEquipmentMaintenanceHistory);
+
+router.put(
+  '/equipment/:id',
+  requireRole(['ADMIN', 'MANAGER', 'MECHANIC']),
+  MechanicsController.updateEquipment
+);
+
+router.delete(
+  '/equipment/:id',
+  requireRole(['ADMIN']),
+  MechanicsController.deleteEquipment
+);
+
+// ============= SOS ALERTS =============
+router.post('/sos', MechanicsController.createSOS);
+
+router.get('/sos', MechanicsController.getAllSOS);
+
+router.get('/sos/open', MechanicsController.getOpenSOS);
+
+router.get('/sos/my', requireRole(['MECHANIC']), MechanicsController.getMySOS);
+
+router.get('/sos/:id', MechanicsController.getSOS);
+
+router.put('/sos/:id', MechanicsController.updateSOS);
+
+router.post(
+  '/sos/:id/assign',
+  requireRole(['MANAGER', 'MECHANIC']),
+  MechanicsController.assignSOS
+);
+
+router.post(
+  '/sos/:id/resolve',
+  requireRole(['MECHANIC']),
+  MechanicsController.resolveSOS
+);
+
+router.delete(
+  '/sos/:id',
+  requireRole(['ADMIN', 'MANAGER']),
+  MechanicsController.deleteSOS
+);
+
+// ============= MAINTENANCE LOGS =============
+router.post(
+  '/maintenance',
   authorize('MECHANIC', 'MANAGER'),
   MechanicsController.logFix
 );
 
-router.get('/', MechanicsController.getAllFixes);
+router.get('/maintenance', MechanicsController.getAllFixes);
 
-router.get('/:id', MechanicsController.getFix);
+router.get('/maintenance/:id', MechanicsController.getFix);
 
 router.patch(
-  '/:id',
+  '/maintenance/:id',
   authorize('MECHANIC', 'MANAGER'),
   validate(mechanicsSchemas.update),
   MechanicsController.updateFix

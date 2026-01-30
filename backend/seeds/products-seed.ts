@@ -15,7 +15,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 12.99,
       cost: 5.20,
       stock: 150,
-      image_url: '/products/strawberry-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=400&h=400&fit=crop'
     },
     {
       sku: 'CHOC-STD-002',
@@ -25,7 +25,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 10.99,
       cost: 4.40,
       stock: 200,
-      image_url: '/products/dark-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-dark-bar.jpg'
     },
     {
       sku: 'CHOC-STD-003',
@@ -35,7 +35,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 9.99,
       cost: 4.00,
       stock: 180,
-      image_url: '/products/milk-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-milk-bar.jpg'
     },
     {
       sku: 'CHOC-STD-004',
@@ -45,7 +45,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 11.99,
       cost: 4.80,
       stock: 120,
-      image_url: '/products/hazelnut-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-hazelnut-bar.jpg'
     },
     {
       sku: 'CHOC-STD-005',
@@ -55,7 +55,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 13.99,
       cost: 5.60,
       stock: 100,
-      image_url: '/products/caramel-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-caramel-bar.jpg'
     },
 
     // Gift Boxes (Premium Line)
@@ -67,7 +67,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 49.99,
       cost: 20.00,
       stock: 50,
-      image_url: '/products/love-box.jpg'
+      image_url: 'https://images.unsplash.com/photo-love-box.jpg'
     },
     {
       sku: 'CHOC-GIFT-002',
@@ -77,7 +77,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 39.99,
       cost: 16.00,
       stock: 75,
-      image_url: '/products/luxury-box.jpg'
+      image_url: 'https://images.unsplash.com/photo-luxury-box.jpg'
     },
     {
       sku: 'CHOC-GIFT-003',
@@ -87,7 +87,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 29.99,
       cost: 12.00,
       stock: 60,
-      image_url: '/products/heart-box.jpg'
+      image_url: 'https://images.unsplash.com/photo-heart-box.jpg'
     },
     {
       sku: 'CHOC-GIFT-004',
@@ -97,7 +97,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 34.99,
       cost: 14.00,
       stock: 80,
-      image_url: '/products/signature-box-18.jpg'
+      image_url: 'https://images.unsplash.com/photo-signature-box-18.jpg'
     },
     {
       sku: 'CHOC-GIFT-005',
@@ -107,7 +107,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 44.99,
       cost: 18.00,
       stock: 65,
-      image_url: '/products/signature-box-24.jpg'
+      image_url: 'https://images.unsplash.com/photo-signature-box-24.jpg'
     },
 
     // Specialty Items
@@ -119,7 +119,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 15.99,
       cost: 6.40,
       stock: 140,
-      image_url: '/products/gold-coins.jpg'
+      image_url: 'https://images.unsplash.com/photo-gold-coins.jpg'
     },
     {
       sku: 'CHOC-SPEC-002',
@@ -129,7 +129,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 18.99,
       cost: 7.60,
       stock: 90,
-      image_url: '/products/covered-hazelnuts.jpg'
+      image_url: 'https://images.unsplash.com/photo-covered-hazelnuts.jpg'
     },
     {
       sku: 'CHOC-SPEC-003',
@@ -139,7 +139,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 24.99,
       cost: 10.00,
       stock: 70,
-      image_url: '/products/truffles.jpg'
+      image_url: 'https://images.unsplash.com/photo-truffles.jpg'
     },
 
     // Nano-Banana Line (Smaller Portions)
@@ -151,7 +151,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 6.99,
       cost: 2.80,
       stock: 200,
-      image_url: '/products/mini-strawberry.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-strawberry.jpg'
     },
     {
       sku: 'CHOC-NB-002',
@@ -161,7 +161,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 5.99,
       cost: 2.40,
       stock: 250,
-      image_url: '/products/mini-dark.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-dark.jpg'
     },
     {
       sku: 'CHOC-NB-003',
@@ -171,7 +171,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 5.49,
       cost: 2.20,
       stock: 220,
-      image_url: '/products/mini-milk.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-milk.jpg'
     },
     {
       sku: 'CHOC-NB-004',
@@ -181,7 +181,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 6.49,
       cost: 2.60,
       stock: 180,
-      image_url: '/products/mini-hazelnut.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-hazelnut.jpg'
     },
     {
       sku: 'CHOC-NB-005',
@@ -191,7 +191,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 12.99,
       cost: 5.20,
       stock: 150,
-      image_url: '/products/sampler-6.jpg'
+      image_url: 'https://images.unsplash.com/photo-sampler-6.jpg'
     },
     {
       sku: 'CHOC-NB-006',
@@ -201,7 +201,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 8.99,
       cost: 3.60,
       stock: 170,
-      image_url: '/products/mini-coins.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-coins.jpg'
     },
     {
       sku: 'CHOC-NB-007',
@@ -211,7 +211,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 10.99,
       cost: 4.40,
       stock: 130,
-      image_url: '/products/mini-truffles.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-truffles.jpg'
     },
     {
       sku: 'CHOC-NB-008',
@@ -221,7 +221,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 7.99,
       cost: 3.20,
       stock: 190,
-      image_url: '/products/buttons.jpg'
+      image_url: 'https://images.unsplash.com/photo-buttons.jpg'
     },
     {
       sku: 'CHOC-NB-009',
@@ -231,7 +231,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 9.99,
       cost: 4.00,
       stock: 140,
-      image_url: '/products/mini-heart.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-heart.jpg'
     },
     {
       sku: 'CHOC-NB-010',
@@ -241,7 +241,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 14.99,
       cost: 6.00,
       stock: 110,
-      image_url: '/products/party-pack.jpg'
+      image_url: 'https://images.unsplash.com/photo-party-pack.jpg'
     },
 
     // Additional Standard Line Products
@@ -253,7 +253,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 10.99,
       cost: 4.40,
       stock: 160,
-      image_url: '/products/white-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-white-bar.jpg'
     },
     {
       sku: 'CHOC-STD-007',
@@ -263,7 +263,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 12.99,
       cost: 5.20,
       stock: 110,
-      image_url: '/products/orange-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-orange-bar.jpg'
     },
     {
       sku: 'CHOC-STD-008',
@@ -273,7 +273,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 11.99,
       cost: 4.80,
       stock: 130,
-      image_url: '/products/mint-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-mint-bar.jpg'
     },
     {
       sku: 'CHOC-STD-009',
@@ -283,7 +283,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 12.99,
       cost: 5.20,
       stock: 125,
-      image_url: '/products/raspberry-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-raspberry-bar.jpg'
     },
     {
       sku: 'CHOC-STD-010',
@@ -293,7 +293,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 11.99,
       cost: 4.80,
       stock: 145,
-      image_url: '/products/almond-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-almond-bar.jpg'
     },
 
     // More Nano-Banana Line
@@ -305,7 +305,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 6.49,
       cost: 2.60,
       stock: 160,
-      image_url: '/products/mini-orange.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-orange.jpg'
     },
     {
       sku: 'CHOC-NB-012',
@@ -315,7 +315,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 6.49,
       cost: 2.60,
       stock: 155,
-      image_url: '/products/mini-mint.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-mint.jpg'
     },
     {
       sku: 'CHOC-NB-013',
@@ -325,7 +325,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 6.99,
       cost: 2.80,
       stock: 145,
-      image_url: '/products/mini-raspberry.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-raspberry.jpg'
     },
     {
       sku: 'CHOC-NB-014',
@@ -335,7 +335,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 6.49,
       cost: 2.60,
       stock: 170,
-      image_url: '/products/mini-almond.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-almond.jpg'
     },
     {
       sku: 'CHOC-NB-015',
@@ -345,7 +345,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 5.99,
       cost: 2.40,
       stock: 180,
-      image_url: '/products/mini-white.jpg'
+      image_url: 'https://images.unsplash.com/photo-mini-white.jpg'
     },
     {
       sku: 'CHOC-NB-016',
@@ -355,7 +355,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 11.99,
       cost: 4.80,
       stock: 120,
-      image_url: '/products/snack-dark.jpg'
+      image_url: 'https://images.unsplash.com/photo-snack-dark.jpg'
     },
     {
       sku: 'CHOC-NB-017',
@@ -365,7 +365,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 10.99,
       cost: 4.40,
       stock: 135,
-      image_url: '/products/snack-milk.jpg'
+      image_url: 'https://images.unsplash.com/photo-snack-milk.jpg'
     },
     {
       sku: 'CHOC-NB-018',
@@ -375,7 +375,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 9.99,
       cost: 4.00,
       stock: 150,
-      image_url: '/products/travel-mix.jpg'
+      image_url: 'https://images.unsplash.com/photo-travel-mix.jpg'
     },
     {
       sku: 'CHOC-NB-019',
@@ -385,7 +385,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 7.99,
       cost: 3.20,
       stock: 165,
-      image_url: '/products/dessert-coins.jpg'
+      image_url: 'https://images.unsplash.com/photo-dessert-coins.jpg'
     },
     {
       sku: 'CHOC-NB-020',
@@ -395,7 +395,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 8.99,
       cost: 3.60,
       stock: 175,
-      image_url: '/products/pocket-treats.jpg'
+      image_url: 'https://images.unsplash.com/photo-pocket-treats.jpg'
     },
 
     // Additional premium items
@@ -407,7 +407,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 13.99,
       cost: 5.60,
       stock: 95,
-      image_url: '/products/coffee-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-coffee-bar.jpg'
     },
     {
       sku: 'CHOC-STD-012',
@@ -417,7 +417,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 14.99,
       cost: 6.00,
       stock: 85,
-      image_url: '/products/pistachio-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-pistachio-bar.jpg'
     },
     {
       sku: 'CHOC-STD-013',
@@ -427,7 +427,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 12.99,
       cost: 5.20,
       stock: 105,
-      image_url: '/products/coconut-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-coconut-bar.jpg'
     },
     {
       sku: 'CHOC-STD-014',
@@ -437,7 +437,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 13.99,
       cost: 5.60,
       stock: 80,
-      image_url: '/products/chili-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-chili-bar.jpg'
     },
     {
       sku: 'CHOC-STD-015',
@@ -447,7 +447,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 13.99,
       cost: 5.60,
       stock: 75,
-      image_url: '/products/lavender-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-lavender-bar.jpg'
     },
     {
       sku: 'CHOC-SPEC-004',
@@ -457,7 +457,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 28.99,
       cost: 11.60,
       stock: 60,
-      image_url: '/products/pralines.jpg'
+      image_url: 'https://images.unsplash.com/photo-pralines.jpg'
     },
     {
       sku: 'CHOC-SPEC-005',
@@ -467,7 +467,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 32.99,
       cost: 13.20,
       stock: 55,
-      image_url: '/products/bonbons.jpg'
+      image_url: 'https://images.unsplash.com/photo-bonbons.jpg'
     },
     {
       sku: 'CHOC-STD-016',
@@ -477,7 +477,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 14.99,
       cost: 6.00,
       stock: 90,
-      image_url: '/products/caramel-pecan.jpg'
+      image_url: 'https://images.unsplash.com/photo-caramel-pecan.jpg'
     },
     {
       sku: 'CHOC-STD-017',
@@ -487,7 +487,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 12.99,
       cost: 5.20,
       stock: 100,
-      image_url: '/products/blueberry-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-blueberry-bar.jpg'
     },
     {
       sku: 'CHOC-STD-018',
@@ -497,7 +497,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 11.99,
       cost: 4.80,
       stock: 115,
-      image_url: '/products/peanut-butter-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-peanut-butter-bar.jpg'
     },
     {
       sku: 'CHOC-STD-019',
@@ -507,7 +507,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 14.99,
       cost: 6.00,
       stock: 70,
-      image_url: '/products/matcha-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-matcha-bar.jpg'
     },
     {
       sku: 'CHOC-STD-020',
@@ -517,7 +517,7 @@ export async function seed(knex: Knex): Promise<void> {
       price: 12.99,
       cost: 5.20,
       stock: 105,
-      image_url: '/products/pretzel-bar.jpg'
+      image_url: 'https://images.unsplash.com/photo-pretzel-bar.jpg'
     }
   ]);
 

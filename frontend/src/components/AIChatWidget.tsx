@@ -47,42 +47,59 @@ const AIChatWidget = () => {
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
         {/* Chat Window */}
         {isOpen && (
-            <Card className="w-80 h-96 mb-4 flex flex-col shadow-xl border-amber-500/20">
-                <CardHeader className="bg-amber-600 text-white p-4 rounded-t-lg flex flex-row items-center justify-between">
-                    <span className="font-semibold flex items-center gap-2">
-                        <MessageCircle className="h-4 w-4" /> ChocoBot
+            <Card className="w-96 h-[500px] mb-4 flex flex-col shadow-2xl border-2 border-amber-200 bg-gradient-to-br from-white to-amber-50">
+                <CardHeader className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 text-white p-4 rounded-t-lg flex flex-row items-center justify-between">
+                    <span className="font-bold flex items-center gap-2 text-lg">
+                        🍫 ChocoBot AI
                     </span>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-white hover:bg-amber-700" onClick={toggleChat}>
-                        <X className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-amber-800 rounded-full" onClick={toggleChat}>
+                        <X className="h-5 w-5" />
                     </Button>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+                <CardContent className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-amber-50/30 to-white">
                     {messages.map((msg, idx) => (
                         <div key={idx} className={cn(
-                            "max-w-[80%] rounded-lg p-3 text-sm",
-                            msg.role === 'user' 
-                                ? "bg-amber-100 text-amber-900 ml-auto" 
-                                : "bg-slate-100 text-slate-800 mr-auto"
+                            "max-w-[85%] rounded-2xl p-3 text-sm shadow-sm animate-in slide-in-from-bottom-2 duration-300",
+                            msg.role === 'user'
+                                ? "bg-gradient-to-br from-amber-500 to-amber-600 text-white ml-auto shadow-amber-200"
+                                : "bg-white text-slate-700 mr-auto border border-amber-100 shadow-amber-100"
                         )}>
-                            {msg.text}
+                            {msg.role === 'assistant' && <span className="text-amber-600 font-semibold text-xs">🤖 ChocoBot:</span>}
+                            <p className={msg.role === 'assistant' ? 'mt-1' : ''}>{msg.text}</p>
                         </div>
                     ))}
+                    {isPending && (
+                        <div className="flex items-center gap-2 text-amber-600 text-sm">
+                            <div className="flex gap-1">
+                                <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                                <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                                <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                            </div>
+                            <span>Thinking...</span>
+                        </div>
+                    )}
                 </CardContent>
-                <CardFooter className="p-3 border-t">
+                <CardFooter className="p-3 border-t border-amber-100 bg-white">
                     <div className="flex w-full gap-2">
-                        <Input 
-                            value={input} 
+                        <Input
+                            value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && !isPending && sendMessage()}
-                            placeholder="Ask me anything..."
-                            className="flex-1"
+                            placeholder="Ask about inventory, recipes, or production..."
+                            className="flex-1 border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                             disabled={isPending}
                         />
-                         <Button size="icon" variant="ghost" className="text-slate-500" disabled={isPending}>
-                             <Mic className="h-4 w-4" />
-                         </Button>
-                        <Button size="icon" onClick={sendMessage} className="bg-amber-600 hover:bg-amber-700" disabled={isPending || !input.trim()}>
-                            {isPending ? <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <Send className="h-4 w-4" />}
+                        <Button
+                            size="icon"
+                            onClick={sendMessage}
+                            className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 shadow-lg shadow-amber-200"
+                            disabled={isPending || !input.trim()}
+                        >
+                            {isPending ? (
+                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                            ) : (
+                                <Send className="h-4 w-4" />
+                            )}
                         </Button>
                     </div>
                 </CardFooter>
@@ -90,11 +107,11 @@ const AIChatWidget = () => {
         )}
 
       {/* Toggle Button */}
-      <Button 
+      <Button
         onClick={toggleChat}
-        className="h-14 w-14 rounded-full bg-amber-600 hover:bg-amber-700 shadow-lg flex items-center justify-center transition-transform hover:scale-105"
+        className="h-16 w-16 rounded-full bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800 hover:from-amber-700 hover:via-amber-800 hover:to-amber-900 shadow-2xl shadow-amber-300 flex items-center justify-center transition-all duration-300 hover:scale-110 border-2 border-amber-400"
       >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        {isOpen ? <X className="h-7 w-7 text-white" /> : <span className="text-3xl">🍫</span>}
       </Button>
     </div>
   );

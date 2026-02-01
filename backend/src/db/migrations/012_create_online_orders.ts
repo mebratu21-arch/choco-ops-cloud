@@ -5,7 +5,7 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.string('customer_email', 255).notNullable();
     table.string('customer_name', 255);
-    table.uuid('batch_id').references('id').inTable('batches').onDelete('SET NULL');
+    table.uuid('batch_id').references('id').inTable('production_batches').onDelete('SET NULL');
     table.decimal('quantity', 12, 2).notNullable();
     table.string('unit', 50).notNullable();
     table.decimal('total_amount', 12, 2).notNullable();

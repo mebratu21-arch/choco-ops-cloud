@@ -10,27 +10,27 @@ router.use(authenticate);
 
 // ============= EQUIPMENT/MACHINES =============
 router.post(
-  '/equipment',
+  '/machines',
   requireRole(['ADMIN', 'MANAGER']),
   MechanicsController.createEquipment
 );
 
-router.get('/equipment', MechanicsController.getAllEquipment);
+router.get('/machines', MechanicsController.getAllEquipment);
 
-router.get('/equipment/maintenance-needed', MechanicsController.getEquipmentNeedingMaintenance);
+router.get('/machines/maintenance-needed', MechanicsController.getEquipmentNeedingMaintenance);
 
-router.get('/equipment/:id', MechanicsController.getEquipment);
+router.get('/machines/:id', MechanicsController.getEquipment);
 
-router.get('/equipment/:id/maintenance', MechanicsController.getEquipmentMaintenanceHistory);
+router.get('/machines/:id/maintenance', MechanicsController.getEquipmentMaintenanceHistory);
 
 router.put(
-  '/equipment/:id',
+  '/machines/:id',
   requireRole(['ADMIN', 'MANAGER', 'MECHANIC']),
   MechanicsController.updateEquipment
 );
 
 router.delete(
-  '/equipment/:id',
+  '/machines/:id',
   requireRole(['ADMIN']),
   MechanicsController.deleteEquipment
 );

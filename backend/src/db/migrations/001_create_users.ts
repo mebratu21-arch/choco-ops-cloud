@@ -4,16 +4,25 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('users', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.string('email', 255).notNullable().unique();
-    table.string('name', 100).notNullable();
     table.string('password_hash', 255).notNullable();
-    table.enum('role', ['WAREHOUSE', 'PRODUCTION', 'MECHANIC', 'CONTROLLER', 'MANAGER', 'ADMIN']).notNullable();
+    table.string('full_name', 255).notNullable();
+    table.enum('role', [
+      'admin',
+      'manager',
+      'production_worker',
+      'warehouse_worker',
+      'quality_controller',
+      'mechanic'
+    ]).notNullable();
+    table.string('language_preference', 10).defaultTo('en');
     table.boolean('is_active').defaultTo(true);
-    table.string('preferred_language', 10).defaultTo('en');
-    table.timestamp('deleted_at');
     table.timestamps(true, true);
+
+    table.index(['email']);
+    table.index(['role']);
   });
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable('users');
+  await knex.schema.dropTableIfExists('users');
 }

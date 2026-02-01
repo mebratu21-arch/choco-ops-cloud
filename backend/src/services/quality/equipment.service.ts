@@ -27,7 +27,7 @@ export class EquipmentService {
    */
   static async create(input: CreateEquipmentInput) {
     try {
-      const [equipment] = await db('equipment')
+      const [equipment] = await db('machines')
         .insert({
           name: input.name,
           machine_code: input.machineCode,
@@ -53,7 +53,7 @@ export class EquipmentService {
    */
   static async getAll(filters?: { status?: string; type?: string }) {
     try {
-      let query = db('equipment')
+      let query = db('machines')
         .select(
           'equipment.*',
           'users.name as mechanic_name',
@@ -83,7 +83,7 @@ export class EquipmentService {
    */
   static async getById(id: string) {
     try {
-      const equipment = await db('equipment')
+      const equipment = await db('machines')
         .select(
           'equipment.*',
           'users.name as mechanic_name',
@@ -122,7 +122,7 @@ export class EquipmentService {
 
       updateData.updated_at = new Date();
 
-      const [updated] = await db('equipment')
+      const [updated] = await db('machines')
         .where({ id })
         .update(updateData)
         .returning('*');
@@ -144,7 +144,7 @@ export class EquipmentService {
    */
   static async delete(id: string) {
     try {
-      const deleted = await db('equipment')
+      const deleted = await db('machines')
         .where({ id })
         .delete();
 
@@ -187,7 +187,7 @@ export class EquipmentService {
   static async getNeedingMaintenance() {
     try {
       const now = new Date();
-      const equipment = await db('equipment')
+      const equipment = await db('machines')
         .select('*')
         .where('next_maintenance', '<=', now)
         .whereIn('status', ['OPERATIONAL', 'OFFLINE'])
@@ -205,7 +205,7 @@ export class EquipmentService {
    */
   static async updateHours(id: string, additionalHours: number) {
     try {
-      const [updated] = await db('equipment')
+      const [updated] = await db('machines')
         .where({ id })
         .increment('total_hours', additionalHours)
         .update({ updated_at: new Date() })

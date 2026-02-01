@@ -26,7 +26,7 @@ export const UpdateStockBodySchema = z.object({
     .refine(val => Math.abs(val) <= 10000, { message: 'Change too large (max 10,000)' }),
   reason: z.enum([...STOCK_UPDATE_REASONS])
     .optional()
-    .default('MANUAL_ADJUSTMENT'),
+    .default('manual_adjustment'),
   notes: z.string().max(500).optional(),
 });
 

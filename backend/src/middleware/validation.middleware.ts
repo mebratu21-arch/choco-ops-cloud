@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodSchema, ZodError } from 'zod';
+import { ZodType, ZodError } from 'zod';
 import { logger } from '../config/logger.js';
 
-export const validate = (schema: ZodSchema) => {
+export const validate = (schema: ZodType) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       await schema.parseAsync({
@@ -13,11 +13,11 @@ export const validate = (schema: ZodSchema) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const errors = error.errors.map((err) => ({
+        const errors = error.issues.map((err) => ({
           path: err.path.join('.'),
           message: err.message,
         }));
-       
+
         logger.warn('Validation error:', { errors });
         res.status(400).json({
           error: 'Validation failed',

@@ -1,48 +1,78 @@
+
 import dotenv from 'dotenv';
-import { z } from 'zod';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables from backend root (../../.env from src/config)
-const envPath = path.resolve(__dirname, '../../.env');
-const result = dotenv.config({ path: envPath });
+const LOG_FILE = path.resolve(process.cwd(), 'debug_startup.log');
 
-console.log(`[DEBUG] CWD: ${process.cwd()}`);
-console.log(`[DEBUG] Loading .env from: ${envPath}`);
-if (result.error) {
-  console.warn('[DEBUG] Failed to load .env file:', result.error.message);
-} else {
-  console.log('[DEBUG] .env loaded successfully');
+const debugLog = (msg: string) => {
+    try {
+        fs.appendFileSync(LOG_FILE, `[ENV] ${new Date().toISOString()} - ${msg}\n`);
+    } catch (e) {
+        // ignore
+    }
+};
+
+debugLog('Starting environment loading...');
+
+// Search for .env in current and parent directories until found or root reached
+let currentPath = __dirname;
+let envPath = '';
+debugLog(`Searching for .env starting from: ${currentPath}`);
+
+try {
+    while (currentPath !== path.parse(currentPath).root) {
+        const potentialPath = path.resolve(currentPath, '.env');
+        if (fs.existsSync(potentialPath)) {
+            envPath = potentialPath;
+            break;
+        }
+        currentPath = path.dirname(currentPath);
+    }
+
+    if (!envPath) {
+        // Last resort: check root of project relative to backend
+        envPath = path.resolve(__dirname, '../../../.env');
+        debugLog(`Checking fallback path: ${envPath}`);
+    }
+
+    if (fs.existsSync(envPath)) {
+        debugLog(`Found .env at: ${envPath}`);
+        const result = dotenv.config({ path: envPath });
+        if (result.error) {
+           debugLog(`Error loading dotenv: ${result.error.message}`);
+           throw result.error;
+        }
+    } else {
+        debugLog('❌ .env file NOT found');
+    }
+} catch (error: any) {
+    debugLog(`CRITICAL ERROR loading environment: ${error.message}\n${error.stack}`);
 }
 
-const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().default('3000'),
-  DATABASE_URL: z.string().optional().or(z.literal('')),
-  DB_HOST: z.string().default('localhost'),
-  DB_PORT: z.string().default('5432'),
-  DB_NAME: z.string().default('cocoaflow'),
-  DB_USER: z.string().default('postgres'),
-  DB_PASSWORD: z.string().default('postgres'),
-  JWT_SECRET: z.string().min(32),
-  JWT_REFRESH_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string().default('15m'),
-  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
-  BCRYPT_ROUNDS: z.string().default('10'),
-  GEMINI_API_KEY: z.string().optional(),
-  REDIS_URL: z.string().default('redis://localhost:6379'),
-  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
-  LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
-});
+debugLog('🔧 Loading Environment Variables...');
+debugLog(`  GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? 'Set' : 'Missing'}`);
+debugLog(`  ANTHROPIC_API_KEY: ${process.env.ANTHROPIC_API_KEY ? 'Set' : 'Missing'}`);
 
-const parsed = envSchema.safeParse(process.env);
+export const config = {
+  PORT: 3005,
+  JWT_SECRET: process.env.JWT_SECRET || 'default-dev-secret',
+  DATABASE_URL: process.env.DATABASE_URL,
+  JWT_EXPIRY: '8h',
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
+  STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || '',
+  TELEMETRY_INTERVAL_MS: 5000,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || process.env.API_KEY || '',
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+};
 
-if (!parsed.success) {
-  console.error('❌ Invalid environment variables:', JSON.stringify(parsed.error.format(), null, 2));
+if (!config.JWT_SECRET) {
+  debugLog('❌ FATAL: JWT_SECRET environment variable is not set');
   process.exit(1);
 }
 
-export const env = parsed.data;
+debugLog('Environment configuration loaded successfully.');

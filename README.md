@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![CocoaFlow Header](https://raw.githubusercontent.com/mebratu21-arch/choco-ops-cloud/main/dashboard_v4.png)
+![CocoaFlow Header](https://raw.githubusercontent.com/mebratu21-arch/choco-ops-cloud/professional-readme/dashboard_v4.png)
 
 ### 🏭 Enterprise-Grade Manufacturing Orchestration | Information Systems Optimization
 

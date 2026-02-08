@@ -60,7 +60,7 @@ The system is built on a "Cisco Security First" philosophy:
 **Mebratu Mengstu**
 *Principal Software Engineer | Information Systems Specialist*
 
-[LinkedIn](https://linkedin.com/in/mebratu-mengstu) | [Portfolio](https://mebratu.dev) | [Specialized Projects](https://github.com/mebratu21-arch)
+[LinkedIn](https://www.linkedin.com/in/mebratu21) | [Portfolio](https://github.com/mebratu21-arch/Mebratu-Mengstu---Portfolio-Website) | [Specialized Projects](https://github.com/mebratu21-arch)
 
 ---
 

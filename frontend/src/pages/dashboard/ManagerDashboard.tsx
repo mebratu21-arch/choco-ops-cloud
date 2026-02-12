@@ -10,7 +10,8 @@ import {
   Users,
   Timer,
   Zap,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from 'lucide-react';
 import { useManager } from '../../hooks/useManager';
 import { Loader2 } from 'lucide-react';

@@ -56,14 +56,14 @@ app.get('/metrics', metricsEndpoint);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', rateLimiter, userRoutes);
 
-app.use('/api/inventory', rateLimiter, inventoryRoutes);
+app.use('/api/inventory', inventoryRoutes);
 app.use('/api/ingredients', rateLimiter, ingredientRoutes);
 app.use('/api/raw-materials', rateLimiter, rawMaterialRoutes);
 app.use('/api/suppliers', rateLimiter, supplierRoutes);
 app.use('/api/warehouses', rateLimiter, warehouseRoutes);
 
-app.use('/api/batches', rateLimiter, batchesRoutes);
-app.use('/api/recipes', rateLimiter, recipesRoutes);
+app.use('/api/batches', batchesRoutes);
+app.use('/api/recipes', recipesRoutes);
 
 app.use('/api/qc', rateLimiter, qcRoutes);
 app.use('/api/machines', rateLimiter, machinesRoutes);
@@ -71,7 +71,7 @@ app.use('/api/sos', rateLimiter, sosRoutes);
 app.use('/api/maintenance', rateLimiter, maintenanceRoutes);
 
 app.use('/api/manager', rateLimiter, managerRoutes);
-app.use('/api/dashboard', rateLimiter, dashboardRoutes); // Mounted
+app.use('/api/dashboard', dashboardRoutes); // Mounted
 app.use('/api/shop', rateLimiter, productsRouter);
 app.use('/api/sales', rateLimiter, salesRoutes);
 app.use('/api/payments', rateLimiter, paymentRoutes);

@@ -6,7 +6,9 @@ import {
   Calendar, 
   Wrench,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Clock,
+  DollarSign
 } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import { Card, CardContent } from '../../components/ui/Card';
@@ -104,7 +106,7 @@ const MaintenanceHistoryPage: React.FC = () => {
             <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Spend</p>
             <div className="flex items-center justify-between">
               <span className="text-3xl font-black text-emerald-900">
-                ${filteredLogs.reduce((acc, l) => acc + (l.cost || 0), 0).toLocaleString()}
+                ${filteredLogs.reduce((acc, l) => acc + Number(l.cost || 0), 0).toLocaleString()}
               </span>
               <DollarSign className="w-8 h-8 text-emerald-200" />
             </div>
@@ -205,7 +207,7 @@ const MaintenanceHistoryPage: React.FC = () => {
                         {log.cost && (
                           <div className="flex items-center gap-1.5 text-emerald-600 font-black">
                             <DollarSign className="w-3.5 h-3.5" />
-                            <span className="text-[10px] uppercase">${log.cost.toFixed(2)} USD</span>
+                            <span className="text-[10px] uppercase">${Number(log.cost).toFixed(2)} USD</span>
                           </div>
                         )}
                       </div>

@@ -38,4 +38,6 @@ temp/
 test-results/
 tsc_output.txt
 nul
-.gemini/
+*_backup
+*.backup
+*.bak

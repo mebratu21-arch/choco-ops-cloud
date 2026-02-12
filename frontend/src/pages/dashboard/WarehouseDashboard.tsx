@@ -268,26 +268,26 @@ const WarehouseDashboard: React.FC = () => {
         <div className="lg:col-span-4 space-y-10">
           
           {/* SPATIAL MAP PREVIEW */}
-          <div className="bg-chocolate-950 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group border border-white/5">
+          <div className="bg-chocolate-950 p-6 sm:p-8 rounded-[3rem] shadow-2xl relative overflow-hidden group border border-white/5">
              <div className="absolute inset-0 bg-gold-gradient opacity-10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2 group-hover:opacity-20 transition-all duration-1000" />
-             <div className="relative z-10 space-y-8">
-                <div className="flex items-center justify-between">
+             <div className="relative z-10 space-y-6">
+                <div className="flex items-center justify-between px-2">
                    <h3 className="text-white font-black uppercase tracking-[0.2em] text-[10px] flex items-center gap-3">
                       <MapIcon className="w-5 h-5 text-amber-500" /> Spatial Logistics Map
                    </h3>
                    <span className="text-amber-500 font-mono text-[10px] tracking-widest bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">UTIL: 84%</span>
                 </div>
                 
-                <div className="bg-white/5 aspect-square rounded-[2rem] border border-white/10 p-8 flex items-center justify-center relative backdrop-blur-xl group-hover:border-white/20 transition-all">
-                   <div className="grid grid-cols-2 gap-6 w-full h-full">
-                      <div className="bg-white/10 rounded-2xl flex items-center justify-center text-[10px] font-black text-white/40 hover:bg-amber-500/20 hover:text-amber-500 hover:border-amber-500/30 transition-all cursor-pointer border border-transparent">NODE-ALPHA</div>
-                      <div className="bg-amber-500/20 rounded-2xl flex items-center justify-center text-[10px] font-black text-amber-500 border-2 border-amber-500/30 cursor-pointer shadow-lg shadow-amber-500/10 rotate-1">BOUTIQUE-B</div>
-                      <div className="bg-white/10 rounded-2xl flex items-center justify-center text-[10px] font-black text-white/40 hover:bg-amber-500/20 hover:text-amber-500 transition-all cursor-pointer border border-transparent">RESERVE-X</div>
-                      <div className="bg-red-500/20 rounded-2xl flex items-center justify-center text-[10px] font-black text-red-500 cursor-pointer animate-pulse border border-red-500/30">QUARANTINE</div>
+                <div className="bg-white/5 aspect-square rounded-[2rem] border border-white/10 p-4 sm:p-6 flex items-center justify-center relative backdrop-blur-xl group-hover:border-white/20 transition-all overflow-hidden">
+                   <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full h-full">
+                      <div className="bg-white/10 rounded-2xl flex items-center justify-center text-[10px] font-black text-white/40 hover:bg-amber-500/20 hover:text-amber-500 hover:border-amber-500/30 transition-all cursor-pointer border border-transparent p-2 text-center leading-tight">NODE-ALPHA</div>
+                      <div className="bg-amber-500/20 rounded-2xl flex items-center justify-center text-[10px] font-black text-amber-500 border-2 border-amber-500/30 cursor-pointer shadow-lg shadow-amber-500/10 rotate-1 p-2 text-center leading-tight">BOUTIQUE-B</div>
+                      <div className="bg-white/10 rounded-2xl flex items-center justify-center text-[10px] font-black text-white/40 hover:bg-amber-500/20 hover:text-amber-500 transition-all cursor-pointer border border-transparent p-2 text-center leading-tight">RESERVE-X</div>
+                      <div className="bg-red-500/20 rounded-2xl flex items-center justify-center text-[10px] font-black text-red-500 cursor-pointer animate-pulse border border-red-500/30 p-2 text-center leading-tight">QUARANTINE</div>
                    </div>
                 </div>
 
-                <Button onClick={() => toast.success("Spatial Matrix Decrypted")} className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-chocolate-950 border-none font-black text-[10px] tracking-[0.2em] py-8 rounded-2xl shadow-xl shadow-amber-900/40 uppercase">Initiate 3D Visualization</Button>
+                <Button onClick={() => toast.success("Spatial Matrix Decrypted")} className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-chocolate-950 border-none font-black text-[10px] tracking-[0.2em] py-6 rounded-2xl shadow-xl shadow-amber-900/40 uppercase">Initiate 3D Visualization</Button>
              </div>
           </div>
 

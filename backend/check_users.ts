@@ -1,18 +1,26 @@
 import { db } from './src/config/database.js';
-async function check() {
+
+async function checkUsers() {
   try {
-    const user = await db('users').where({ email: 'admin@cocoaflow.com' }).first();
-    if (user) {
-      console.log('User found:', user.email);
+    const users = await db('users').select('id', 'email', 'role', 'is_active');
+    console.log('--- Registered Users ---');
+    console.table(users);
+    
+    const admin = await db('users').where({ email: 'admin@cocoaflow.com' }).first();
+    if (admin) {
+        console.log('\nAdmin user found!');
+        console.log('Email:', admin.email);
+        console.log('Role:', admin.role);
+        console.log('Is Active:', admin.is_active);
+        console.log('Hash exists:', !!admin.password_hash);
     } else {
-      console.log('User NOT found: admin@cocoaflow.com');
-      const allUsers = await db('users').select('email');
-      console.log('Available users:', allUsers.map(u => u.email));
+        console.log('\nAdmin user NOT found!');
     }
-    process.exit(0);
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
+  } catch (error) {
+    console.error('Error checking users:', error);
+  } finally {
+    await db.destroy();
   }
 }
-check();
+
+checkUsers();

@@ -263,11 +263,19 @@ export class ProductionService {
   }
 
   async updateBatchStatus(id: string, status: BatchStatus, userId: string) {
+    // Basic UUID validation to prevent database-level crashes on malformed IDs
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+        console.warn(`[ProductionService] Invalid UUID attempt: ${id}`);
+        return null;
+    }
+
     const updateData: any = { status, updated_at: new Date() };
     if (status === 'completed') {
         updateData.completed_at = new Date();
     }
     
+    // Use transaction or at least check existence if we want to be safe
     const [updatedBatch] = await db('production_batches')
       .where({ id })
       .update(updateData)

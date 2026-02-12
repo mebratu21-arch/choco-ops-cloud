@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useSendAIMessage, useClearChatHistory } from '../../services/aiService';
 import { detectLanguage, MULTILINGUAL_PHRASES } from '../../services/aiService';
 import { AIChatMessage } from '../../types';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Send } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 
 type SupportedLanguage = 'en' | 'am' | 'ru' | 'he' | 'ar';
@@ -205,7 +205,6 @@ const AIChat = () => {
                             type="text"
                             placeholder={PLACEHOLDER_TEXT[language]}
                             value={input}
-                            onChange={(e) => setInput(e.target.value)}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}
                             disabled={isPending}

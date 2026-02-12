@@ -133,7 +133,7 @@ export class AIService {
     if (GEMINI_KEY) {
       try {
         this.gemini = new GoogleGenerativeAI(GEMINI_KEY);
-        this.geminiModel = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        this.geminiModel = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
         if (this.provider === 'mock') this.provider = 'gemini';
         console.log('✅ AI Service: Gemini available as fallback');
       } catch (e) {
@@ -411,7 +411,7 @@ export class AIService {
     messages.push({ role: 'user', content: message });
 
     const response = await this.anthropic!.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1024,
       system: systemMessage,
       messages: messages
@@ -638,7 +638,7 @@ export class AIService {
     if (this.anthropic) {
       try {
         const response = await this.anthropic.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-3-5-sonnet-20241022',
           max_tokens: 1024,
           messages: [{
             role: 'user',

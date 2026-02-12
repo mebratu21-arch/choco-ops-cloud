@@ -11,7 +11,8 @@ async function fixStock() {
     { name: 'Butter', quantity: 20000, unit: 'g' },
     { name: 'Heavy Cream', quantity: 20000, unit: 'ml' },
     { name: 'Soft Butter', quantity: 10000, unit: 'g' },
-    { name: 'Unsalted Butter', quantity: 10000, unit: 'g' }
+    { name: 'Unsalted Butter', quantity: 10000, unit: 'g' },
+    { name: 'Coconut Flakes', quantity: 50000, unit: 'g' }
   ];
 
   for (const update of updates) {

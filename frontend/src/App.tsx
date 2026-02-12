@@ -113,7 +113,7 @@ const App = () => {
               <Route
                 path="/inventory"
                 element={
-                  <ProtectedRoute allowedRoles={['admin', 'manager', 'warehouse_worker']}>
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'warehouse_worker', 'production_worker', 'quality_controller', 'mechanic']}>
                     <InventoryPage />
                   </ProtectedRoute>
                 }
@@ -122,7 +122,7 @@ const App = () => {
               <Route
                 path="/inventory/:id"
                 element={
-                  <ProtectedRoute allowedRoles={['admin', 'manager', 'warehouse_worker']}>
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'warehouse_worker', 'production_worker', 'quality_controller', 'mechanic']}>
                     <InventoryDetailPage />
                   </ProtectedRoute>
                 }
@@ -131,7 +131,7 @@ const App = () => {
               <Route
                 path="/recipes"
                 element={
-                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker', 'mechanic', 'warehouse_worker', 'quality_controller']}>
                     <RecipesPage />
                   </ProtectedRoute>
                 }
@@ -155,7 +155,7 @@ const App = () => {
               <Route
                 path="/recipes/:id"
                 element={
-                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker', 'mechanic', 'warehouse_worker', 'quality_controller']}>
                     <RecipeDetailPage />
                   </ProtectedRoute>
                 }
@@ -164,12 +164,12 @@ const App = () => {
               <Route
                 path="/production/recipes"
                 element={
-                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker', 'mechanic', 'warehouse_worker', 'quality_controller']}>
                     <RecipesPage />
                   </ProtectedRoute>
                 }
               />
-                <Route
+              <Route
                 path="/production/recipes/:id/edit"
                 element={
                   <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
@@ -180,7 +180,7 @@ const App = () => {
               <Route
                 path="/production/recipes/:id"
                 element={
-                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker', 'mechanic', 'warehouse_worker', 'quality_controller']}>
                     <RecipeDetailPage />
                   </ProtectedRoute>
                 }
@@ -189,7 +189,7 @@ const App = () => {
               <Route
                 path="/batches"
                 element={
-                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker', 'quality_controller', 'mechanic', 'warehouse_worker']}>
                     <BatchesPage />
                   </ProtectedRoute>
                 }
@@ -198,7 +198,7 @@ const App = () => {
               <Route
                 path="/batches/:id"
                 element={
-                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker', 'quality_controller', 'mechanic', 'warehouse_worker']}>
                     <BatchDetailPage />
                   </ProtectedRoute>
                 }

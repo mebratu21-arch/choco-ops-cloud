@@ -48,21 +48,17 @@ export class AuthController {
     try {
       const { email, password } = req.body;
 
-      console.log('LOGIN ATTEMPT:', email);
       // Find user
       const user = await db('users').where({ email, is_active: true }).first();
-      console.log('User found:', user ? user.id : 'NONE');
       
       if (!user) {
         res.status(401).json({ error: 'Invalid credentials' });
         return;
       }
       
-      console.log('Has hash:', user.password_hash ? 'YES' : 'NO');
 
       // Verify password
       const isValid = await AuthService.verifyPassword(password, user.password_hash);
-      console.log('Password valid:', isValid);
       if (!isValid) {
         res.status(401).json({ error: 'Invalid credentials' });
         return;

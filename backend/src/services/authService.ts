@@ -86,9 +86,6 @@ export class AuthService {
       role: user.role
     };
 
-    console.log('[AUTH DEBUG] Signing token for:', user.email, 'with role:', user.role);
-    console.log('[AUTH DEBUG] Using secret starts with:', JWT_SECRET.substring(0, 5) + '...');
-
     return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
   }
 

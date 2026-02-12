@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Plus,
   MoreVertical,
@@ -66,76 +66,81 @@ const INITIAL_TASKS: Task[] = [
     }
 ];
 
-const TaskCard = ({ task, onMove }: { task: Task, onMove: (id: number, status: Task['status']) => void }) => (
-    <motion.div 
-        layout
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="group bg-white p-5 rounded-2xl border border-chocolate-100 shadow-sm hover:shadow-xl hover:shadow-chocolate-950/5 transition-all duration-300 relative overflow-hidden"
-    >
-        <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-           <button className="p-1 hover:bg-chocolate-50 rounded-lg transition-colors">
-              <MoreVertical className="w-4 h-4 text-chocolate-400" />
-           </button>
-        </div>
-
-        <div className="space-y-3">
-            <div className="flex items-start gap-3">
-               <div className={cn(
-                  "w-2 h-2 rounded-full mt-2 shrink-0 shadow-[0_0_8px]",
-                  task.priority === 'high' ? "bg-vibrant-red shadow-vibrant-red/50" : 
-                  task.priority === 'medium' ? "bg-gold-500 shadow-gold-500/50" : "bg-blue-500 shadow-blue-500/50"
-               )} />
-               <h4 className={cn(
-                  "text-[14px] font-black tracking-tight leading-tight transition-all",
-                  task.status === 'complete' ? "text-chocolate-300 line-through" : "text-chocolate-950"
-               )}>
-                  {task.title}
-               </h4>
+const TaskCard = React.forwardRef<HTMLDivElement, { task: Task, onMove: (id: number, status: Task['status']) => void }>(
+    ({ task, onMove }, ref) => (
+        <motion.div 
+            ref={ref}
+            layout
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="group bg-white p-5 rounded-2xl border border-chocolate-100 shadow-sm hover:shadow-xl hover:shadow-chocolate-950/5 transition-all duration-300 relative overflow-hidden"
+        >
+            <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+               <button className="p-1 hover:bg-chocolate-50 rounded-lg transition-colors">
+                  <MoreVertical className="w-4 h-4 text-chocolate-400" />
+               </button>
             </div>
 
-            <div className="flex items-center justify-between pt-2">
-                <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-chocolate-100 flex items-center justify-center text-[10px] font-black text-chocolate-600">
-                       {task.assignee.charAt(0)}
+            <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                   <div className={cn(
+                      "w-2 h-2 rounded-full mt-2 shrink-0 shadow-[0_0_8px]",
+                      task.priority === 'high' ? "bg-vibrant-red shadow-vibrant-red/50" : 
+                      task.priority === 'medium' ? "bg-gold-500 shadow-gold-500/50" : "bg-blue-500 shadow-blue-500/50"
+                   )} />
+                   <h4 className={cn(
+                      "text-[14px] font-black tracking-tight leading-tight transition-all",
+                      task.status === 'complete' ? "text-chocolate-300 line-through" : "text-chocolate-950"
+                   )}>
+                      {task.title}
+                   </h4>
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-chocolate-100 flex items-center justify-center text-[10px] font-black text-chocolate-600">
+                           {task.assignee.charAt(0)}
+                        </div>
+                        <span className="text-[10px] font-black text-chocolate-300 uppercase tracking-widest">{task.dueDate}</span>
                     </div>
-                    <span className="text-[10px] font-black text-chocolate-300 uppercase tracking-widest">{task.dueDate}</span>
-                </div>
 
-                <div className="flex gap-1">
-                    {task.status === 'begin' && (
-                        <button 
-                            onClick={() => onMove(task.id, 'progress')}
-                            className="p-2 bg-gold-500/10 text-gold-600 hover:bg-gold-500 hover:text-white rounded-lg transition-all"
-                            title="Start Progress"
-                        >
-                            <Play className="w-3.5 h-3.5" />
-                        </button>
-                    )}
-                    {task.status === 'progress' && (
-                        <button 
-                            onClick={() => onMove(task.id, 'complete')}
-                            className="p-2 bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white rounded-lg transition-all"
-                            title="Complete Task"
-                        >
-                            <Check className="w-3.5 h-3.5" />
-                        </button>
-                    )}
-                    {task.status === 'complete' && (
-                        <button 
-                            onClick={() => onMove(task.id, 'begin')}
-                            className="p-2 bg-chocolate-100 text-chocolate-400 hover:bg-chocolate-200 rounded-lg transition-all"
-                            title="Reset Task"
-                        >
-                            <RotateCcw className="w-3.5 h-3.5" />
-                        </button>
-                    )}
+                    <div className="flex gap-1">
+                        {task.status === 'begin' && (
+                            <button 
+                                onClick={() => onMove(task.id, 'progress')}
+                                className="p-2 bg-gold-500/10 text-gold-600 hover:bg-gold-500 hover:text-white rounded-lg transition-all"
+                                title="Start Progress"
+                            >
+                                <Play className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                        {task.status === 'progress' && (
+                            <button 
+                                onClick={() => onMove(task.id, 'complete')}
+                                className="p-2 bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white rounded-lg transition-all"
+                                title="Complete Task"
+                            >
+                                <Check className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                        {task.status === 'complete' && (
+                            <button 
+                                onClick={() => onMove(task.id, 'begin')}
+                                className="p-2 bg-chocolate-100 text-chocolate-400 hover:bg-chocolate-200 rounded-lg transition-all"
+                                title="Reset Task"
+                            >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
-    </motion.div>
+        </motion.div>
+    )
 );
+
+TaskCard.displayName = 'TaskCard';
 
 const Column = ({ 
   title, 

@@ -169,7 +169,7 @@ export class InventoryService {
 
   async getMovementHistory(itemId: string) {
     return db('inventory_movements')
-      .join('users', 'inventory_movements.performed_by', 'users.id')
+      .leftJoin('users', 'inventory_movements.performed_by', 'users.id')
       .where({ item_id: itemId })
       .select(
         'inventory_movements.*',

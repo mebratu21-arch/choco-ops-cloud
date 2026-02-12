@@ -1,294 +1,168 @@
-import apiClient from '../lib/api/axios';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import api from './api';
 import { 
   Recipe, 
-  RecipeWithIngredients,
-  Batch,
-  CreateBatchRequest,
-  UpdateBatchRequest,
-  ApiResponse
+  ProductionBatch, 
+  BatchStatus, 
+  BatchFilters,
+  APIResponse,
+  PaginationMeta
 } from '../types';
 
+interface RecipeListResponse {
+  recipes: Recipe[];
+  meta?: PaginationMeta;
+}
+
+interface BatchListResponse {
+  batches: ProductionBatch[];
+  meta?: PaginationMeta;
+}
+
+export interface IngredientCheckItem {
+  id?: string;
+  name: string;
+  required: number;
+  available: number;
+  unit: string;
+}
+
+export interface IngredientCheckResult {
+  available: boolean;
+  missing?: IngredientCheckItem[];
+}
+
 export const productionService = {
-  // ============ RECIPES ============
-  
+  // --- Recipe Functions ---
+
   /**
-   * Get all recipes
-   * GET /api/recipes
+   * Get all recipes with optional filters
    */
-  async getAllRecipes(): Promise<Recipe[]> {
-    const { data } = await apiClient.get<ApiResponse<Recipe[]>>('/recipes');
+  async getAllRecipes(filters?: { category?: string; search?: string }): Promise<RecipeListResponse> {
+    const params = new URLSearchParams();
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.search) params.append('search', filters.search);
+
+    const response = await api.get<never, APIResponse<RecipeListResponse>>(`/recipes?${params.toString()}`);
     
-    if (data.success && data.data) {
-      return data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
-    
-    throw new Error(data.error ?? 'Failed to fetch recipes');
+    return { recipes: [] };
   },
 
   /**
-   * Get recipe by ID
-   * GET /api/recipes/:id
+   * Get a single recipe by ID
    */
   async getRecipeById(id: string): Promise<Recipe> {
-    const { data } = await apiClient.get<ApiResponse<Recipe>>(`/recipes/${id}`);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Recipe not found');
+    const response = await api.get<never, APIResponse<Recipe>>(`/recipes/${id}`);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Recipe not found');
   },
 
   /**
-   * Get recipe with ingredients
-   * GET /api/recipes/:id/full
+   * Create a new recipe
    */
-  async getRecipeWithIngredients(id: string): Promise<RecipeWithIngredients> {
-    const { data } = await apiClient.get<ApiResponse<RecipeWithIngredients>>(`/recipes/${id}/full`);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Recipe not found');
+  async createRecipe(data: Omit<Recipe, 'id' | 'isActive'>): Promise<Recipe> {
+    const response = await api.post<Omit<Recipe, 'id' | 'isActive'>, APIResponse<Recipe>>('/recipes', data);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Failed to create recipe');
   },
 
   /**
-   * Create new recipe
-   * POST /api/recipes
-   * Requires: ADMIN, MANAGER, or PRODUCTION role
+   * Update an existing recipe
    */
-  async createRecipe(recipe: Partial<Recipe>): Promise<Recipe> {
-    const { data } = await apiClient.post<ApiResponse<Recipe>>('/recipes', recipe);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to create recipe');
+  async updateRecipe(id: string, data: Partial<Recipe>): Promise<Recipe> {
+    const response = await api.put<Partial<Recipe>, APIResponse<Recipe>>(`/recipes/${id}`, data);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Failed to update recipe');
   },
 
   /**
-   * Update recipe
-   * PUT /api/recipes/:id
-   * Requires: ADMIN, MANAGER, or PRODUCTION role
+   * Delete a recipe
    */
-  async updateRecipe(id: string, updates: Partial<Recipe>): Promise<Recipe> {
-    const { data } = await apiClient.put<ApiResponse<Recipe>>(`/recipes/${id}`, updates);
-    
-    if (data.success && data.data) {
-      return data.data;
+  async deleteRecipe(id: string): Promise<boolean> {
+    const response = await api.delete<never, APIResponse<null>>(`/recipes/${id}`);
+    return response.success;
+  },
+
+  // --- Batch Functions ---
+
+  /**
+   * Get all production batches with filters
+   */
+  async getAllBatches(filters?: BatchFilters): Promise<BatchListResponse> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.dateRange) {
+      params.append('startDate', filters.dateRange.from);
+      params.append('endDate', filters.dateRange.to);
     }
-    
-    throw new Error(data.error ?? 'Failed to update recipe');
+
+    const response = await api.get<never, APIResponse<BatchListResponse>>(`/batches?${params.toString()}`);
+    if (response.success && response.data) return response.data;
+    return { batches: [] };
   },
 
   /**
-   * Delete recipe (soft delete)
-   * DELETE /api/recipes/:id
-   * Requires: ADMIN or MANAGER role
+   * Get single batch details
    */
-  async deleteRecipe(id: string): Promise<void> {
-    const { data } = await apiClient.delete<ApiResponse>(`/recipes/${id}`);
-    
-    if (!data.success) {
-      throw new Error(data.error ?? 'Failed to delete recipe');
-    }
+  async getBatchById(id: string): Promise<ProductionBatch> {
+    const response = await api.get<never, APIResponse<ProductionBatch>>(`/batches/${id}`);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Batch not found');
   },
 
-  // ============ PRODUCTION BATCHES ============
-  
   /**
-   * Create production batch (automatically deducts ingredient stock)
-   * POST /api/production
-   * Requires: MANAGER or PRODUCTION role
-   * 
-   * IMPORTANT: This endpoint automatically deducts ingredient stock in a transaction.
-   * If insufficient stock, it returns 400 error.
+   * Start a new production batch
    */
-  async createBatch(request: CreateBatchRequest): Promise<Batch> {
-    const { data } = await apiClient.post<ApiResponse<Batch>>('/production', {
-      recipe_id: request.recipe_id,
-      quantity_produced: request.quantity_produced,
-      notes: request.notes,
+  async createBatch(data: { recipeId: string; targetQuantity: number; notes?: string }): Promise<ProductionBatch> {
+    const response = await api.post<{ recipeId: string; targetQuantity: number; notes?: string }, APIResponse<ProductionBatch>>('/batches', data);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Failed to create batch');
+  },
+
+  /**
+   * Update batch status
+   */
+  async updateBatchStatus(id: string, status: BatchStatus): Promise<ProductionBatch> {
+    const response = await api.put<{ status: BatchStatus }, APIResponse<ProductionBatch>>(`/batches/${id}/status`, { status });
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Failed to update batch status');
+  },
+
+  /**
+   * Complete batch with actual quantity
+   */
+  async completeBatch(id: string, actualQuantity: number): Promise<ProductionBatch> {
+    // This could also be an updateBatchStatus call depending on backend API design,
+    // but assuming a specific endpoint or logic for completion with quantity.
+    // Based on user request: "PUT /api/batches/:id/status -> update batch status"
+    // and "completeBatch(id, actualQuantity)".
+    // I will implement this as a specific action if endpoint exists, otherwise update status + quantity.
+    // Spec didn't give explicit endpoint for completion other than update status, allowing flexible implementation.
+    // I'll assume standard PUT update for now or status update + payload.
+    // Let's assume the update status endpoint accepts additional data.
+    
+    const response = await api.put<{ status: string; actualQuantity: number }, APIResponse<ProductionBatch>>(`/batches/${id}/status`, { 
+      status: 'completed', 
+      actualQuantity 
     });
     
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to create batch');
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Failed to complete batch');
   },
 
   /**
-   * Get batch by ID
-   * GET /api/production/:id
+   * Check if enough ingredients are available
    */
-  async getBatchById(id: string): Promise<Batch> {
-    const { data } = await apiClient.get<ApiResponse<Batch>>(`/production/${id}`);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Batch not found');
-  },
-
-  /**
-   * Update batch
-   * PATCH /api/production/:id
-   * Requires: MANAGER or PRODUCTION role
-   */
-  async updateBatch(id: string, updates: UpdateBatchRequest): Promise<Batch> {
-    const { data } = await apiClient.patch<ApiResponse<Batch>>(`/production/${id}`, updates);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to update batch');
-  },
-
-  // ============ LEGACY COMPATIBILITY ============
-  
-  /**
-   * @deprecated Use createBatch instead
-   * Legacy method for backward compatibility
-   */
-  async produceBatch(request: { recipe_id: string }): Promise<{ batch_number?: string; batch_id?: string }> {
-    const batch = await this.createBatch({
-      recipe_id: request.recipe_id,
-      quantity_produced: 1, // Default quantity
+  async checkIngredients(recipeId: string, quantity: number): Promise<IngredientCheckResult> {
+    const response = await api.post<{ recipeId: string; quantity: number }, APIResponse<IngredientCheckResult>>('/batches/check-ingredients', { 
+      recipeId, 
+      quantity 
     });
     
-    return {
-      batch_number: batch.batch_number,
-      batch_id: batch.id,
-    };
-  },
+    if (response.success && response.data) return response.data;
+    // Default fail safe
+    return { available: false, missing: [] };
+  }
 };
-
-// ============ REACT QUERY HOOKS ============
-
-/**
- * Hook to get all recipes
- * Usage:
- * ```ts
- * const { data: recipes, isLoading } = useRecipes();
- * ```
- */
-export const useRecipes = () => {
-  return useQuery({
-    queryKey: ['recipes'],
-    queryFn: () => productionService.getAllRecipes(),
-    staleTime: 1000 * 60 * 5, // 5 minutes - recipes don't change often
-  });
-};
-
-/**
- * Hook to get a single recipe by ID
- */
-export const useRecipe = (id: string) => {
-  return useQuery({
-    queryKey: ['recipes', id],
-    queryFn: () => productionService.getRecipeById(id),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 5,
-  });
-};
-
-/**
- * Hook to get recipe with ingredients
- */
-export const useRecipeWithIngredients = (id: string) => {
-  return useQuery({
-    queryKey: ['recipes', id, 'full'],
-    queryFn: () => productionService.getRecipeWithIngredients(id),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 5,
-  });
-};
-
-/**
- * Hook to create a recipe
- */
-export const useCreateRecipe = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (recipe: Partial<Recipe>) => productionService.createRecipe(recipe),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['recipes'] });
-    },
-  });
-};
-
-/**
- * Hook to update a recipe
- */
-export const useUpdateRecipe = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<Recipe> }) => 
-      productionService.updateRecipe(id, updates),
-    onSuccess: (_, { id }) => {
-      void queryClient.invalidateQueries({ queryKey: ['recipes'] });
-      void queryClient.invalidateQueries({ queryKey: ['recipes', id] });
-    },
-  });
-};
-
-/**
- * Hook to create a batch (automatically deducts ingredient stock)
- * Usage:
- * ```ts
- * const { mutate, isPending } = useCreateBatch();
- * mutate({ recipe_id: '123', quantity_produced: 100 });
- * ```
- */
-export const useCreateBatch = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (request: CreateBatchRequest) => productionService.createBatch(request),
-    onSuccess: () => {
-      // Invalidate relevant queries
-      void queryClient.invalidateQueries({ queryKey: ['batches'] });
-      void queryClient.invalidateQueries({ queryKey: ['ingredients'] }); // Stock was deducted
-      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    },
-  });
-};
-
-/**
- * Hook to get a batch by ID
- */
-export const useBatch = (id: string) => {
-  return useQuery({
-    queryKey: ['batches', id],
-    queryFn: () => productionService.getBatchById(id),
-    enabled: !!id,
-    staleTime: 1000 * 30, // 30 seconds - batches update frequently
-    refetchInterval: 1000 * 60, // Auto-refresh every minute
-  });
-};
-
-/**
- * Hook to update a batch
- */
-export const useUpdateBatch = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateBatchRequest }) => 
-      productionService.updateBatch(id, updates),
-    onSuccess: (_, { id }) => {
-      void queryClient.invalidateQueries({ queryKey: ['batches'] });
-      void queryClient.invalidateQueries({ queryKey: ['batches', id] });
-      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    },
-  });
-};
-

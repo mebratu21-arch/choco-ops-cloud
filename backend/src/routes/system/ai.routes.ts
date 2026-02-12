@@ -11,6 +11,12 @@ const router = Router();
 router.post('/chat', authenticate, AiController.chat);
 
 /**
+ * Route: DELETE /api/v1/ai/history
+ * Protected by authentication
+ */
+router.delete('/history', authenticate, AiController.clearHistory);
+
+/**
  * Route: POST /api/v1/ai/translate
  * Protected by authentication
  */

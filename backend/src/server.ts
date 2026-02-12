@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
 import app from './app.js';
+import { createServer } from 'http';
+import { initSocket } from './config/socket.js';
 import { checkConnection } from './config/database.js';
 import { logger } from './config/logger.js';
 
@@ -19,8 +21,14 @@ async function startServer() {
     await checkConnection();
     logger.info('✅ Database connected successfully');
 
-    // Start Express server
-    app.listen(PORT, () => {
+    // Create HTTP server for Socket.io
+    const httpServer = createServer(app);
+    
+    // Initialize Socket.io
+    initSocket(httpServer);
+
+    // Start HTTP server
+    httpServer.listen(PORT, () => {
       logger.info(`🚀 CocoaFlow API running on port ${PORT}`);
       logger.info(`📍 Environment: ${NODE_ENV}`);
       logger.info(`🔗 Health check: http://localhost:${PORT}/api/health`);

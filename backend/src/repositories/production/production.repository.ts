@@ -39,7 +39,7 @@ export class ProductionRepository {
    * Fetch a single batch
    */
   static async getBatch(id: string) {
-    return db('batches').where('id', id).first();
+    return db('production_batches').where('id', id).first();
   }
 
   /**
@@ -74,7 +74,7 @@ export class ProductionRepository {
   }
 
   static async countActiveBatches(): Promise<number> {
-    const result = await db('batches')
+    const result = await db('production_batches')
       .count('* as count')
       .whereIn('status', ['PLANNED', 'IN_PROGRESS'])
       .whereNull('deleted_at')

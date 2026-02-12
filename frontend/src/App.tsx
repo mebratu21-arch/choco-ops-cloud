@@ -1,114 +1,368 @@
-import { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/layout/Layout';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import ErrorBoundary from './components/ErrorBoundary';
-import { Loader } from './components/ui/Loader';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
-// Auth pages - loaded immediately
+// Components
+import ProtectedRoute from './components/ProtectedRoute';
+import RoleBasedRoute from './components/RoleBasedRoute';
+import DashboardLayout from './components/layout/DashboardLayout';
+import socketService from './lib/socketService';
+
+// Auth Pages
 import LoginPage from './pages/auth/LoginPage';
-import DashboardSelector from './pages/dashboard/DashboardSelector';
+import RegisterPage from './pages/auth/RegisterPage';
+import NotFoundPage from './pages/NotFoundPage';
+import TasksPage from './pages/tasks/TasksPage';
+import ProfilePage from './pages/settings/ProfilePage';
+import HelpPage from './pages/support/HelpPage';
+import NotificationsPage from './pages/notifications/NotificationsPage';
+
+// Inventory Pages
+import InventoryPage from './pages/inventory/InventoryPage';
+import InventoryDetailPage from './pages/inventory/InventoryDetailPage';
+
+// Dashboard Pages
+import ManagerDashboard from './pages/dashboard/ManagerDashboard';
+import SalesDashboard from './pages/dashboard/SalesDashboard';
+import ProductionDashboard from './pages/dashboard/ProductionDashboard';
+import WarehouseDashboard from './pages/dashboard/WarehouseDashboard';
+import QCDashboard from './pages/qc/QCDashboard';
+import AnnouncementsPage from './pages/manager/AnnouncementsPage';
+
+// Production Pages
+import RecipesPage from './pages/production/RecipesPage';
+import RecipeDetailPage from './pages/production/RecipeDetailPage';
+import RecipeEditor from './pages/recipes/RecipeEditor';
+import BatchesPage from './pages/production/BatchesPage';
+import BatchDetailPage from './pages/production/BatchDetailPage';
+
+// Mechanic Pages
+import MechanicDashboard from './pages/mechanic/MechanicDashboard';
+import SOSAlertsPage from './pages/mechanic/SOSAlertsPage';
+import MachinesPage from './pages/mechanic/MachinesPage';
+import MachineDetailPage from './pages/mechanic/MachineDetailPage';
+import MaintenanceHistoryPage from './pages/mechanic/MaintenanceHistoryPage';
+
+// AI Pages
+import AIAssistantPage from './pages/ai/AIAssistantPage';
+
+// Admin Pages
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import UserManagement from './pages/admin/UserManagement';
 
 
-// Lazy-loaded pages for code splitting
-const InventoryPage = lazy(() => import('./pages/inventory/InventoryPage'));
-const ProductionPage = lazy(() => import('./pages/production/ProductionPage'));
-const ProductionBatchPage = lazy(() => import('./pages/production/ProductionBatchPage'));
-const SalesPage = lazy(() => import('./pages/sales/SalesPage'));
-const MechanicPage = lazy(() => import('./pages/mechanics/MechanicPage'));
-const MechanicDashboardPage = lazy(() => import('./pages/mechanic/MechanicDashboardPage'));
-const QCPage = lazy(() => import('./pages/qc/QCPage'));
-const QCDashboardPage = lazy(() => import('./pages/qc/QCDashboardPage'));
-const RecipeList = lazy(() => import('./pages/recipes/RecipeList'));
-const RecipeDetails = lazy(() => import('./pages/recipes/RecipeDetails'));
-const CreateRecipe = lazy(() => import('./pages/recipes/CreateRecipe'));
-const RecipeImportPage = lazy(() => import('./pages/production/RecipeImportPage'));
-const ShopCatalog = lazy(() => import('./pages/shop/ShopCatalog'));
-const WarehouseSales = lazy(() => import('./pages/shop/WarehouseSales'));
-const ProductDetails = lazy(() => import('./pages/shop/ProductDetails'));
-const Orders = lazy(() => import('./pages/shop/Orders'));
-const ManagerDashboardPage = lazy(() => import('./pages/manager/ManagerDashboardPage'));
-const AIChat = lazy(() => import('./components/ai/AIChat'));
-const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
-const AdminAIDashboard = lazy(() => import('./pages/admin/AdminAIDashboard'));
-const TranslationDemoPage = lazy(() => import('./pages/demo/TranslationDemoPage'));
+import { useEffect } from 'react';
 
-// Loading fallback component
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <Loader size="lg" text="Loading..." />
-  </div>
-);
+const App = () => {
+  // Create a client
+  const queryClient = new QueryClient();
 
-function App() {
+  useEffect(() => {
+    // Initialize socket connection
+    if (!socketService.isConnected()) {
+        // Connection is handled in constructor but good to check
+    }
+  }, []);
+
   return (
-    <ErrorBoundary>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
+    <QueryClientProvider client={queryClient}>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        {/* Toast notifications */}
+        <Toaster richColors position="top-right" />
         
-        {/* Base Layout - Checks Authentication */}
-        <Route element={<Layout />}>
-           <Route path="/" element={<DashboardSelector />} />
-           
-           {/* Role Protected Routes with Code Splitting */}
-           <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'WAREHOUSE', 'ADMIN']} />}>
-              <Route path="/inventory" element={<Suspense fallback={<PageLoader />}><InventoryPage /></Suspense>} />
-              <Route path="/warehouse/sales" element={<Suspense fallback={<PageLoader />}><WarehouseSales /></Suspense>} />
-              <Route path="/sales" element={<Suspense fallback={<PageLoader />}><SalesPage /></Suspense>} />
-           </Route>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-           <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'PRODUCTION', 'ADMIN']} />}>
-              <Route path="/production" element={<Suspense fallback={<PageLoader />}><ProductionPage /></Suspense>} />
-              <Route path="/production/dashboard" element={<Suspense fallback={<PageLoader />}><ProductionPage /></Suspense>} />
-              <Route path="/production/batch" element={<Suspense fallback={<PageLoader />}><ProductionBatchPage /></Suspense>} />
+          {/* Protected Routes */}
+          
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Navigate to="/dashboard" replace />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Dashboard Layout Wrapper */}
+          <Route 
+             element={
+                <ProtectedRoute>
+                   <DashboardLayout />
+                </ProtectedRoute>
+             }
+          >
+              <Route
+                path="/dashboard"
+                element={
+                    <RoleBasedRoute 
+                      roleComponents={{
+                        'admin': AdminDashboardPage,
+                        'manager': ManagerDashboard,
+                        'production_worker': ProductionDashboard,
+                        'warehouse_worker': WarehouseDashboard,
+                        'quality_controller': QCDashboard,
+                        'mechanic': MechanicDashboard,
+                      }} 
+                    />
+                }
+              />
+
+              <Route
+                path="/inventory"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'warehouse_worker']}>
+                    <InventoryPage />
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/recipes" element={<Suspense fallback={<PageLoader />}><RecipeList /></Suspense>} />
-              <Route path="/recipes/new" element={<Suspense fallback={<PageLoader />}><CreateRecipe /></Suspense>} />
-              <Route path="/recipes/:id" element={<Suspense fallback={<PageLoader />}><RecipeDetails /></Suspense>} />
-              <Route path="/recipes/import" element={<Suspense fallback={<PageLoader />}><RecipeImportPage /></Suspense>} />
-           </Route>
+              <Route
+                path="/inventory/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'warehouse_worker']}>
+                    <InventoryDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-           <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'MECHANIC', 'ADMIN']} />}>
-              <Route path="/mechanics" element={<Suspense fallback={<PageLoader />}><MechanicPage /></Suspense>} />
-              <Route path="/mechanic/dashboard" element={<Suspense fallback={<PageLoader />}><MechanicDashboardPage /></Suspense>} />
-           </Route>
+              <Route
+                path="/recipes"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <RecipesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/recipes/new"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <RecipeEditor />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/recipes/:id/edit"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <RecipeEditor />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/recipes/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <RecipeDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-           {/* Shop Module (Internal) */}
-           <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'PRODUCTION', 'WAREHOUSE', 'QC', 'MECHANIC', 'ADMIN']} />}>
-              <Route path="/shop" element={<Suspense fallback={<PageLoader />}><ShopCatalog /></Suspense>} />
-              <Route path="/shop/orders" element={<Suspense fallback={<PageLoader />}><Orders /></Suspense>} />
-              <Route path="/shop/product/:id" element={<Suspense fallback={<PageLoader />}><ProductDetails /></Suspense>} />
-           </Route>
+              <Route
+                path="/production/recipes"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <RecipesPage />
+                  </ProtectedRoute>
+                }
+              />
+                <Route
+                path="/production/recipes/:id/edit"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <RecipeEditor />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/production/recipes/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <RecipeDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-           <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'QC', 'ADMIN']} />}>
-              <Route path="/qc" element={<Suspense fallback={<PageLoader />}><QCPage /></Suspense>} />
-              <Route path="/qc/dashboard" element={<Suspense fallback={<PageLoader />}><QCDashboardPage /></Suspense>} />
-           </Route>
+              <Route
+                path="/batches"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <BatchesPage />
+                  </ProtectedRoute>
+                }
+              />
 
-           <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'ADMIN']} />}>
-              <Route path="/manager/dashboard" element={<Suspense fallback={<PageLoader />}><ManagerDashboardPage /></Suspense>} />
-           </Route>
+              <Route
+                path="/batches/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'production_worker']}>
+                    <BatchDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-           {/* AI Chat accessible to all authenticated users */}
-           <Route path="/ai-chat" element={<Suspense fallback={<PageLoader />}><AIChat /></Suspense>} />
+              <Route
+                path="/qc"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'quality_controller']}>
+                    <QCDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
-           {/* Translation Demo - showcases Gemini translation features */}
-           <Route path="/translation-demo" element={<Suspense fallback={<PageLoader />}><TranslationDemoPage /></Suspense>} />
+              <Route
+                path="/machines"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'mechanic']}>
+                    <MachinesPage />
+                  </ProtectedRoute>
+                }
+              />
 
-           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-              <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminDashboardPage /></Suspense>} />
-              <Route path="/admin/dashboard" element={<Suspense fallback={<PageLoader />}><AdminDashboardPage /></Suspense>} />
-              <Route path="/ai-dashboard" element={<Suspense fallback={<PageLoader />}><AdminAIDashboard /></Suspense>} />
-           </Route>
-        </Route>
+              <Route
+                path="/mechanic/machines"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'mechanic']}>
+                    <MachinesPage />
+                  </ProtectedRoute>
+                }
+              />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+              <Route
+                path="/mechanic/machines/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'mechanic']}>
+                    <MachineDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-      <Toaster position="top-right" richColors />
-    </ErrorBoundary>
+              <Route
+                path="/sos"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'mechanic']}>
+                    <SOSAlertsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/mechanic/alerts"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'mechanic']}>
+                    <SOSAlertsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/mechanic/history"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'mechanic']}>
+                    <MaintenanceHistoryPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/maintenance"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager', 'mechanic']}>
+                    <MachinesPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <AnnouncementsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/users"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/sales"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <SalesDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/tasks"
+                element={
+                  <ProtectedRoute>
+                    <TasksPage />
+                  </ProtectedRoute>
+                }
+              />
+              
+              <Route
+                path="/ai-assistant"
+                element={
+                  <ProtectedRoute>
+                    <AIAssistantPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                  path="/profile"
+                  element={
+                      <ProtectedRoute>
+                          <ProfilePage />
+                      </ProtectedRoute>
+                  }
+              />
+              <Route
+                  path="/help"
+                  element={
+                      <ProtectedRoute>
+                          <HelpPage />
+                      </ProtectedRoute>
+                  }
+              />
+              <Route
+                  path="/notifications"
+                  element={
+                      <ProtectedRoute>
+                          <NotificationsPage />
+                      </ProtectedRoute>
+                  }
+              />
+          </Route>
+
+          {/* 404 Route */}
+          <Route path="*" element={<NotFoundPage />} />
+
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
-}
+};
 
 export default App;

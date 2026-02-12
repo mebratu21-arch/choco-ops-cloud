@@ -1,0 +1,67 @@
+# ===========================================
+# COCOAFLOW FRONTEND - Vercel Ignore
+# ===========================================
+# Files and directories to exclude from Vercel deployment
+
+# Dependencies (Vercel installs these fresh)
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Development environment files
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test files and coverage
+coverage/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+__mocks__/
+playwright-report/
+test-results/
+
+# Build logs and temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+build_log.txt
+
+# Documentation (not needed in production)
+*.md
+!README.md
+docs/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# ESLint cache
+.eslintcache
+
+# Playwright
+playwright.config.ts
+
+# Misc
+*.map.old
+.cache/

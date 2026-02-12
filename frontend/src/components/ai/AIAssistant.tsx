@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSendAIMessage } from '../../services/aiService';
-import { getInventoryPrompts, detectLanguage, MULTILINGUAL_PHRASES } from '../../services/aiService';
+import { getInventoryPrompts, detectLanguage, MULTILINGUAL_PHRASES, Language } from '../../services/aiService';
 import { AIChatMessage, UserRole } from '../../types';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Send, Sparkles, Loader2, Globe, User, Bot, Minimize2 } from 'lucide-react';
 
-type Language = 'en' | 'ar' | 'he' | 'am' | 'ru' | 'uk' | 'fr';
 
 interface InventoryContext {
   selectedItem?: string;
@@ -23,7 +22,7 @@ interface AIAssistantProps {
 }
 
 const AIAssistant = ({ 
-  role = 'WAREHOUSE',
+  role = 'warehouse_worker',
   defaultLanguage = 'en',
   context,
   compact = false
@@ -68,9 +67,9 @@ const AIAssistant = ({
     sendMessage(
       {
         message: userInput,
+        language: language,
         context: {
           user_role: role,
-          language: language
         }
       },
       {
@@ -78,7 +77,7 @@ const AIAssistant = ({
           const assistantMessage: AIChatMessage = {
             id: (Date.now() + 1).toString(),
             role: 'assistant',
-            content: response.message,
+            content: response.response ?? MULTILINGUAL_PHRASES[language].error,
             timestamp: new Date().toISOString(),
             language: language
           };

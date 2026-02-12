@@ -5,7 +5,7 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('seller_id').notNullable().references('id').inTable('users').onDelete('RESTRICT');
     table.uuid('buyer_id').notNullable().references('id').inTable('users').onDelete('RESTRICT');
-    table.uuid('batch_id').notNullable().references('id').inTable('batches').onDelete('RESTRICT');
+    table.uuid('batch_id').notNullable().references('id').inTable('production_batches').onDelete('RESTRICT');
     table.decimal('quantity_sold', 12, 2).notNullable();
     table.string('unit', 50).notNullable();
     table.decimal('original_price', 12, 2).notNullable();

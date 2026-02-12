@@ -1,180 +1,220 @@
-import apiClient from '../lib/api/axios';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  ManagerDashboardData,
-  Announcement,
-  Task,
-  ApiResponse
+import api from './api';
+import { 
+  Announcement, 
+  Task, 
+  DashboardStats, 
+  UserRole,
+  APIResponse 
 } from '../types';
 
-// ============ MANAGER SERVICE ============
+interface AnalyticsData {
+  productionTrends: unknown[];
+  qcTrends: unknown[];
+  inventoryTrends: unknown[];
+  [key: string]: unknown;
+}
 
 export const managerService = {
-  /**
-   * Get manager dashboard stats
-   * GET /api/dashboard/stats
-   */
-  async getDashboardStats(): Promise<ManagerDashboardData> {
-    const { data } = await apiClient.get<ApiResponse<ManagerDashboardData>>('/dashboard/stats');
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to fetch dashboard stats');
-  },
-
-  /**
-   * Create announcement
-   * POST /api/manager/announcements
-   */
-  async createAnnouncement(announcement: Partial<Announcement>): Promise<Announcement> {
-    const { data } = await apiClient.post<ApiResponse<Announcement>>('/manager/announcements', announcement);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to create announcement');
-  },
+  // --- Announcement Functions ---
 
   /**
    * Get all announcements
-   * GET /api/manager/announcements
    */
-  async getAnnouncements(): Promise<Announcement[]> {
-    const { data } = await apiClient.get<ApiResponse<Announcement[]>>('/manager/announcements');
+  async getAllAnnouncements(): Promise<Announcement[]> {
+    const response = await api.get<never, APIResponse<Announcement[]>>('/manager/announcements');
     
-    if (data.success && data.data) {
-      return data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
-    
     return [];
   },
 
   /**
-   * Create task assignment
-   * POST /api/manager/tasks
+   * Get active announcements for a specific role
    */
-  async createTask(task: Partial<Task>): Promise<Task> {
-    const { data } = await apiClient.post<ApiResponse<Task>>('/manager/tasks', task);
+  async getActiveAnnouncements(userRole?: UserRole): Promise<Announcement[]> {
+    // Often filtered on backend based on user context, but can pass param
+    const params = new URLSearchParams();
+    if (userRole) params.append('role', userRole);
+    params.append('active', 'true');
+
+    const response = await api.get<never, APIResponse<Announcement[]>>(`/manager/announcements?${params.toString()}`);
     
-    if (data.success && data.data) {
-      return data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
-    
-    throw new Error(data.error ?? 'Failed to create task');
+    return [];
   },
 
   /**
-   * Get all tasks
-   * GET /api/manager/tasks
+   * Create a new announcement
    */
-  async getTasks(): Promise<Task[]> {
-    const { data } = await apiClient.get<ApiResponse<Task[]>>('/manager/tasks');
+  async createAnnouncement(data: Partial<Announcement>): Promise<Announcement> {
+    const response = await api.post<Partial<Announcement>, APIResponse<Announcement>>('/manager/announcements', data);
     
-    if (data.success && data.data) {
-      return data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
+    throw new Error(response.message ?? 'Failed to create announcement');
+  },
+
+  /**
+   * Update an announcement
+   */
+  async updateAnnouncement(id: string, data: Partial<Announcement>): Promise<Announcement> {
+    const response = await api.put<Partial<Announcement>, APIResponse<Announcement>>(`/manager/announcements/${id}`, data);
     
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message ?? 'Failed to update announcement');
+  },
+
+  /**
+   * Delete an announcement
+   */
+  async deleteAnnouncement(id: string): Promise<boolean> {
+    const response = await api.delete<never, APIResponse<null>>(`/manager/announcements/${id}`);
+    return response.success;
+  },
+
+  // --- Task Functions ---
+
+  /**
+   * Get all tasks with filters
+   */
+  async getAllTasks(filters?: { status?: string; assignedTo?: string; priority?: string }): Promise<Task[]> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.assignedTo) params.append('assignedTo', filters.assignedTo);
+    if (filters?.priority) params.append('priority', filters.priority);
+
+    // Backend uses /tasks/all for listing all tasks
+    const endpoint = filters?.assignedTo ? '/manager/tasks/my' : '/manager/tasks/all';
+    const response = await api.get<never, APIResponse<Task[]>>(`${endpoint}?${params.toString()}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
     return [];
+  },
+
+  /**
+   * Get tasks assigned to current user (or specific user)
+   */
+  async getMyTasks(userId: string): Promise<Task[]> {
+    return this.getAllTasks({ assignedTo: userId });
+  },
+
+  /**
+   * Get single task by ID
+   */
+  async getTaskById(id: string): Promise<Task> {
+    const response = await api.get<never, APIResponse<Task>>(`/manager/tasks/${id}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message ?? 'Task not found');
+  },
+
+  /**
+   * Create a new task
+   */
+  async createTask(data: Partial<Task>): Promise<Task> {
+    const response = await api.post<Partial<Task>, APIResponse<Task>>('/manager/tasks', data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message ?? 'Failed to create task');
+  },
+
+  /**
+   * Update a task
+   */
+  async updateTask(id: string, data: Partial<Task>): Promise<Task> {
+    const response = await api.put<Partial<Task>, APIResponse<Task>>(`/manager/tasks/${id}`, data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message ?? 'Failed to update task');
   },
 
   /**
    * Update task status
-   * PATCH /api/manager/tasks/:id
    */
-  async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
-    const { data } = await apiClient.patch<ApiResponse<Task>>(`/manager/tasks/${id}`, updates);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to update task');
+  async updateTaskStatus(id: string, status: 'pending' | 'in_progress' | 'completed' | 'cancelled'): Promise<Task> {
+    // Assuming backend has specific status endpoint or general update
+    // User requested "updateTaskStatus", so implementing tailored wrapper
+    return this.updateTask(id, { status } as Partial<Task>);
   },
-};
 
-// ============ REACT QUERY HOOKS ============
+  /**
+   * Delete a task
+   */
+  async deleteTask(id: string): Promise<boolean> {
+    const response = await api.delete<never, APIResponse<null>>(`/manager/tasks/${id}`);
+    return response.success;
+  },
 
-/**
- * Hook to get manager dashboard stats
- * Usage:
- * ```ts
- * const { data: stats, isLoading } = useManagerDashboard();
- * ```
- */
-export const useManagerDashboard = () => {
-  return useQuery({
-    queryKey: ['manager', 'dashboard'],
-    queryFn: () => managerService.getDashboardStats(),
-    staleTime: 1000 * 60, // 1 minute
-    refetchInterval: 1000 * 60, // Auto-refresh every minute
-  });
-};
+  // --- Dashboard Functions ---
 
-/**
- * Hook to get announcements
- */
-export const useAnnouncements = () => {
-  return useQuery({
-    queryKey: ['manager', 'announcements'],
-    queryFn: () => managerService.getAnnouncements(),
-    staleTime: 1000 * 30, // 30 seconds
-  });
-};
+  /**
+   * Get dashboard statistics
+   */
+  async getDashboardStats(): Promise<DashboardStats> {
+    const response = await api.get<never, APIResponse<DashboardStats>>('/dashboard/stats');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    // Return empty stats if fail
+    return {
+      inventory_summary: {
+        total_items: 0,
+        low_stock_count: 0,
+        expiring_soon_count: 0
+      },
+      production_summary: {
+        active_batches: 0,
+        completed_today: 0,
+        planned_batches: 0
+      },
+      qc_summary: {
+        pending_inspections: 0,
+        approved_today: 0,
+        rejected_today: 0,
+        pass_rate: 0
+      },
+      mechanics_summary: {
+        active_alerts: 0,
+        machines_operational: 0,
+        machines_down: 0
+      }
+    };
+  },
 
-/**
- * Hook to create announcement
- */
-export const useCreateAnnouncement = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (announcement: Partial<Announcement>) => 
-      managerService.createAnnouncement(announcement),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['manager', 'announcements'] });
-    },
-  });
-};
+  /**
+   * Get analytics data for charts
+   */
+  async getAnalytics(dateRange?: [string, string]): Promise<AnalyticsData> {
+    const params = new URLSearchParams();
+    if (dateRange) {
+      params.append('startDate', dateRange[0]);
+      params.append('endDate', dateRange[1]);
+    }
 
-/**
- * Hook to get tasks
- */
-export const useTasks = () => {
-  return useQuery({
-    queryKey: ['manager', 'tasks'],
-    queryFn: () => managerService.getTasks(),
-    staleTime: 1000 * 30, // 30 seconds
-  });
-};
-
-/**
- * Hook to create task
- */
-export const useCreateTask = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (task: Partial<Task>) => managerService.createTask(task),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['manager', 'tasks'] });
-    },
-  });
-};
-
-/**
- * Hook to update task
- */
-export const useUpdateTask = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<Task> }) => 
-      managerService.updateTask(id, updates),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['manager', 'tasks'] });
-    },
-  });
+    const response = await api.get<never, APIResponse<AnalyticsData>>(`/dashboard/analytics?${params.toString()}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    return {
+        productionTrends: [],
+        qcTrends: [],
+        inventoryTrends: []
+    };
+  }
 };

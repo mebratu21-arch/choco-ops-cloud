@@ -19,7 +19,7 @@ const DashboardSelector = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const role = user.role?.toUpperCase() || '';
+  const role = user.role?.toUpperCase() ?? '';
 
   // Role to Dashboard mapping
   switch (role) {

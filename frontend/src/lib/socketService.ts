@@ -63,7 +63,7 @@ class SocketService {
   }
 
   private connect() {
-    const SOCKET_URL = (import.meta.env.VITE_WS_URL as string) ?? 'http://localhost:3000';
+    const SOCKET_URL = (import.meta.env.VITE_WS_URL as string) ?? 'http://localhost:5000';
 
     this.socket = io(SOCKET_URL, {
       auth: {

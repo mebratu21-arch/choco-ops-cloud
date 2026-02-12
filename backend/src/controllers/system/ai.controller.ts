@@ -11,20 +11,35 @@ export class AiController {
    */
   static async chat(req: Request, res: Response) {
     try {
-      const { message, page, images } = req.body;
+      const { message, page, images, language } = req.body;
       const user = (req as any).user;
 
       const response = await AiService.chat(message, {
         userId: user.id,
         userRole: user.role,
         page,
-        images
+        images,
+        language
       });
 
       res.json({ success: true, data: response });
     } catch (error: any) {
       logger.error('AI Controller: Chat failed', { error: error.message });
       res.status(500).json({ success: false, error: 'AI interaction failed' });
+    }
+  }
+
+  /**
+   * Clear user chat history
+   */
+  static async clearHistory(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      await AiService.deleteChatHistory(user.id);
+      res.json({ success: true, message: 'History cleared' });
+    } catch (error: any) {
+      logger.error('AI Controller: Clear history failed', { error: error.message });
+      res.status(500).json({ success: false, error: 'Failed to clear history' });
     }
   }
 

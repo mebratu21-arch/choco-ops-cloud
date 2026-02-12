@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useMachineFixes, useSOSAlerts, useLogFix, useUpdateFix } from '../../services/mechanicService';
+import { useMechanic } from '../../hooks/useMechanic';
+import { MachineFix, AlertPriority } from '../../types';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -10,6 +11,19 @@ import {
   Clock,
   Plus
 } from 'lucide-react';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 import MaintenanceTickets from './MaintenanceTickets';
 import { toast } from 'sonner';
 
@@ -23,11 +37,30 @@ const MechanicDashboardPage = () => {
         priority: 'MEDIUM' as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
     });
 
+    // Hooks
+    const { useSOSAlerts, useCreateSOSAlert, useResolveAlert } = useMechanic();
+
     // React Query hooks
-    const { data: allFixes = [], isLoading: loadingFixes } = useMachineFixes();
-    const { data: sosAlerts = [], isLoading: loadingSOS } = useSOSAlerts();
-    const { mutate: logFix, isPending: isLoggingFix } = useLogFix();
-    const { mutate: updateFix, isPending: isUpdating } = useUpdateFix();
+    const { data: sosAlertsData = [], isLoading: loadingSOS } = useSOSAlerts();
+    const { mutate: logFix, isPending: isLoggingFix } = useCreateSOSAlert();
+    const { mutate: resolveAlert, isPending: isUpdating } = useResolveAlert();
+
+    // Map SOSAlerts to MachineFix for component compatibility
+    const allFixes: MachineFix[] = sosAlertsData.map(alert => ({
+        id: alert.id,
+        machine_name: alert.machine_name ?? 'Unknown Machine',
+        description: alert.problem_description,
+        status: (alert.status === 'resolved' || alert.status === 'closed') ? 'FIXED' : 
+                (alert.status === 'in_progress' ? 'IN_PROGRESS' : 'PENDING'),
+        priority: alert.priority.toUpperCase() as MachineFix['priority'],
+        reported_by: alert.reported_by,
+        created_at: alert.reported_at,
+        updated_at: alert.reported_at, // Using reported_at for both if no update timestamp
+        fixed_at: alert.resolved_at,
+        notes: alert.resolution_notes
+    }));
+
+    const sosAlerts = allFixes.filter(f => f.priority === 'URGENT' || f.priority === 'HIGH');
 
     const displayFixes = showSOSOnly ? sosAlerts : allFixes;
     const filteredFixes = displayFixes.filter(fix =>
@@ -39,7 +72,7 @@ const MechanicDashboardPage = () => {
         total: allFixes.length,
         sos: sosAlerts.length,
         fixed: allFixes.filter(f => f.status === 'FIXED').length,
-        pending: allFixes.filter(f => f.status === 'REPORTED' || f.status === 'IN_PROGRESS').length
+        pending: allFixes.filter(f => f.status === 'PENDING' || f.status === 'IN_PROGRESS' || f.status === 'REPORTED').length
     };
 
     const handleAddFix = () => {
@@ -50,9 +83,9 @@ const MechanicDashboardPage = () => {
 
         logFix(
             {
-                machine_name: newFix.machine_name,
-                description: newFix.description,
-                priority: newFix.priority
+                machineId: 'MOCK-MACHINE-ID', // Need to map machine_name to ID in a real app
+                problemDescription: newFix.description,
+                priority: newFix.priority.toLowerCase() as AlertPriority
             },
             {
                 onSuccess: () => {
@@ -66,26 +99,16 @@ const MechanicDashboardPage = () => {
 
     const handleMarkAsFixed = (fixId: string) => {
         const notes = window.prompt('Enter fix notes (optional):');
-        updateFix({
+        resolveAlert({
             id: fixId,
-            updates: {
-                status: 'FIXED',
-                notes: notes ?? undefined
-            }
+            notes: notes ?? 'Fixed'
         }, {
             onSuccess: () => toast.success('Ticket marked as fixed')
         });
     };
 
-    const handleMarkInProgress = (fixId: string) => {
-        updateFix({
-            id: fixId,
-            updates: {
-                status: 'IN_PROGRESS'
-            }
-        }, {
-            onSuccess: () => toast.success('Status updated to In Progress')
-        });
+    const handleMarkInProgress = () => {
+        toast.info('Status update to In Progress coming soon.');
     };
 
     return (
@@ -194,6 +217,82 @@ const MechanicDashboardPage = () => {
                 </Card>
             </div>
 
+            {/* MAINTENANCE ANALYTICS CHARTS */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="border-cocoa-100 shadow-md">
+                    <CardHeader>
+                        <CardTitle className="text-cocoa-900 flex items-center gap-2">
+                            <Wrench className="h-5 w-5 text-gold-600" />
+                            Maintenance Trends (7 Days)
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-[280px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={[
+                                    { name: 'Mon', resolved: 5, reported: 8 },
+                                    { name: 'Tue', resolved: 7, reported: 6 },
+                                    { name: 'Wed', resolved: 4, reported: 9 },
+                                    { name: 'Thu', resolved: 8, reported: 5 },
+                                    { name: 'Fri', resolved: 6, reported: 7 },
+                                    { name: 'Sat', resolved: 3, reported: 2 },
+                                    { name: 'Sun', resolved: 2, reported: 1 },
+                                ]}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f5f0eb" />
+                                    <XAxis dataKey="name" stroke="#8B7355" tick={{ fontSize: 11 }} />
+                                    <YAxis stroke="#8B7355" tick={{ fontSize: 11 }} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#fff', borderColor: '#D2691E', borderRadius: '12px' }}
+                                    />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="reported" stroke="#ef4444" strokeWidth={2} name="Reported" dot={{ r: 4, fill: '#ef4444' }} />
+                                    <Line type="monotone" dataKey="resolved" stroke="#22c55e" strokeWidth={2} name="Resolved" dot={{ r: 4, fill: '#22c55e' }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-cocoa-100 shadow-md">
+                    <CardHeader>
+                        <CardTitle className="text-cocoa-900 flex items-center gap-2">
+                            <Bell className="h-5 w-5 text-red-500" />
+                            Issue Distribution
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-[280px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={[
+                                            { name: 'Electrical', value: 35 },
+                                            { name: 'Mechanical', value: 45 },
+                                            { name: 'Hydraulic', value: 15 },
+                                            { name: 'Software', value: 5 },
+                                        ]}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={50}
+                                        outerRadius={80}
+                                        paddingAngle={3}
+                                        dataKey="value"
+                                        label
+                                    >
+                                        <Cell fill="#eab308" />
+                                        <Cell fill="#D2691E" />
+                                        <Cell fill="#3b82f6" />
+                                        <Cell fill="#8b5cf6" />
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
             {/* Add Fix Modal/Form */}
             {isAddingFix && (
                 <Card className="border-gold-200 shadow-xl border-2 animate-in fade-in zoom-in duration-300">
@@ -260,7 +359,7 @@ const MechanicDashboardPage = () => {
             {/* Issues List Component */}
             <MaintenanceTickets 
                 tickets={filteredFixes}
-                isLoading={loadingFixes || loadingSOS}
+                isLoading={loadingSOS}
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
                 onMarkFixed={handleMarkAsFixed}

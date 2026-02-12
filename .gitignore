@@ -35,3 +35,7 @@ coverage/
 # Temporary files
 tmp/
 temp/
+test-results/
+tsc_output.txt
+nul
+.gemini/

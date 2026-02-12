@@ -1,147 +1,150 @@
-import apiClient from '../lib/api/axios';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { QualityControl, QualityUpdateInput, ApiResponse } from '../types';
+import api from './api';
+import { 
+  QCCheck, 
+  QCResult, 
+  QCStats, 
+  QCDefect,
+  APIResponse,
+  PaginationMeta,
+  DefectAnalysis
+} from '../types';
+
+interface QCCheckListResponse {
+  checks: QCCheck[];
+  meta?: PaginationMeta;
+}
+
 
 export const qcService = {
+  // --- QC Check Functions ---
+
   /**
-   * Get all quality control records
-   * GET /api/qc or /api/quality
+   * Get all QC checks with filters
    */
-  async getAllQualityChecks(): Promise<QualityControl[]> {
-    const { data } = await apiClient.get<ApiResponse<QualityControl[]>>('/quality');
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to fetch quality checks');
+  async getAllQCChecks(filters?: { 
+    result?: QCResult; 
+    startDate?: string; 
+    endDate?: string; 
+    inspectorId?: string 
+  }): Promise<QCCheckListResponse> {
+    const params = new URLSearchParams();
+    if (filters?.result) params.append('result', filters.result);
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (filters?.inspectorId) params.append('inspectorId', filters.inspectorId);
+
+    const response = await api.get<void, APIResponse<QCCheckListResponse>>(`/qc?${params.toString()}`);
+
+    if (response.success && response.data) return response.data;
+    return { checks: [] };
   },
 
   /**
-   * Get quality control record by ID
-   * GET /api/qc/:id or /api/quality/:id
+   * Get a single QC check by ID
    */
-  async getQualityCheckById(id: string): Promise<QualityControl> {
-    const { data } = await apiClient.get<ApiResponse<QualityControl>>(`/quality/${id}`);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Quality check not found');
+  async getQCCheckById(id: string): Promise<QCCheck> {
+    const response = await api.get<void, APIResponse<QCCheck>>(`/qc/${id}`);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'QC Check not found');
   },
 
   /**
-   * Create quality control record
-   * POST /api/qc or /api/quality
+   * Get all QC checks for a specific batch
    */
-  async createQualityCheck(qcData: Partial<QualityControl>): Promise<QualityControl> {
-    const { data} = await apiClient.post<ApiResponse<QualityControl>>('/quality', qcData);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to create quality check');
+  async getQCChecksByBatch(batchId: string): Promise<QCCheck[]> {
+    const response = await api.get<void, APIResponse<QCCheck[]>>(`/qc/batch/${batchId}`);
+    if (response.success && response.data) return response.data;
+    return [];
   },
 
   /**
-   * Update quality control status
-   * PATCH /api/qc/:id or /api/quality/:id
+   * Submit a new QC inspection
    */
-  async updateQualityStatus(id: string, update: QualityUpdateInput): Promise<QualityControl> {
-    const { data } = await apiClient.patch<ApiResponse<QualityControl>>(`/quality/${id}`, update);
-    
-    if (data.success && data.data) {
-      return data.data;
-    }
-    
-    throw new Error(data.error ?? 'Failed to update quality check');
+  async createQCCheck(data: Partial<QCCheck> & { batch_id: string; result: QCResult; defects?: QCDefect[] }): Promise<QCCheck> {
+    const response = await api.post<Partial<QCCheck> & { batch_id: string; result: QCResult; defects?: QCDefect[] }, APIResponse<QCCheck>>('/qc', data);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Failed to submit QC check');
   },
+
   /**
-   * Get pending batches for QC
-   * GET /api/quality/pending
+   * Update an existing QC check
    */
-  async getPendingBatches(): Promise<QualityControl[]> {
-    try {
-      // Use the correct filtering endpoint
-      const { data } = await apiClient.get<ApiResponse<QualityControl[]>>('/quality/status/PENDING');
-      if (data.success && data.data) return data.data;
-      return [];
-    } catch {
-      // Fallback: This might be because the endpoint doesn't exist yet
-      // For demo purposes, returning empty array or mock data
-      return [];
-    }
+  async updateQCCheck(id: string, data: Partial<QCCheck>): Promise<QCCheck> {
+    const response = await api.put<Partial<QCCheck>, APIResponse<QCCheck>>(`/qc/${id}`, data);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message ?? 'Failed to update QC check');
   },
+
+  // --- QC Analysis Functions ---
+
+  /**
+   * Get QC statistics
+   */
+  async getQCStats(dateRange?: [string, string]): Promise<QCStats> {
+    const params = new URLSearchParams();
+    if (dateRange) {
+      params.append('startDate', dateRange[0]);
+      params.append('endDate', dateRange[1]);
+    }
+
+    const response = await api.get<void, APIResponse<QCStats>>(`/qc/stats?${params.toString()}`);
+    
+    if (response.success && response.data) return response.data;
+    
+    // Return empty stats as fallback to prevent UI crash
+    return {
+      totalInspections: 0,
+      passRate: 0,
+      rejectRate: 0,
+      quarantineRate: 0,
+      averageScore: 0,
+      defectTrends: {},
+      byResult: {
+        approved: 0,
+        rejected: 0,
+        quarantine: 0,
+        pending: 0
+      }
+    };
+  },
+
+  /**
+   * Get defect analysis
+   */
+  async getDefectAnalysis(dateRange?: [string, string]): Promise<DefectAnalysis> {
+    const params = new URLSearchParams();
+    if (dateRange) {
+      params.append('startDate', dateRange[0]);
+      params.append('endDate', dateRange[1]);
+    }
+
+    // Define the raw API response type locally since it differs from the frontend model
+    interface RawDefectAnalysis {
+        defectsByType: Record<string, number>;
+        defectsBySeverity: Record<string, number>;
+        trends: { date: string; count: number }[];
+    }
+
+    const response = await api.get<void, APIResponse<RawDefectAnalysis>>(`/qc/defects/analysis?${params.toString()}`);
+    
+    if (response.success && response.data) {
+        // Transform to match global DefectAnalysis type
+        const raw = response.data;
+        const defectsByTypeArray = Object.entries(raw.defectsByType).map(([type, count]) => ({ type, count }));
+        const totalDefects = Object.values(raw.defectsByType).reduce((a, b) => a + b, 0);
+        const criticalDefects = raw.defectsBySeverity.critical || 0;
+
+        return {
+            defectsByType: defectsByTypeArray,
+            totalDefects,
+            criticalDefects
+        };
+    }
+    
+    return {
+      defectsByType: [],
+      totalDefects: 0,
+      criticalDefects: 0
+    };
+  }
 };
-
-// ============ REACT QUERY HOOKS ============
-
-/**
- * Hook to get all quality checks
- * Usage:
- * ```ts
- * const { data: qcChecks, isLoading } = useQualityChecks();
- * ```
- */
-export const useQualityChecks = () => {
-  return useQuery({
-    queryKey: ['quality-checks'],
-    queryFn: () => qcService.getAllQualityChecks(),
-    staleTime: 1000 * 60, // 1 minute
-    refetchInterval: 1000 * 60 * 2, // Auto-refresh every 2 minutes
-  });
-};
-
-/**
- * Hook to get a single quality check by ID
- */
-export const useQualityCheck = (id: string) => {
-  return useQuery({
-    queryKey: ['quality-checks', id],
-    queryFn: () => qcService.getQualityCheckById(id),
-    enabled: !!id,
-    staleTime: 1000 * 60,
-  });
-};
-
-/**
- * Hook to create a quality check
- * Usage:
- * ```ts
- * const { mutate } = useCreateQualityCheck();
- * mutate({ batch_id: '123', status: 'APPROVED' });
- * ```
- */
-export const useCreateQualityCheck = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (qcData: Partial<QualityControl>) => qcService.createQualityCheck(qcData),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['quality-checks'] });
-      void queryClient.invalidateQueries({ queryKey: ['batches'] }); // Batch status may change
-      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    },
-  });
-};
-
-/**
- * Hook to update quality check status
- */
-export const useUpdateQualityCheck = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, update }: { id: string; update: QualityUpdateInput }) => 
-      qcService.updateQualityStatus(id, update),
-    onSuccess: (_, { id }) => {
-      void queryClient.invalidateQueries({ queryKey: ['quality-checks'] });
-      void queryClient.invalidateQueries({ queryKey: ['quality-checks', id] });
-      void queryClient.invalidateQueries({ queryKey: ['batches'] });
-      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    },
-  });
-};
-

@@ -12,17 +12,18 @@ import {
   Clipboard
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useLogFix } from '../../services/mechanicService';
+import { useMechanic } from '../../hooks/useMechanic';
 import { toast } from 'sonner';
 
 const SOSButton = () => {
-    const { mutate: logFix, isPending } = useLogFix();
+    const { useCreateSOSAlert } = useMechanic();
+    const { mutate: logFix, isPending } = useCreateSOSAlert();
 
     const handleSOS = () => {
         logFix({
-            machine_name: 'GENERAL_EMERGENCY',
-            description: 'SOS BUTTON TRIGGERED',
-            priority: 'URGENT'
+            machineId: 'GENERAL_EMERGENCY',
+            problemDescription: 'SOS BUTTON TRIGGERED',
+            priority: 'critical'
         }, {
             onSuccess: () => {
                 toast.error('SOS SIGNAL SENT', { style: { background: '#ef4444', color: 'white' } });
@@ -45,11 +46,13 @@ const SOSButton = () => {
 
 const PurpleSidebar = () => {
   const { user } = useAuth();
-  const role = user?.role;
+  
+  // Explicitly type the user role to avoid implicit any
+  const role = (user?.role || '').toUpperCase();
 
   const hasRole = (allowedRoles: string[]) => {
       if (!role) return false;
-      return allowedRoles.some(r => r.toUpperCase() === role.toUpperCase());
+      return allowedRoles.some(r => r.toUpperCase() === role);
   };
 
   const links = [
@@ -68,14 +71,14 @@ const PurpleSidebar = () => {
     { to: '/mechanics', label: 'Maintenance', icon: Wrench, roles: ['MANAGER', 'MECHANIC'] },
     { to: '/sales', label: 'Sales Analytics', icon: ShoppingCart, roles: ['MANAGER', 'WAREHOUSE'] },
     { to: '/shop', label: 'Employee Shop', icon: ShoppingCart, roles: ['MANAGER', 'PRODUCTION', 'WAREHOUSE', 'QC', 'MECHANIC', 'ADMIN'] },
-    { to: '/recipes', label: 'Recipes', icon: Clipboard, roles: ['MANAGER', 'PRODUCTION'] },
+    { to: '/recipes', label: 'Recipes', icon: Clipboard, roles: ['MANAGER', 'PRODUCTION', 'QC', 'ADMIN'] },
     
     // Admin-exclusive tools
     { to: '/admin', label: 'User Management', icon: Settings, roles: ['ADMIN'] },
     { to: '/ai-dashboard', label: 'AI Analytics', icon: Bot, roles: ['ADMIN'] },
     
     // AI Chat for select roles
-    { to: '/ai-chat', label: 'AI Assistant', icon: Bot, roles: ['MANAGER', 'ADMIN', 'QC', 'MECHANIC'] },
+    { to: '/ai-assistant', label: 'CocoaFlow AI', icon: Bot, roles: ['MANAGER', 'ADMIN', 'QC', 'MECHANIC', 'PRODUCTION', 'WAREHOUSE'] },
   ];
 
   return (

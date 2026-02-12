@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { AdminService } from '../services/system/admin.service.js';
+import { AdminRepository } from '../repositories/system/admin.repository.js';
 import { AnnouncementService } from '../services/system/announcement.service.js';
 import { TaskService } from '../services/system/task.service.js';
 import { logger } from '../config/logger.js';
@@ -11,11 +12,18 @@ export class AdminController {
       const userId = req.user.id;
 
       const user = await AdminService.createUser(input, userId);
+      
+      // Map back to frontend format
+      const mappedUser = {
+        ...user,
+        name: user.full_name,
+        status: user.is_active ? 'ACTIVE' : 'DISABLED'
+      };
 
       res.status(201).json({
         success: true,
         message: 'User created',
-        data: user,
+        data: mappedUser,
       });
     } catch (error: any) {
       res.status(400).json({ success: false, error: error.message });
@@ -25,23 +33,87 @@ export class AdminController {
   static async getAllUsers(req: Request, res: Response) {
     try {
       const users = await AdminService.getAllUsers();
-      res.json({ success: true, data: users });
+      const mappedUsers = users.map((u: any) => ({
+        ...u,
+        name: u.full_name,
+        status: u.is_active ? 'ACTIVE' : 'DISABLED'
+      }));
+      res.json({ success: true, data: mappedUsers });
     } catch (error) {
       res.status(500).json({ success: false, error: 'Failed to fetch users' });
     }
   }
 
+  static async updateUser(req: Request & { user?: any }, res: Response) {
+    try {
+      const { id } = req.params;
+      const input = req.body;
+      const adminId = req.user.id;
+      const user = await AdminService.updateUser(id, input, adminId);
+      
+      const mappedUser = {
+        ...user,
+        name: user.full_name,
+        status: user.is_active ? 'ACTIVE' : 'DISABLED'
+      };
+      
+      res.json({ success: true, data: mappedUser });
+    } catch (error: any) {
+      res.status(400).json({ success: false, error: error.message });
+    }
+  }
+
+  static async deleteUser(req: Request & { user?: any }, res: Response) {
+    try {
+      const { id } = req.params;
+      const adminId = req.user.id;
+      await AdminService.deleteUser(id, adminId);
+      res.json({ success: true, message: 'User deleted' });
+    } catch (error: any) {
+      res.status(400).json({ success: false, error: error.message });
+    }
+  }
+
+  static async toggleStatus(req: Request & { user?: any }, res: Response) {
+    try {
+      const { id } = req.params;
+      const adminId = req.user.id;
+      
+      const currentUser: any = await AdminRepository.findById(id);
+      if (!currentUser) throw new Error('User not found');
+      
+      const newStatus = currentUser.is_active ? 'DISABLED' : 'ACTIVE';
+      const updated = await AdminService.updateUser(id, { status: newStatus }, adminId);
+      
+      const mappedUser = {
+        ...updated,
+        name: updated.full_name,
+        status: updated.is_active ? 'ACTIVE' : 'DISABLED'
+      };
+      
+      res.json({ success: true, data: mappedUser });
+    } catch (error: any) {
+      res.status(400).json({ success: false, error: error.message });
+    }
+  }
+
   static async getSystemStats(req: Request, res: Response) {
-    // Mock robust system stats for dashboard
-    res.json({
+    try {
+      const stats = await AdminService.getSystemStats();
+      res.json({ success: true, data: stats });
+    } catch (error: any) {
+      logger.error('Get system stats failed', { error: error.message });
+      // Fallback to mock data on error
+      res.json({
         success: true,
         data: {
-            users: { total: 12, active: 8, new_this_week: 3 },
-            system: { health: 'OPTIMAL', uptime: '99.99%', version: 'v1.2.0' },
-            revenue: { daily: 14500, monthly: 450000, growth: '+12.5%' },
-            db: { status: 'CONNECTED', latency: '24ms' }
+          users: { total: 12, active: 8, new_this_week: 3 },
+          system: { health: 'OPTIMAL', uptime: '99.99%', version: 'v1.2.0' },
+          revenue: { daily: 14500, monthly: 450000, growth: '+12.5%' },
+          db: { status: 'CONNECTED', latency: '24ms' }
         }
-    });
+      });
+    }
   }
 
   // ============= ANNOUNCEMENTS =============

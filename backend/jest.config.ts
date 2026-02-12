@@ -1,23 +1,27 @@
 import type { Config } from 'jest';
 
 const config: Config = {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm', // Use ESM preset
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
-  
-  //  Match your new folder structure
-  testMatch: ['**/tests/**/*.test.ts'],
-  
-  //  Handle path aliases (e.g., import from '@/services/...')
+  roots: ['<rootDir>/src'],
+  testMatch: ['**/src/tests/**/*.test.ts'],
+  extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-
-  //  Clean up after each test
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+      },
+    ],
+  },
+  
   clearMocks: true,
   restoreMocks: true,
 
-  //  Coverage reporting
   collectCoverageFrom: [
     'src/**/*.{ts,js}',
     '!src/**/*.d.ts',

@@ -1,63 +1,54 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import type { User } from '../types';
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { authService } from '../services/authService';
+import { UserRole } from '../types';
+import { useAuth } from '../hooks/useAuth';
+import * as AuthUtils from '../lib/auth-utils';
 
 interface ProtectedRouteProps {
-  allowedRoles?: string[];
+  children: React.ReactNode;
+  allowedRoles?: UserRole[];
 }
 
-// Define the auth store state type
-interface AuthState {
-  user: User | null;
-  accessToken: string | null;
-}
-
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-  // Hydration state to prevent redirect before auth context is ready
-  const [isHydrated, setIsHydrated] = useState(false);
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+  const location = useLocation();
+  const { useCurrentUser } = useAuth();
   
-  // FIXED: Use properly typed selectors
-  const userSelector = useMemo(() => (state: AuthState) => state.user, []);
-  const tokenSelector = useMemo(() => (state: AuthState) => state.accessToken, []);
+  // Use the hook to get current user data (cached by React Query)
+  // We can also rely on authService.isAuthenticated() for synchronous check
+  const isAuthenticated = authService.isAuthenticated();
+  const { data: user, isLoading } = useCurrentUser();
 
-  const user = useAuthStore(userSelector);
-  const accessToken = useAuthStore(tokenSelector);
-  
-  // Compute authentication status from stable state values
-  const isAuthenticated = !!user && !!accessToken;
+  if (!isAuthenticated) {
+    // Redirect to login page while saving the attempted url
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-  useEffect(() => {
-    // Mark as hydrated after first render - auth state is now reliable
-    // Ensure we give Zustand a tick to settle
-    const timer = setTimeout(() => setIsHydrated(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
+  if (isLoading) {
+    // You might want to render a specific loading spinner here
+    return <div className="flex h-screen w-full items-center justify-center">Loading...</div>;
+  }
 
-  // Show loading state while hydrating to prevent flash redirect
-  if (!isHydrated) {
+  // Normalize role to lowercase for comparison using shared utility
+  const normalizedRole = AuthUtils.normalizeRole(user?.role ?? '');
+  if (allowedRoles && user && !allowedRoles.includes(normalizedRole)) {
+    // User does not have permission
+    // You could redirect to a customized unauthorized page
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-950">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-600 mx-auto mb-4"></div>
-          <p className="text-slate-400 font-medium tracking-wide animate-pulse">SECURING CONNECTION...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <h1 className="text-3xl font-bold text-red-600 mb-4">Access Denied</h1>
+        <p className="text-gray-600">You do not have permission to view this page.</p>
+        <button 
+          onClick={() => window.history.back()}
+          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+        >
+          Go Back
+        </button>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Case-insensitive role check
-  if (allowedRoles && user?.role) {
-    const hasRole = allowedRoles.some(r => r.toUpperCase() === user.role.toUpperCase());
-    if (!hasRole) {
-        // Redirect to their appropriate dashboard if they are logged in but unauthorized for this specific route
-        return <Navigate to="/" replace />;
-    }
-  }
-
-  return <Outlet />;
+  return <>{children}</>;
 };
+
+export default ProtectedRoute;

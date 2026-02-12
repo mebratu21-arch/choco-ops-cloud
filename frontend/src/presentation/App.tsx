@@ -6,10 +6,10 @@ import InventoryPage from './pages/inventory/InventoryPage';
 import ProductionPage from './pages/production/ProductionPage';
 import SalesPage from './pages/sales/SalesPage';
 import AppLayout from './components/layout/AppLayout';
-import { useAuthStore } from './store/auth';
+import { useAuthStore } from './store/authStore';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
-  const isAuth = useAuthStore((s: any) => s.isAuthenticated());
+  const isAuth = useAuthStore((s) => s.isAuthenticated());
   return isAuth ? children : <Navigate to="/login" replace />;
 }
 

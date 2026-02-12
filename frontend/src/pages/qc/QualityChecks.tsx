@@ -9,10 +9,10 @@ import {
   AlertCircle, 
   Search
 } from 'lucide-react';
-import { QualityControl } from '../../types';
+import { QCCheck } from '../../types';
 
 interface QualityChecksProps {
-    checks: QualityControl[];
+    checks: QCCheck[];
     isLoading: boolean;
     searchTerm: string;
     onSearchChange: (value: string) => void;
@@ -33,22 +33,23 @@ const QualityChecks: React.FC<QualityChecksProps> = ({
     
     // Helper for status config
     const getStatusConfig = (status: string) => {
-        switch (status) {
-            case 'APPROVED':
+        const lowerStatus = status.toLowerCase();
+        switch (lowerStatus) {
+            case 'approved':
                 return {
                     label: 'Approved',
                     color: 'bg-green-50 border-green-200 text-green-700',
                     icon: CheckCircle2,
                     iconColor: 'text-green-600'
                 };
-            case 'REJECTED':
+            case 'rejected':
                 return {
                     label: 'Rejected',
                     color: 'bg-red-50 border-red-200 text-red-700',
                     icon: XCircle,
                     iconColor: 'text-red-600'
                 };
-            case 'PENDING':
+            case 'pending':
             default:
                 return {
                     label: 'Pending',
@@ -92,7 +93,7 @@ const QualityChecks: React.FC<QualityChecksProps> = ({
                 ) : (
                     <div className="space-y-4">
                         {checks.map(check => {
-                            const statusConfig = getStatusConfig(check.status);
+                            const statusConfig = getStatusConfig(check.result);
                             const StatusIcon = statusConfig.icon;
 
                             return (
@@ -117,9 +118,9 @@ const QualityChecks: React.FC<QualityChecksProps> = ({
                                                 )}
                                                 
                                                 <div className="flex items-center gap-4 text-xs text-slate-500 mt-2">
-                                                    <span>User: {check.checked_by.slice(0,8)}</span>
+                                                    <span>User: {(check.inspector_name ?? check.inspector_id).slice(0, 8)}</span>
                                                     <span>•</span>
-                                                    <span>{new Date(check.created_at).toLocaleString()}</span>
+                                                    <span>{check.created_at ? new Date(check.created_at).toLocaleString() : 'N/A'}</span>
                                                     {check.defect_count > 0 && (
                                                         <>
                                                             <span>•</span>
@@ -133,7 +134,7 @@ const QualityChecks: React.FC<QualityChecksProps> = ({
                                             </div>
                                         </div>
 
-                                        {check.status === 'PENDING' && (
+                                        {check.result.toLowerCase() === 'pending' && (
                                             <div className="flex flex-col gap-2">
                                                 <Button
                                                     size="sm"

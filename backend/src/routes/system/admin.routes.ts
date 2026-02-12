@@ -9,7 +9,7 @@ router.use(authenticate);
 
 // ============= USER MANAGEMENT =============
 router.post(
-  '/user',
+  '/users',
   requireRole(['ADMIN']),
   AdminController.createUser
 );
@@ -18,6 +18,24 @@ router.get(
   '/users',
   requireRole(['ADMIN']),
   AdminController.getAllUsers
+);
+
+router.put(
+  '/users/:id',
+  requireRole(['ADMIN']),
+  AdminController.updateUser
+);
+
+router.delete(
+  '/users/:id',
+  requireRole(['ADMIN']),
+  AdminController.deleteUser
+);
+
+router.patch(
+  '/users/:id/toggle-active',
+  requireRole(['ADMIN']),
+  AdminController.toggleStatus
 );
 
 router.get(

@@ -4,128 +4,113 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 28 35% 97%; /* Chocolate-50 */
+    --foreground: 12 18% 22%; /* Chocolate-900 */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 12 18% 22%;
+ 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
+    --popover-foreground: 12 18% 22%;
+ 
+    --primary: 15 22% 44%; /* Chocolate-600 */
+    --primary-foreground: 30 20% 97%;
+ 
+    --secondary: 25 30% 90%; /* Chocolate-100 */
+    --secondary-foreground: 12 18% 22%;
+ 
+    --muted: 24 10% 92%;
+    --muted-foreground: 15 8% 40%;
+ 
+    --accent: 38 92% 50%; /* Gold-500 */
+    --accent-foreground: 12 18% 22%;
+ 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    /* Futuristic Theme Colors */
-    --cocoa-900: 26 10% 10%;
-    --cocoa-800: 26 15% 15%;
-    --gold-500: 36 50% 65%;
-    --amber-glow: 38 92% 50%;
-    --glass-white: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    --border: 24 15% 85%;
+    --input: 24 15% 85%;
+    --ring: 15 22% 44%;
+ 
+    --radius: 0.75rem;
   }
-
+ 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
+    --background: 12 18% 12%; /* Chocolate-950 */
+    --foreground: 30 20% 97%;
+ 
+    --card: 12 18% 15%; /* Chocolate-900 mostly */
+    --card-foreground: 30 20% 97%;
+ 
+    --popover: 12 18% 15%;
+    --popover-foreground: 30 20% 97%;
+ 
+    --primary: 38 92% 50%; /* Gold-500 as primary in dark mode */
+    --primary-foreground: 12 18% 12%;
+ 
+    --secondary: 12 18% 20%;
+    --secondary-foreground: 30 20% 97%;
+ 
+    --muted: 12 18% 20%;
+    --muted-foreground: 24 10% 70%;
+ 
+    --accent: 38 92% 50%;
+    --accent-foreground: 12 18% 12%;
+ 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --destructive-foreground: 30 20% 97%;
+ 
+    --border: 12 18% 25%;
+    --input: 12 18% 25%;
+    --ring: 38 92% 50%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* Futuristic Animations */
-@keyframes blob {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+    @apply bg-background text-foreground tracking-tight;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 @layer utilities {
-  .animate-blob {
-    animation: blob 7s infinite;
+  .text-shadow {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
-  .animation-delay-2000 {
-    animation-delay: 2s;
+  
+  .glass-panel {
+    @apply bg-white/70 dark:bg-black/50 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass;
   }
-  .animation-delay-4000 {
-    animation-delay: 4s;
+  
+  .premium-gradient {
+    @apply bg-gradient-to-br from-chocolate-900 via-chocolate-800 to-black;
   }
-  .animate-spin-slow {
-    animation: spin-slow 20s linear infinite;
+
+  .gold-gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gold-400 via-gold-200 to-gold-500;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Custom Scrollbar for rich feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-chocolate-300 dark:bg-chocolate-700 rounded-full hover:bg-gold-500 transition-colors;
   }
 }

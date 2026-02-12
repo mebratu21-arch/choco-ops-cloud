@@ -1,147 +1,138 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/authService';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { FuturisticCard } from '../../components/ui/FuturisticCard';
-import AnimatedBackground from '../../components/ui/AnimatedBackground';
-import { Factory, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Candy, Loader2, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { toast } from 'sonner';
 
-const LoginPage = () => {
+const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { useLogin } = useAuth();
+  const loginMutation = useLogin();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
-  // Role-to-Route Mapping
-  const getDashboardRoute = (role = '') => {
-    switch (role.toUpperCase()) {
-      case 'WAREHOUSE': return '/inventory';
-      case 'PRODUCTION': return '/production';
-      case 'QC': return '/qc/dashboard';
-      case 'MECHANIC': return '/mechanic/dashboard';
-      case 'MANAGER': return '/manager/dashboard';
-      case 'ADMIN': return '/ai-dashboard';
-      case 'CONTROLLER': return '/manager/dashboard';
-      default: return '/';
-    }
-  };
+  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname ?? '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
+    
+    if (!email || !password) {
+      toast.error('Please enter both email and password');
+      return;
+    }
 
     try {
-      const response = await authService.login(email, password);
-      // Redirect based on role from the user object in response
-      if (response?.user) {
-        const redirectPath = getDashboardRoute(response.user.role);
-        navigate(redirectPath);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Invalid credentials');
-    } finally {
-      setIsLoading(false);
+      await loginMutation.mutateAsync({ email, password });
+      toast.success('Welcome back to CocoaFlow!');
+      navigate(from, { replace: true });
+    } catch (error: unknown) {
+      console.error('Login failed:', error);
+      const message = error instanceof Error ? error.message : 'Login failed. Please check your credentials.';
+      toast.error(message);
     }
   };
 
-  const quickLogin = (role: string) => {
-    setEmail(`${role.toLowerCase()}@chocoops.com`);
-    setPassword('password123');
-  };
-
   return (
-    <AnimatedBackground>
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <FuturisticCard glowColor="gold" intensity="high" className="w-full max-w-md p-8">
-          {/* Logo & Title */}
+    <div className="min-h-screen bg-chocolate-50 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-accent/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden z-10 border border-chocolate-100 animate-in fade-in zoom-in-95 duration-300">
+        <div className="p-8">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full blur-xl opacity-50 animate-pulse" />
-                <div className="relative h-16 w-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center shadow-2xl">
-                  <Factory className="h-8 w-8 text-white" />
-                </div>
-              </div>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground mb-4 shadow-lg shadow-primary/20">
+              <Candy className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 bg-clip-text text-transparent mb-2">
-              ChocoOps Cloud
-            </h1>
-            <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              Next-Gen Chocolate Factory Management
+            <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
+            <p className="text-gray-500 mt-2 text-sm">
+              Sign in to access your chocolate factory dashboard
             </p>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Email</label>
-              <Input 
-                type="email"
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="your.email@chocoops.com"
-                className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-amber-500/50 focus:ring-amber-500/20"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Password</label>
-              <Input 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-amber-500/50 focus:ring-amber-500/20"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                <p className="text-sm text-red-400 text-center">{error}</p>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {loginMutation.isError && (
+              <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{loginMutation.error instanceof Error ? loginMutation.error.message : 'Invalid credentials'}</span>
               </div>
             )}
 
-            <Button 
-              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-medium shadow-lg shadow-amber-500/20 transition-all duration-300 hover:shadow-amber-500/40 hover:scale-[1.02]" 
-              type="submit" 
-              disabled={isLoading}
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors bg-gray-50/50 hover:bg-white focus:bg-white outline-none text-sm"
+                placeholder="you@cocoaflow.com"
+                disabled={loginMutation.isPending}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <a href="#" className="text-xs text-primary hover:underline font-medium">
+                  Forgot password?
+                </a>
+              </div>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors bg-gray-50/50 hover:bg-white focus:bg-white outline-none text-sm"
+                placeholder="••••••••"
+                disabled={loginMutation.isPending}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loginMutation.isPending}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg shadow-md shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Authenticating...
-                </span>
+              {loginMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Signing in...
+                </>
               ) : (
                 'Sign In'
               )}
-            </Button>
+            </button>
           </form>
 
-          {/* Quick Login */}
-          <div className="mt-6 pt-6 border-t border-white/10">
-            <p className="text-xs text-slate-400 text-center mb-3">Quick Demo Login:</p>
-            <div className="grid grid-cols-2 gap-2">
-              {['Manager', 'Production', 'QC', 'Warehouse'].map((role) => (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => quickLogin(role)}
-                  className="px-3 py-2 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-all duration-200 hover:border-amber-500/30"
-                >
-                  {role}
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-slate-500 text-center mt-3">Password: password123</p>
+          <div className="mt-8 pt-6 border-t border-gray-50 text-center">
+            <p className="text-sm text-gray-500">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-primary font-medium hover:underline">
+                Create Account
+              </Link>
+            </p>
           </div>
-        </FuturisticCard>
+        </div>
+        
+        {/* Decorative Bottom Bar */}
+        <div className="h-2 w-full bg-gradient-to-r from-primary to-accent"></div>
       </div>
-    </AnimatedBackground>
+      
+      <p className="absolute bottom-6 text-center text-xs text-gray-400">
+        © 2026 CocoaFlow AI. All rights reserved.
+      </p>
+    </div>
   );
 };
 

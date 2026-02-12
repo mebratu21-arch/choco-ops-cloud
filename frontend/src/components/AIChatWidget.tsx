@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Button } from './ui/Button';
-import { useSendAIMessage } from '../services/aiService';
+import { useSendAIMessage, useGetAIStatus } from '../services/aiService';
 import { Card, CardHeader, CardContent, CardFooter } from './ui/Card';
 import { Input } from './ui/Input';
-import { MessageCircle, X, Send, Mic } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 import { cn } from '../lib/utils'; // Fixed path
 import { useAuthStore } from '../store/authStore';
 
@@ -16,6 +16,8 @@ const AIChatWidget = () => {
   const user = useAuthStore((state) => state.user);
 
   const { mutate: sendMessageFn, isPending } = useSendAIMessage();
+  const { data: aiStatus } = useGetAIStatus();
+  const [chatHistory, setChatHistory] = useState<{role: string, content: string}[]>([]);
 
   const toggleChat = () => setIsOpen(!isOpen);
 
@@ -26,19 +28,26 @@ const AIChatWidget = () => {
     setMessages(prev => [...prev, { role: 'user', text: userText }]);
     setInput('');
 
+    // Build history for the backend from previous messages
+    const historyForBackend = chatHistory.map(h => ({ role: h.role, content: h.content }));
+
     sendMessageFn({ 
-        message: userText, 
+        message: userText,
+        language: 'en',
         context: { 
-          user_role: (user?.role?.toUpperCase() ?? 'MANAGER') as 'MANAGER' | 'WAREHOUSE' | 'PRODUCTION' | 'QC' | 'MECHANIC' | 'CONTROLLER' | 'ADMIN', 
-          language: 'en' 
+          user_role: user?.role ?? 'manager',
+          history: historyForBackend
         } 
     }, {
-        onSuccess: (response) => {
-            setMessages(prev => [...prev, { role: 'assistant', text: response.message }]);
+        onSuccess: (response: { response?: string; message?: string }) => {
+            const botReply = response.message ?? response.response ?? 'No response received.';
+            setMessages(prev => [...prev, { role: 'assistant', text: botReply }]);
+            // Update history for next turn
+            setChatHistory(prev => [...prev, { role: 'user', content: userText }, { role: 'assistant', content: botReply }]);
         },
         onError: (error) => {
             console.error('AI Chat Error:', error);
-             setMessages(prev => [...prev, { role: 'assistant', text: "I'm having trouble connecting right now. Please try again later or check if the AI service is configured." }]);
+            setMessages(prev => [...prev, { role: 'assistant', text: "I'm having trouble connecting right now. Please try again later or check if the AI service is configured." }]);
         }
     });
   };
@@ -51,6 +60,12 @@ const AIChatWidget = () => {
                 <CardHeader className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 text-white p-4 rounded-t-lg flex flex-row items-center justify-between">
                     <span className="font-bold flex items-center gap-2 text-lg">
                         🍫 ChocoBot AI
+                        {aiStatus && (
+                            <span className="flex items-center gap-1 text-[10px] font-normal bg-black/20 px-2 py-0.5 rounded-full ml-2">
+                                <div className={`w-2 h-2 rounded-full ${aiStatus.provider === 'mock' ? 'bg-amber-400' : 'bg-green-400'} animate-pulse`} />
+                                {aiStatus.provider === 'anthropic' ? 'Claude' : aiStatus.provider === 'gemini' ? 'Gemini' : aiStatus.provider === 'deepseek' ? 'DeepSeek' : 'Sim Mode'}
+                            </span>
+                        )}
                     </span>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-amber-800 rounded-full" onClick={toggleChat}>
                         <X className="h-5 w-5" />

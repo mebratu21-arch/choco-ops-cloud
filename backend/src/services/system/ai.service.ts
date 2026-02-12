@@ -12,6 +12,8 @@ import { getIO } from './realtime.service.js';
 import { createBreaker } from '../../utils/circuit-breaker.js';
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY || '');
+const DEEPSEEK_KEY = env.DEEPSEEK_API_KEY;
+const DEEPSEEK_URL = 'https://api.deepseek.com/v1';
 
 // ────────────────────────────────────────────
 // CONSTANTS
@@ -93,6 +95,18 @@ Balance profit, quality, safety.`,
   ADMIN: `You are a system administrator.
 Help with: user management, permissions, technical issues.
 Provide clear technical guidance.`,
+
+  OPERATOR: `You are the Factory Floor Specialist (Operator). You work directly with the machines and inventory.
+Motivate: "Your attention to detail ensures the finest chocolate for our customers!"
+Focus: machine settings, safety, inventory checks, immediate floor help.`
+};
+
+const LANGUAGE_MAP: Record<string, string> = {
+  en: 'English',
+  am: 'Amharic (አማርኛ)',
+  ru: 'Russian (Русский)',
+  he: 'Hebrew (עברית)',
+  ar: 'Arabic (العربية)'
 };
 
 const SAFETY_SETTINGS = [
@@ -158,6 +172,7 @@ export class AiService {
       userRole: string;
       page?: string;
       images?: Array<{ base64: string; mimeType: string }>;
+      language?: string;
     }
   ): Promise<string> {
     const model = genAI.getGenerativeModel({ 
@@ -192,7 +207,9 @@ Current Context:
 Previous Context:
 ${historyText || '(No previous history)'}
 
-Your directive: Provide helpful, motivating, and expert advice. Respond naturally in the language used by the user.
+Your directive: Provide helpful, motivating, and expert advice. 
+
+CRITICAL: You MUST respond in ${LANGUAGE_MAP[context.language || 'en'] || 'English'}. If the user writes in a different language, still respond in ${LANGUAGE_MAP[context.language || 'en'] || 'English'} unless they explicitly ask to switch.
 `;
 
     const parts: any[] = [{ text: systemPrompt }, { text: `User: ${userMessage}` }];
@@ -210,13 +227,70 @@ Your directive: Provide helpful, motivating, and expert advice. Respond naturall
     }
 
     let response: string;
-    try {
-        const result = await model.generateContent(parts);
-        response = await result.response.text();
-    } catch (error: any) {
-        logger.warn('AI Generation failed, falling back to mock.', { error: error.message });
-        
-        // SMART MOCK RESPONSES
+
+    // === PROVIDER CHAIN: DeepSeek → Gemini → Smart Mock ===
+
+    // 1. Try DeepSeek first (primary provider, no rate limits)
+    if (DEEPSEEK_KEY) {
+      try {
+        const deepseekMessages: Array<{role: string; content: string}> = [
+          { role: 'system', content: systemPrompt }
+        ];
+
+        // Add conversation history
+        recentHistory.forEach((m: any) => {
+          deepseekMessages.push({
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.content
+          });
+        });
+
+        deepseekMessages.push({ role: 'user', content: userMessage });
+
+        const deepseekResponse = await fetch(`${DEEPSEEK_URL}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEEPSEEK_KEY}`
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: deepseekMessages,
+            temperature: 0.7,
+            max_tokens: 1500
+          })
+        });
+
+        if (deepseekResponse.ok) {
+          const data: any = await deepseekResponse.json();
+          response = data.choices[0].message.content.trim();
+          logger.info('DeepSeek chat response generated', { userId: context.userId });
+        } else {
+          throw new Error(`DeepSeek API returned ${deepseekResponse.status}`);
+        }
+      } catch (deepseekError: any) {
+        logger.warn('DeepSeek chat failed, trying Gemini fallback', { error: deepseekError.message });
+        // Fall through to Gemini
+        response = '';
+      }
+    } else {
+      response = '';
+    }
+
+    // 2. Try Gemini as fallback
+    if (!response) {
+      try {
+          const result = await model.generateContent(parts);
+          response = await result.response.text();
+          logger.info('Gemini chat response generated', { userId: context.userId });
+      } catch (error: any) {
+          logger.warn('Gemini chat also failed, using smart mock.', { error: error.message });
+          response = '';
+      }
+    }
+
+    // 3. Smart Mock as last resort
+    if (!response) {
         const lowerMsg = userMessage.toLowerCase();
         
         if (lowerMsg.includes('sugar')) {
@@ -266,14 +340,28 @@ Your directive: Provide helpful, motivating, and expert advice. Respond naturall
    * Public chat method with circuit breaker protection
    */
   static async chat(userMessage: string, context: any): Promise<string> {
-    if (!env.GEMINI_API_KEY) {
-      return 'שירות ה-AI כרגע לא זמין (מפתח API חסר).';
+    if (!env.GEMINI_API_KEY && !DEEPSEEK_KEY) {
+      const defaultResponses: Record<string, string> = {
+        he: 'שירות ה-AI כרגע לא זמין (מפתח API חסר).',
+        en: 'AI service is currently unavailable (API key missing).',
+        am: 'የAI አገልግሎት በአሁኑ ጊዜ አይገኝም (የኤፒአይ ቁልፍ ጠፍቷል)።',
+        ru: 'Сервис ИИ в данный момент недоступен (отсутствует ключ API).',
+        ar: 'خدمة الذكاء الاصطناعي غير متوفرة حاليًا (مفتاح API مفقود).'
+      };
+      return defaultResponses[context.language] || defaultResponses.en;
     }
 
     try {
       return await AiService.breaker.fire(userMessage, context);
     } catch (err) {
-      return 'שירות ה-AI כרגע לא זמין. נסה שוב מאוחר יותר.';
+      const errorResponses: Record<string, string> = {
+        he: 'שירות ה-AI כรגע לא זמין. נסה שוב מאוחר יותר.',
+        en: 'AI service is currently unavailable. Try again later.',
+        am: 'የAI አገልግሎት በአሁኑ ጊዜ አይገኝም:: ቆይተው እንደገና ይሞክሩ::',
+        ru: 'Сервис ИИ в данный момент недоступен. Попробуйте позже.',
+        ar: 'خدمة الذكاء الاصطناعي غير متوفرة حاليًا. حاول مرة أخرى لاحقًا.'
+      };
+      return errorResponses[context.language] || errorResponses.en;
     }
   }
 
@@ -304,11 +392,55 @@ Your directive: Provide helpful, motivating, and expert advice. Respond naturall
       preserveTerms?: string[];
     }
   ): Promise<string> {
-    if (!env.GEMINI_API_KEY) {
-      throw new Error('Gemini API key not configured');
+    const startTime = Date.now();
+
+    // PRIORITIZE DEEPSEEK FOR TRANSLATION (without limit)
+    if (DEEPSEEK_KEY) {
+      try {
+        const langName = LANGUAGE_MAP[targetLanguage] || targetLanguage;
+        const response = await fetch(`${DEEPSEEK_URL}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEEPSEEK_KEY}`
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [
+              {
+                role: 'system',
+                content: `You are a professional translator for an artisan chocolate factory.
+CRITICAL: Return ONLY translated text. Maintain formatting. Target language: ${langName}`
+              },
+              {
+                role: 'user',
+                content: text
+              }
+            ],
+            temperature: 0,
+            max_tokens: 2000
+          })
+        });
+
+        if (response.ok) {
+          const data: any = await response.json();
+          const translation = data.choices[0].message.content.trim();
+          logger.info('DeepSeek translation successful', { 
+            targetLanguage, 
+            duration: Date.now() - startTime 
+          });
+          return translation;
+        } else {
+          logger.warn('DeepSeek translation API error', { status: response.status });
+        }
+      } catch (error: any) {
+        logger.warn('DeepSeek translation failed, falling back', { error: error.message });
+      }
     }
 
-    const startTime = Date.now();
+    if (!env.GEMINI_API_KEY && !DEEPSEEK_KEY) {
+      throw new Error('No AI translation providers configured');
+    }
     const cacheKey = this.getTranslationCacheKey(text, targetLanguage, context?.domain);
     let fromCache = false;
 
@@ -479,6 +611,15 @@ Text: ${text.substring(0, 500)}`;
     logger.info('Batch translation completed', stats);
 
     return { translations, stats };
+  }
+
+  /**
+   * Clear chat history for a specific user
+   */
+  static async deleteChatHistory(userId: string): Promise<void> {
+    const historyKey = `ai:history:${userId}`;
+    await redis.del(historyKey);
+    logger.info(`AI Service: Chat history cleared for user ${userId}`);
   }
 }
 

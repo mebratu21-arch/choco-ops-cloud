@@ -1,66 +1,137 @@
-/** 
- * Core domain types for inventory module 
- * Used across repository, service, controller & tests 
+/**
+ * CocoaFlow Backend - Inventory Type Definitions
  */
-export interface Ingredient {
-  id: string;
-  name: string;
-  code: string | null;
-  current_stock: number;
-  minimum_stock: number;
-  optimal_stock: number;
-  unit: 'kg' | 'g' | 'liter' | 'ml' | 'unit' | 'pack';
-  aisle?: string;
-  shelf?: string;
-  bin?: string;
-  cost_per_unit: number;
-  expiry_date: string | null;
-  supplier_id: string | null;
-  created_by: string | null;
-  is_active: boolean;
-  deleted_at: string | null;
-  created_at: string;
-  updated_at: string;
-  // computed
-  is_low_stock: boolean;
-  supplier_name?: string;
-}
 
-export interface StockUpdateInput {
-  ingredient_id: string;
-  quantity_change: number;
-  reason?: StockUpdateReason;
-  notes?: string;
-}
+// ===========================================
+// ENUMS & CONSTANTS
+// ===========================================
 
-export interface StockUpdateResult {
-  ingredient_id: string;
-  previous_stock: number;
-  new_stock: number;
-  change: number;
-  reason?: StockUpdateReason;
-  notes?: string;
-  updated_by: string;
-  updated_at: string;
-}
+export type MovementType = 'in' | 'out' | 'adjustment' | 'expired' | 'damaged';
+export type ItemCategory = 'raw_material' | 'packaging' | 'ingredient' | 'finished_good' | 'supplies';
 
 export const STOCK_UPDATE_REASONS = [
-  'PRODUCTION_USAGE',
-  'SUPPLIER_DELIVERY',
-  'MANUAL_ADJUSTMENT',
-  'QUALITY_ISSUE',
-  'EXPIRED_REMOVAL',
-  'DAMAGE_LOSS',
-  'INVENTORY_RECONCILIATION',
+  'production_use',
+  'received_shipment',
+  'manual_adjustment',
+  'damaged',
+  'expired',
+  'returned',
+  'quality_issue',
+  'inventory_count',
+  'transfer',
+  'other'
 ] as const;
 
 export type StockUpdateReason = typeof STOCK_UPDATE_REASONS[number];
 
-export interface InventoryFilters {
-  low_stock_only?: boolean;
-  expiring_soon_days?: number;
+// ===========================================
+// INVENTORY ITEM
+// ===========================================
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  code: string;
+  category: ItemCategory | string;
+  quantity: number;
+  unit: string;
+  location?: string;
   supplier_id?: string;
+  supplier_name?: string;
+  reorder_level: number;
+  expiry_date?: Date;
+  cost_per_unit?: number;
+  notes?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// ===========================================
+// INGREDIENT (alias for recipe ingredients)
+// ===========================================
+
+export interface Ingredient {
+  id: string;
+  name: string;
+  code: string;
+  category: ItemCategory | string;
+  quantity: number;
+  unit: string;
+  location?: string;
+  supplier_id?: string;
+  reorder_level: number;
+  expiry_date?: Date;
+  cost_per_unit?: number;
+  notes?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// ===========================================
+// INVENTORY MOVEMENT
+// ===========================================
+
+export interface InventoryMovement {
+  id: string;
+  item_id: string;
+  item_name?: string;
+  movement_type: MovementType;
+  quantity: number;
+  reference_type?: string;
+  reference_id?: string;
+  performed_by?: string;
+  performer_name?: string;
+  reason?: string;
+  notes?: string;
+  created_at: Date;
+}
+
+// ===========================================
+// FILTERS
+// ===========================================
+
+export interface InventoryFilters {
+  search?: string;
+  category?: ItemCategory | string;
+  lowStock?: boolean;
+  low_stock_only?: boolean;
+  supplier_id?: string;
+  location?: string;
   aisle?: string;
   shelf?: string;
   bin?: string;
+  expiringWithinDays?: number;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// ===========================================
+// STOCK UPDATE
+// ===========================================
+
+export interface StockUpdate {
+  quantity: number;
+  movementType: MovementType;
+  reason?: StockUpdateReason | string;
+  referenceType?: string;
+  referenceId?: string;
+  notes?: string;
+}
+
+// ===========================================
+// SUPPLIER
+// ===========================================
+
+export interface Supplier {
+  id: string;
+  name: string;
+  contact_person?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  is_active: boolean;
+  created_at?: Date;
+  updated_at?: Date;
 }

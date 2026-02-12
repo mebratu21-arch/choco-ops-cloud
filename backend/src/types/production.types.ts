@@ -1,43 +1,68 @@
-/**
- * Core domain types for production module
- */
-export interface Batch {
+import { InventoryItem } from './inventory.types.js';
+
+export type BatchStatus = 'pending' | 'mixing' | 'cooking' | 'cooling' | 'packaging' | 'completed' | 'failed';
+
+export interface RecipeIngredient {
   id: string;
-  batch_number?: string;
   recipe_id: string;
-  quantity_produced: number;
-  status: 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
-  produced_by: string;
-  created_by: string;
-  started_at: string | null;
-  completed_at: string | null;
-  actual_yield: number | null;
-  waste_percentage: number | null;
-  actual_cost: number | null;  // calculated from ingredients
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-  recipe_name?: string;
-}
-
-export interface CreateBatchInput {
-  recipe_id: string;
-  quantity_produced: number;
+  inventory_item_id?: string | null;
+  custom_name?: string | null;
+  quantity: number;
+  unit: string;
   notes?: string;
+  item?: InventoryItem;
+  ingredient_name?: string;
+  item_code?: string;
+  item_unit?: string;
 }
 
-export const BATCH_STATUSES = ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED'] as const;
+export interface Recipe {
+  id: string;
+  name: string;
+  description?: string;
+  category: string;
+  yield_quantity: number;
+  yield_unit: string;
+  duration_minutes: number;
+  instructions: any; // JSON or string array
+  difficulty_level: 'easy' | 'medium' | 'hard';
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+  ingredients?: RecipeIngredient[];
+}
 
-export type BatchStatus = typeof BATCH_STATUSES[number];
+export interface BatchMaterial {
+  id: string;
+  batch_id: string;
+  inventory_item_id: string;
+  quantity_used: number;
+  unit: string;
+  item?: InventoryItem;
+}
 
 export interface ProductionBatch {
   id: string;
-  batch_id: string;
-  batch_number?: string;
-  line_number?: number;
-  quantity: number;
+  batch_number: string;
+  recipe_id: string;
   status: BatchStatus;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
+  target_quantity: number;
+  actual_quantity?: number;
+  started_at?: Date;
+  completed_at?: Date;
+  started_by?: string;
+  notes?: string;
+  created_at: Date;
+  updated_at: Date;
+  recipe?: Recipe;
+  materials?: BatchMaterial[];
+}
+
+export interface BatchFilters {
+  status?: BatchStatus;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
 }

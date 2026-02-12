@@ -12,8 +12,12 @@ import {
   CreditCard,
   ArrowUpDown,
   Calendar,
-  Ruler
+  Ruler,
+  ChevronLeft
 } from 'lucide-react';
+import PaymentMethodSelector, { PaymentType } from '../../components/sales/PaymentMethodSelector';
+import CryptoPaymentFlow from '../../components/sales/CryptoPaymentFlow';
+import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 
 // Product Interface
@@ -105,8 +109,8 @@ type SortMode = 'name' | 'size' | 'date';
 const WarehouseSales = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [cartCount, setCartCount] = useState(0);
-    const [sortMode, setSortMode] = useState<SortMode>('date');
     const [showPayment, setShowPayment] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<PaymentType | null>(null);
 
     const filteredProducts = MOCK_PRODUCTS.filter(p => 
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -258,55 +262,59 @@ const WarehouseSales = () => {
 
             {/* Payment Modal Overlay */}
             {showPayment && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
-                    <Card className="w-full max-w-md shadow-2xl border-gold-200">
-                        <CardHeader className="border-b border-slate-100">
-                            <CardTitle className="flex items-center gap-2">
-                                <CreditCard className="h-5 w-5 text-gold-500" />
-                                Select Payment Method
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-6">
-                            <Button 
-                                variant="outline" 
-                                className="w-full justify-between h-14 hover:border-gold-500 hover:bg-gold-50 group"
-                                onClick={() => handlePayment('Credit Card')}
-                            >
-                                <span className="flex items-center gap-3">
-                                    <div className="bg-slate-100 p-2 rounded text-slate-600 group-hover:text-gold-600"><CreditCard className="h-5 w-5" /></div>
-                                    <span className="font-semibold text-slate-700">Mastercard / Visa</span>
-                                </span>
-                            </Button>
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200" onClick={() => setShowPayment(false)}>
+                    <Card className="w-full max-w-xl shadow-2xl border-gold-200 overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <CardContent className="p-8">
+                            <AnimatePresence mode="wait">
+                                {!paymentMethod ? (
+                                    <motion.div key="selector" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                        <PaymentMethodSelector 
+                                            selectedMethod={null as any}
+                                            onSelect={(m) => setPaymentMethod(m)}
+                                            amount={MOCK_PRODUCTS.filter(p => p.id === 'CHOC-AUTO-GEN-001').reduce((s, p) => s + p.price, 0)} // Placeholder amount
+                                        />
+                                        <Button 
+                                            variant="ghost" 
+                                            className="w-full mt-8 text-slate-500 font-bold uppercase tracking-widest text-[10px]"
+                                            onClick={() => setShowPayment(false)}
+                                        >
+                                            Cancel Transaction
+                                        </Button>
+                                    </motion.div>
+                                ) : (
+                                    <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+                                        <button 
+                                            onClick={() => setPaymentMethod(null)}
+                                            className="flex items-center gap-2 text-[10px] font-black text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest mb-4"
+                                        >
+                                            <ChevronLeft className="w-3 h-3" /> Change Method
+                                        </button>
 
-                            <Button 
-                                variant="outline" 
-                                className="w-full justify-between h-14 hover:border-blue-500 hover:bg-blue-50 group"
-                                onClick={() => handlePayment('Stripe')}
-                            >
-                                <span className="flex items-center gap-3">
-                                    <div className="bg-blue-100 p-2 rounded text-blue-600"><span className="text-xs font-bold">S</span></div>
-                                    <span className="font-semibold text-slate-700">Stripe Secure</span>
-                                </span>
-                            </Button>
-
-                            <Button 
-                                variant="outline" 
-                                className="w-full justify-between h-14 hover:border-slate-800 hover:bg-slate-50 group"
-                                onClick={() => handlePayment('Google Pay')}
-                            >
-                                <span className="flex items-center gap-3">
-                                    <div className="bg-black p-2 rounded text-white"><span className="text-xs font-bold">G</span></div>
-                                    <span className="font-semibold text-slate-700">Google Pay</span>
-                                </span>
-                            </Button>
-
-                            <Button 
-                                variant="ghost" 
-                                className="w-full mt-2 text-slate-500"
-                                onClick={() => setShowPayment(false)}
-                            >
-                                Cancel Transaction
-                            </Button>
+                                        {paymentMethod === 'STRIPE' || paymentMethod === 'MASTERCARD' ? (
+                                             <div className="text-center py-12 space-y-6">
+                                                <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto border border-blue-100/50">
+                                                    <CreditCard className="w-10 h-10 text-blue-500" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-xl font-black text-gray-900 mb-2 uppercase tracking-tight">{paymentMethod} Settlement</h4>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Secure gateway simulation active</p>
+                                                </div>
+                                                <Button
+                                                    onClick={() => handlePayment(paymentMethod)}
+                                                    className="w-full bg-gray-900 hover:bg-black text-white font-black py-4 rounded-xl uppercase tracking-widest text-xs"
+                                                >
+                                                    Authorize Payment
+                                                </Button>
+                                             </div>
+                                        ) : paymentMethod === 'CRYPTO' ? (
+                                            <CryptoPaymentFlow 
+                                                amount={45.00} // Placeholder
+                                                onSuccess={() => handlePayment('Crypto')}
+                                            />
+                                        ) : null}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </CardContent>
                     </Card>
                 </div>

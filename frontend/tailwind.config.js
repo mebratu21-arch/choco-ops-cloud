@@ -1,39 +1,29 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  // 10/10 Move: Explicitly enable class-based dark mode
-  darkMode: 'class',
+  darkMode: ["class"],
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
-      fontFamily: {
-        // Rubik is the gold standard for Hebrew/English ERPs in 2026
-        sans: ['Rubik', 'Inter', 'system-ui', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'], // For luxury artisan headers
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        // Keeping your Blue "Primary" for High-Tech Israel Vibes
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
-          DEFAULT: "hsl(0 62.8% 30.6%)",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -51,73 +41,99 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Renamed and refined for a "Callebaut" Luxury Identity
-        cocoa: {
-          50: '#fdf8f6',
-          100: '#f2e8e5',
-          200: '#eaddd7',
-          300: '#e0cec7',
-          400: '#d2bab0',
-          500: '#bfa094',
-          600: '#a18072',
-          700: '#977669',
-          800: '#846358',
-          900: '#43302b', // Deepest Roast
+        chocolate: {
+          50: '#fbf7f6',
+          100: '#f5ebe8',
+          200: '#eddcd6',
+          300: '#e0c7be',
+          400: '#cfad9f',
+          500: '#b88d7d',
+          600: '#a67261', // Original primary
+          700: '#8c594a',
+          800: '#754a3e', // Deep Chocolate
+          900: '#5e3c32', // Darker
+          950: '#2A1B18', // Ultra Dark (Backgrounds)
         },
-        // NEW: Artisan Gold Scale for Call-to-Actions (CTAs)
         gold: {
-          50: '#fffcf2',
-          100: '#fef9e6',
-          200: '#fdf1c0',
-          300: '#fbe48e',
-          400: '#f9d25c',
-          500: '#f7bd2a', 
-          600: '#c5a059',
-          700: '#a38245',
-          800: '#826637',
-          900: '#41331c',
+          50: '#fbf9f0',
+          100: '#f6f0db',
+          200: '#ede0ba',
+          300: '#e3cc91',
+          400: '#dab366',
+          500: '#cf9a3c', // Metallic Gold
+          600: '#b57d2e', 
+          700: '#946026',
+          800: '#784c22',
+          900: '#633e1f',
+          950: '#38210e',
         },
-        // PURPLE SKIN THEME COLORS
-        'purple-theme': {
-            primary: '#b66dff',
-            secondary: '#c3bef0',
-            sidebar: '#ffffff', // Clean white for sidebar
-            bg: '#f2edf3',      // Light lavender background
-            text: '#3e4b5b',
-            muted: '#9c9fa6',
+        vibrant: {
+          cream: '#FFFBEB',
+          green: '#10b981',
+          red: '#f43f5e',
+          amber: '#f59e0b',
+          blue: '#3b82f6',
         },
-        'gradient-orange': { from: '#ffbf96', to: '#fe7096' },
-        'gradient-blue': { from: '#90caf9', to: '#047edf' },
-        'gradient-green': { from: '#84d9d2', to: '#07cdae' },
+        industrial: {
+          primary: '#6B3E26',   // Chocolate brown
+          secondary: '#C69C6D', // Caramel gold
+          accent: '#F2E6D8',    // Light cocoa
+          background: '#FAF7F2',// Soft cream
+          dark: '#2B1A12',      // Deep cocoa
+          info: '#0288D1',      // Environmental monitoring (Blue)
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+        '4xl': '2rem',
       },
-      // 10/10 Move: Custom animations for the AI Concierge
+      backgroundImage: {
+        'chocolate-gradient': 'linear-gradient(135deg, #2A1B18 0%, #43302b 100%)',
+        'gold-gradient': 'linear-gradient(135deg, #cf9a3c 0%, #b57d2e 100%)',
+        'glass-dark': 'linear-gradient(180deg, rgba(42, 27, 24, 0.7) 0%, rgba(42, 27, 24, 0.4) 100%)',
+        'glass-light': 'linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%)',
+      },
+      boxShadow: {
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+        'glow': '0 0 15px rgba(207, 154, 60, 0.3)',
+        'premium-in': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
+        'premium-out': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)',
+      },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'fade-in': 'fadeIn 0.5s ease-out forwards',
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        shimmer: 'shimmer 2s ease-in-out infinite',
+        fadeIn: 'fadeIn 0.5s ease-out forwards',
+        slideUp: 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        scaleIn: 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        float: 'float 3s ease-in-out infinite',
       },
       keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
         fadeIn: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
         },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+        scaleIn: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
         },
       },
     },
   },
-  // Senior Recommendation: Add the forms plugin to normalize RTL inputs
   plugins: [],
 }

@@ -12,7 +12,7 @@ async function createAdminUser() {
     console.log('Creating admin user...');
     
     // Check if admin exists
-    const existing = await db('users').where({ email: 'admin@choco.com' }).first();
+    const existing = await db('users').where({ email: 'admin@chocoops.com' }).first();
     if (existing) {
       console.log('Admin user already exists');
       await db.destroy();
@@ -20,15 +20,15 @@ async function createAdminUser() {
     }
     
     // Hash password
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash('password', 10);
     
     // Create admin user
     await db('users').insert({
       id: uuidv4(),
-      email: 'admin@choco.com',
+      email: 'admin@chocoops.com',
       password_hash: hashedPassword,
-      role: 'ADMIN',
-      name: 'System Administrator',
+      role: 'admin',
+      full_name: 'System Administrator',
       is_active: true,
       created_at: new Date(),
       updated_at: new Date()

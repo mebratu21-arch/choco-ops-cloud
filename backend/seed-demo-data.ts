@@ -18,11 +18,11 @@ async function seed() {
     // 1. Ingredients
     console.log('Inserting Ingredients...');
     const ingredients = [
-        { id: uuidv4(), name: 'Cocoa Beans (Ecuador)', code: 'ING-001', current_stock: 5000, minimum_stock: 1000, optimal_stock: 10000, unit: 'kg', cost_per_unit: 12.5, is_active: true, created_at: new Date(), updated_at: new Date() },
-        { id: uuidv4(), name: 'Cocoa Butter', code: 'ING-002', current_stock: 200, minimum_stock: 500, optimal_stock: 2000, unit: 'kg', cost_per_unit: 18.0, is_active: true, created_at: new Date(), updated_at: new Date() }, // Low Stock
-        { id: uuidv4(), name: 'Cane Sugar', code: 'ING-003', current_stock: 8000, minimum_stock: 2000, optimal_stock: 15000, unit: 'kg', cost_per_unit: 1.2, is_active: true, created_at: new Date(), updated_at: new Date() },
-        { id: uuidv4(), name: 'Milk Powder', code: 'ING-004', current_stock: 1500, minimum_stock: 1000, optimal_stock: 5000, unit: 'kg', cost_per_unit: 4.5, is_active: true, created_at: new Date(), updated_at: new Date() },
-        { id: uuidv4(), name: 'Vanilla Extract', code: 'ING-005', current_stock: 50, minimum_stock: 20, optimal_stock: 100, unit: 'L', cost_per_unit: 45.0, is_active: true, created_at: new Date(), updated_at: new Date() },
+        { id: uuidv4(), name: 'Cocoa Beans (Ecuador)', sku: 'ING-001', current_stock: 5000, minimum_stock: 1000, unit: 'kg', created_at: new Date(), updated_at: new Date() },
+        { id: uuidv4(), name: 'Cocoa Butter', sku: 'ING-002', current_stock: 200, minimum_stock: 500, unit: 'kg', created_at: new Date(), updated_at: new Date() }, // Low Stock
+        { id: uuidv4(), name: 'Cane Sugar', sku: 'ING-003', current_stock: 8000, minimum_stock: 2000, unit: 'kg', created_at: new Date(), updated_at: new Date() },
+        { id: uuidv4(), name: 'Milk Powder', sku: 'ING-004', current_stock: 1500, minimum_stock: 1000, unit: 'kg', created_at: new Date(), updated_at: new Date() },
+        { id: uuidv4(), name: 'Vanilla Extract', sku: 'ING-005', current_stock: 50, minimum_stock: 20, unit: 'L', created_at: new Date(), updated_at: new Date() },
     ];
     
     // Check existing

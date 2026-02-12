@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useRecipes, useRecipeWithIngredients, useCreateBatch } from '../../services/productionService';
-import { useIngredients } from '../../services/inventoryService';
+import { useProduction } from '../../hooks/useProduction';
+import { useInventory } from '../../hooks/useInventory';
 import { useTranslate } from '../../services/aiService';
 import { Recipe } from '../../types';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/ui/Card';
@@ -109,10 +109,18 @@ const ProductionBatchPage = () => {
     const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
     const [batchQuantity, setBatchQuantity] = useState<number>(1);
     
+    // Hooks
+    const { useRecipes, useRecipe, useCreateBatch } = useProduction();
+    const { useInventoryItems } = useInventory();
+    
     // React Query hooks
-    const { data: recipes = [], isLoading: loadingRecipes } = useRecipes();
-    const { data: recipeDetails, isLoading: loadingDetails } = useRecipeWithIngredients(selectedRecipeId ?? '');
-    const { data: inventory = [] } = useIngredients();
+    const { data: recipesData, isLoading: loadingRecipes } = useRecipes();
+    const recipes = recipesData?.recipes ?? [];
+    
+    const { data: recipeDetails, isLoading: loadingDetails } = useRecipe(selectedRecipeId ?? '');
+    const { data: inventoryData } = useInventoryItems();
+    const inventory = inventoryData?.items ?? [];
+    
     const { mutate: createBatch, isPending: isCreating } = useCreateBatch();
 
     const handleSelectRecipe = (recipe: Recipe) => {
@@ -139,8 +147,8 @@ const ProductionBatchPage = () => {
 
         createBatch(
             {
-                recipe_id: selectedRecipeId,
-                quantity_produced: batchQuantity,
+                recipeId: selectedRecipeId,
+                targetQuantity: batchQuantity,
                 notes: `Batch started via production dashboard`
             },
             {
@@ -151,20 +159,20 @@ const ProductionBatchPage = () => {
                     setBatchQuantity(1);
                     alert('Batch created successfully!');
                 },
-                onError: (error) => {
-                    alert(`Failed to create batch: ${error.message}`);
+                onError: (error: unknown) => {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    alert(`Failed to create batch: ${message}`);
                 },
             }
         );
     };
 
-    // Calculate required ingredients
     const calculateRequirements = () => {
-        if (!recipeDetails) return [];
+        if (!recipeDetails?.ingredients) return [];
 
         return recipeDetails.ingredients.map(ing => {
-            const required = ing.quantity * batchQuantity;
-            const available = inventory.find(i => i.id === ing.ingredient_id)?.current_stock ?? 0;
+            const required = (ing.quantity ?? 0) * batchQuantity;
+            const available = inventory.find(i => i.id === ing.ingredient_id)?.quantity ?? 0;
             const sufficient = available >= required;
 
             return {
@@ -220,7 +228,7 @@ const ProductionBatchPage = () => {
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-slate-600">Batch Size</span>
                                     <span className="font-semibold text-cocoa-900">
-                                        {recipe.batch_size} {recipe.batch_unit}
+                                        {recipe.batch_size ?? recipe.yield_quantity} {recipe.batch_unit ?? recipe.yield_unit}
                                     </span>
                                 </div>
                                 <Button 
@@ -241,10 +249,12 @@ const ProductionBatchPage = () => {
         </div>
     );
 
-    // Render batch configuration
     const renderBatchConfiguration = () => {
         const selectedRecipe = recipes.find(r => r.id === selectedRecipeId);
         if (!selectedRecipe) return null;
+
+        const baseBatchSize = selectedRecipe.batch_size ?? selectedRecipe.yield_quantity ?? 0;
+        const baseBatchUnit = selectedRecipe.batch_unit ?? selectedRecipe.yield_unit ?? '';
 
         return (
             <div className="max-w-2xl mx-auto">
@@ -300,7 +310,7 @@ const ProductionBatchPage = () => {
                                     +
                                 </Button>
                                 <span className="text-sm text-slate-600">
-                                    × {selectedRecipe.batch_size} {selectedRecipe.batch_unit} = {batchQuantity * selectedRecipe.batch_size} {selectedRecipe.batch_unit}
+                                    × {baseBatchSize} {baseBatchUnit} = {batchQuantity * baseBatchSize} {baseBatchUnit}
                                 </span>
                             </div>
                         </div>
@@ -308,7 +318,11 @@ const ProductionBatchPage = () => {
 
                         {/* Production Instructions with Translation */}
                         {selectedRecipe.instructions && (
-                            <ProductionInstructionsWithTranslation instructions={selectedRecipe.instructions} />
+                            <ProductionInstructionsWithTranslation 
+                                instructions={Array.isArray(selectedRecipe.instructions) 
+                                    ? selectedRecipe.instructions.join('\n') 
+                                    : selectedRecipe.instructions} 
+                            />
                         )}
 
                         {/* Required Ingredients Preview */}
@@ -319,14 +333,14 @@ const ProductionBatchPage = () => {
                         ) : (
                             <div>
                                 <label className="block text-sm font-medium text-cocoa-900 mb-2">
-                                    Required Ingredients ({recipeDetails?.ingredients.length ?? 0})
+                                    Required Ingredients ({recipeDetails?.ingredients?.length ?? 0})
                                 </label>
                                 <div className="bg-slate-50 border border-slate-200 rounded-md p-3 space-y-2">
-                                    {recipeDetails?.ingredients.map(ing => (
-                                        <div key={ing.id} className="flex items-center justify-between text-sm">
+                                    {recipeDetails?.ingredients?.map((ing, idx) => (
+                                        <div key={ing.ingredient_id ?? idx} className="flex items-center justify-between text-sm">
                                             <span className="text-slate-700">{ing.ingredient_name ?? `Ingredient ${ing.ingredient_id}`}</span>
                                             <span className="font-medium text-cocoa-900">
-                                                {ing.quantity * batchQuantity} {ing.unit}
+                                                {(ing.quantity ?? 0) * batchQuantity} {ing.unit}
                                             </span>
                                         </div>
                                     ))}

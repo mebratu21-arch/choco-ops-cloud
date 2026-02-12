@@ -2,25 +2,24 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '@/data/infrastructure/httpClient';
 import { toast } from 'sonner';
 import { Plus, Loader2 } from 'lucide-react';
+import type { 
+  ProductionBatch, 
+  InventoryItem, 
+  APIResponse 
+} from '@/types';
 
-interface Batch {
-  id: string;
-  recipe_id: string;
-  quantity_produced: number;
-  status: string;
-  created_at: string;
+// Define response types for the specific endpoints usage in this component
+interface BatchesResponse {
+  data: ProductionBatch[];
 }
 
-interface Ingredient {
-  id: string;
-  name: string;
-  current_stock: number;
-  unit: string;
+interface InventoryResponse {
+  data: InventoryItem[];
 }
 
 export default function ProductionPage() {
-  const [batches, setBatches] = useState<Batch[]>([]);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [batches, setBatches] = useState<ProductionBatch[]>([]);
+  const [ingredients, setIngredients] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     recipe_id: '',
@@ -31,14 +30,17 @@ export default function ProductionPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      // Use unknown first to safely cast to unknown then to the expected type if needed, 
+      // but api.get is generic.
       const [batchesRes, ingRes] = await Promise.all([
-        api.get('/production/batches'),
-        api.get('/inventory'),
+        api.get<never, APIResponse<BatchesResponse>>('/production/batches'),
+        api.get<never, APIResponse<InventoryResponse>>('/inventory'),
       ]);
-      setBatches(batchesRes.data.data || []);
-      setIngredients(ingRes.data.data || []);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
+
+      // Safely access data
+      setBatches(batchesRes.data?.data ?? []);
+      setIngredients(ingRes.data?.data ?? []);
+    } catch (err: unknown) {
       console.error(err);
       toast.error('Failed to load production data');
     } finally {
@@ -47,7 +49,8 @@ export default function ProductionPage() {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    // Handle the promise returned by fetchData
+    void fetchData();
   }, [fetchData]);
 
   const addIngredient = () => {
@@ -59,8 +62,7 @@ export default function ProductionPage() {
 
   const updateIngredient = (index: number, field: 'ingredient_id' | 'quantity', value: string | number) => {
     const newIng = [...form.ingredients];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    newIng[index] = { ...newIng[index], [field]: value } as any;
+    newIng[index] = { ...newIng[index], [field]: value };
     setForm({ ...form, ingredients: newIng });
   };
 
@@ -81,8 +83,8 @@ export default function ProductionPage() {
       });
 
       // Refresh list
-      const res = await api.get('/production/batches');
-      setBatches(res.data.data || []);
+      const res = await api.get<never, APIResponse<BatchesResponse>>('/production/batches');
+      setBatches(res.data?.data ?? []);
       
       toast.success('Batch created successfully');
     } catch (err) {
@@ -146,7 +148,7 @@ export default function ProductionPage() {
                 <option value="">Select Ingredient</option>
                 {ingredients.map(i => (
                   <option key={i.id} value={i.id}>
-                    {i.name} ({i.current_stock} {i.unit} available)
+                    {i.name} ({i.quantity} {i.unit} available)
                   </option>
                 ))}
               </select>
@@ -164,7 +166,7 @@ export default function ProductionPage() {
         </div>
 
         <button
-          onClick={createBatch}
+          onClick={() => void createBatch()}
           className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition font-medium"
         >
           Create Batch
@@ -212,19 +214,19 @@ export default function ProductionPage() {
                       {batch.recipe_id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {batch.quantity_produced}
+                      {batch.target_quantity ?? batch.actual_quantity ?? 0}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        batch.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                        batch.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
+                        batch.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        batch.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
                         {batch.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(batch.created_at).toLocaleDateString()}
+                      {batch.created_at ? new Date(batch.created_at).toLocaleDateString() : '-'}
                     </td>
                   </tr>
                 ))

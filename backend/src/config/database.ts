@@ -1,48 +1,39 @@
 import knex from 'knex';
-import { env } from './env.js';
-import { logger } from '../config/logger.js';
+import dotenv from 'dotenv';
 
-export const db = knex({
+// Ensure environment variables are loaded
+dotenv.config();
+
+// Simplified config to ensure connection works without complex path resolution
+const config = {
   client: 'pg',
-  connection: env.DATABASE_URL,
-  pool: { 
-    min: 2, 
-    max: 10,
-    afterCreate: (conn: any, cb: any) => {
-        conn.on('error', (err: any) => {
-            logger.error('Database connection error in pool', { err });
-        });
-        cb(null, conn);
-    }
+  connection: (process.env.DATABASE_URL && process.env.DATABASE_URL.length > 0) ? process.env.DATABASE_URL : {
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    database: process.env.DB_NAME || 'cocoaflow',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres'
   },
-  migrations: { directory: './migrations', extension: 'ts' },
-  searchPath: ['public'],
-});
-
-process.on('SIGTERM', async () => {
-    await db.destroy();
-    logger.info('Database connections closed via SIGTERM');
-});
-
-export const checkConnection = async () => {
-  try {
-    await db.raw('SELECT 1');
-    logger.info('PostgreSQL connected');
-  } catch (err) {
-    logger.error('Database connection failed', { err });
-    throw err;
+  pool: {
+    min: 2,
+    max: 10
+  },
+  migrations: {
+    directory: './src/db/migrations'
+  },
+  seeds: {
+    directory: './src/db/seeds'
   }
 };
 
-export const disconnectDB = async () => {
-  await db.destroy();
-};
+export const db = knex(config);
 
-export const testConnection = async () => {
-    try {
-        await db.raw('SELECT 1');
-        return true;
-    } catch (error) {
-        throw error;
-    }
-};
+export async function checkConnection(): Promise<boolean> {
+  try {
+    await db.raw('SELECT 1');
+    return true;
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    throw error;
+  }
+}

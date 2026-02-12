@@ -1,195 +1,173 @@
-import apiClient from '../lib/api/axios';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import api from './api';
 import { 
-  Ingredient,
-  InventoryFilters,
-  ApiResponse
+  InventoryItem, 
+  InventoryFilters, 
+  StockUpdateData, 
+  InventoryMovement, 
+  APIResponse,
+  PaginationMeta
 } from '../types';
+
+interface InventoryListResponse {
+  items: InventoryItem[];
+  meta?: PaginationMeta;
+}
 
 export const inventoryService = {
   /**
-   * Get all ingredients with optional filters
-   * GET /api/ingredients
+   * Get all inventory items with optional filters
    */
-  async getIngredients(filters?: InventoryFilters): Promise<Ingredient[]> {
-    const { data } = await apiClient.get<ApiResponse<Ingredient[]>>('/ingredients', {
-      params: filters,
-    });
+  async getAllItems(filters?: InventoryFilters): Promise<InventoryListResponse> {
+    // Construct query parameters
+    const params = new URLSearchParams();
     
-    if (data.success && data.data) {
-      return data.data;
+    if (filters) {
+      if (filters.search) params.append('search', filters.search);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.lowStock) params.append('lowStock', 'true');
+      if (filters.page) params.append('page', filters.page.toString());
+      if (filters.limit) params.append('limit', filters.limit.toString());
+    }
+
+    interface InventoryRawResponse {
+      items: InventoryItem[];
+      pagination?: {
+        total: number;
+        totalPages: number;
+        page: number;
+        limit: number;
+      };
+    }
+
+    const response = await api.get<never, APIResponse<InventoryRawResponse>>(`/inventory?${params.toString()}`);
+    
+    if (response.success && response.data) {
+      const raw = response.data;
+      // Backend returns { items, pagination: { page, limit, total, totalPages } }
+      // Frontend expects { items, meta: { total, totalPages } }
+      return {
+        items: raw.items || [],
+        meta: raw.pagination ? {
+          total: raw.pagination.total,
+          totalPages: raw.pagination.totalPages,
+          page: raw.pagination.page,
+          limit: raw.pagination.limit,
+        } : undefined,
+      };
     }
     
-    throw new Error(data.error ?? 'Failed to fetch ingredients');
+    return { items: [] };
   },
 
   /**
-   * Get ingredient by ID
-   * GET /api/ingredients/:id
+   * Get a single inventory item by ID
    */
-  async getIngredientById(id: string): Promise<Ingredient> {
-    const { data } = await apiClient.get<ApiResponse<Ingredient>>(`/ingredients/${id}`);
+  async getItemById(id: string): Promise<InventoryItem> {
+    const response = await api.get<never, APIResponse<InventoryItem>>(`/inventory/${id}`);
     
-    if (data.success && data.data) {
-      return data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
     
-    throw new Error(data.error ?? 'Ingredient not found');
+    throw new Error(response.message ?? 'Item not found');
   },
 
   /**
-   * Get low stock ingredients
-   * GET /api/ingredients/low-stock
+   * Search inventory items (shortcut for getAllItems with search param)
    */
-  async getLowStock(): Promise<Ingredient[]> {
-    const { data } = await apiClient.get<ApiResponse<Ingredient[]>>('/ingredients/low-stock');
+  async searchItems(query: string): Promise<InventoryItem[]> {
+    const response = await api.get<never, APIResponse<InventoryItem[]>>(`/inventory/search?q=${encodeURIComponent(query)}`);
     
-    if (data.success && data.data) {
-      return data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
     
-    throw new Error(data.error ?? 'Failed to fetch low stock ingredients');
+    return [];
   },
 
   /**
-   * Get expiring soon ingredients
-   * GET /api/ingredients/expiring-soon?days=X
+   * Create a new inventory item
    */
-  async getExpiringSoon(days = 30): Promise<Ingredient[]> {
-    const { data } = await apiClient.get<ApiResponse<Ingredient[]>>('/ingredients/expiring-soon', {
-      params: { days },
-    });
+  async createItem(data: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<InventoryItem> {
+    const response = await api.post<Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>, APIResponse<InventoryItem>>('/inventory', data);
     
-    if (data.success && data.data) {
-      return data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
     
-    throw new Error(data.error ?? 'Failed to fetch expiring ingredients');
+    throw new Error(response.message ?? 'Failed to create item');
   },
 
   /**
-   * Update ingredient stock
-   * PUT /api/inventory/:id
+   * Update an existing inventory item
    */
-  async updateStock(id: string, stockData: { current_stock: number; reason?: string }): Promise<Ingredient> {
-    const { data } = await apiClient.put<ApiResponse<Ingredient>>(`/inventory/${id}`, stockData);
+  async updateItem(id: string, data: Partial<InventoryItem>): Promise<InventoryItem> {
+    const response = await api.put<Partial<InventoryItem>, APIResponse<InventoryItem>>(`/inventory/${id}`, data);
     
-    if (data.success && data.data) {
-      return data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
     
-    throw new Error(data.error ?? 'Failed to update stock');
-  },
-
-  // ============ LEGACY COMPATIBILITY ============
-  
-  /**
-   * @deprecated Use getIngredients instead
-   */
-  async getAllMaterials(): Promise<Ingredient[]> {
-    return this.getIngredients();
+    throw new Error(response.message ?? 'Failed to update item');
   },
 
   /**
-   * @deprecated Use getIngredientById instead
+   * Delete an inventory item
    */
-  async getMaterialById(id: string): Promise<Ingredient> {
-    return this.getIngredientById(id);
+  async deleteItem(id: string): Promise<boolean> {
+    const response = await api.delete<never, APIResponse<null>>(`/inventory/${id}`);
+    return response.success;
   },
+
+  /**
+   * Update stock quantity (IN/OUT/ADJUSTMENT)
+   */
+  async updateStock(id: string, data: StockUpdateData): Promise<InventoryItem> {
+    const response = await api.post<StockUpdateData, APIResponse<InventoryItem>>(`/inventory/${id}/stock`, data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    
+    throw new Error(response.message ?? 'Failed to update stock');
+  },
+
+  /**
+   * Get low stock alerts
+   */
+  async getLowStockAlerts(): Promise<InventoryItem[]> {
+    const response = await api.get<never, APIResponse<InventoryItem[]>>('/inventory/alerts/low-stock');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    
+    return [];
+  },
+
+  /**
+   * Get expiry alerts
+   */
+  async getExpiryAlerts(): Promise<InventoryItem[]> {
+    const response = await api.get<never, APIResponse<InventoryItem[]>>('/inventory/alerts/expiry');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    
+    return [];
+  },
+
+  /**
+   * Get movement history for a specific item
+   */
+  async getMovementHistory(itemId: string): Promise<InventoryMovement[]> {
+    const response = await api.get<never, APIResponse<InventoryMovement[]>>(`/inventory/${itemId}/movements`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+    
+    return [];
+  }
 };
-
-// ============ REACT QUERY HOOKS ============
-
-/**
- * Hook to get all ingredients with optional filters
- * Usage:
- * ```ts
- * const { data: ingredients, isLoading } = useIngredients({ low_stock_only: true });
- * ```
- */
-export const useIngredients = (filters?: InventoryFilters) => {
-  return useQuery({
-    queryKey: ['ingredients', filters],
-    queryFn: () => inventoryService.getIngredients(filters),
-    staleTime: 1000 * 60 * 2, // 2 minutes
-  });
-};
-
-/**
- * Hook to get a single ingredient by ID
- */
-export const useIngredient = (id: string) => {
-  return useQuery({
-    queryKey: ['ingredients', id],
-    queryFn: () => inventoryService.getIngredientById(id),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 2,
-  });
-};
-
-/**
- * Hook to get low stock ingredients
- */
-export const useLowStock = () => {
-  return useQuery({
-    queryKey: ['ingredients', 'low-stock'],
-    queryFn: () => inventoryService.getLowStock(),
-    staleTime: 1000 * 60, // 1 minute
-    refetchInterval: 1000 * 60 * 2, // Auto-refresh every 2 minutes
-  });
-};
-
-/**
- * Hook to get expiring soon ingredients
- */
-export const useExpiringSoon = (days = 30) => {
-  return useQuery({
-    queryKey: ['ingredients', 'expiring-soon', days],
-    queryFn: () => inventoryService.getExpiringSoon(days),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-};
-
-/**
- * Hook to update ingredient stock with optimistic updates
- * Usage:
- * ```ts
- * const { mutate } = useUpdateStock();
- * mutate({ id: '123', current_stock: 50, reason: 'Manual adjustment' });
- * ```
- */
-export const useUpdateStock = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, current_stock, reason }: { id: string; current_stock: number; reason?: string }) => 
-      inventoryService.updateStock(id, { current_stock, reason }),
-    // Optimistic update
-    onMutate: async ({ id, current_stock }) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['ingredients'] });
-      
-      // Snapshot previous value
-      const previousIngredients = queryClient.getQueryData<Ingredient[]>(['ingredients']);
-      
-      // Optimistically update
-      queryClient.setQueryData<Ingredient[]>(['ingredients'], (old) => 
-        old?.map(item => item.id === id ? { ...item, current_stock } : item)
-      );
-      
-      return { previousIngredients };
-    },
-    // On error, rollback
-    onError: (_err, _variables, context) => {
-      if (context?.previousIngredients) {
-        queryClient.setQueryData(['ingredients'], context.previousIngredients);
-      }
-    },
-    // Always refetch after error or success
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['ingredients'] });
-      void queryClient.invalidateQueries({ queryKey: ['ingredients', 'low-stock'] });
-    },
-  });
-};
-

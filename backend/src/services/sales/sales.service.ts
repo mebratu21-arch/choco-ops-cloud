@@ -11,7 +11,7 @@ export class SalesService {
   static async processEmployeeSale(userId: string, input: any) {
     return await db.transaction(async (trx) => {
       // 1. Verify batch availability
-      const batch = await trx('batches').where('id', input.batch_id).forUpdate().first();
+      const batch = await trx('production_batches').where('id', input.batch_id).forUpdate().first();
       
       if (!batch) {
           throw new AppError(404, 'Batch not found');
@@ -25,7 +25,7 @@ export class SalesService {
       }
 
       // 2. Deduct from batch quantity
-      await trx('batches')
+      await trx('production_batches')
         .where('id', input.batch_id)
         .decrement('quantity_produced', soldQty);
 

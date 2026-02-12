@@ -7,8 +7,7 @@ import { Input } from '../../components/ui/Input';
 import { ClipboardCheck, Check, X } from 'lucide-react';
 
 const QCPage = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [batches, setBatches] = useState<any[]>([]);
+    const [batches, setBatches] = useState<Batch[]>([]);
     const [loading, setLoading] = useState(true);
     const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -31,7 +30,7 @@ const QCPage = () => {
             await qcService.updateQualityStatus(id, {
                 batch_id: id,
                 status,
-                notes: notes[id] || ''
+                notes: notes[id] ?? ''
             });
             // Optimistic update
             setBatches(prev => prev.filter(b => b.id !== id));
@@ -71,7 +70,7 @@ const QCPage = () => {
                                     <label className="text-sm font-medium">QC Notes</label>
                                     <Input 
                                         placeholder="Enter findings..." 
-                                        value={notes[batch.id] || ''}
+                                        value={notes[batch.id] ?? ''}
                                         onChange={(e) => setNotes({...notes, [batch.id]: e.target.value})}
                                     />
                                 </div>

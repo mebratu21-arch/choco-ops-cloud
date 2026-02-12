@@ -180,7 +180,7 @@ export class SalesRepository {
    */
   static async findBatch(batchId: string, trx?: Knex.Transaction) {
     const connection = trx || db;
-    return connection('batches')
+    return connection('production_batches')
       .where({ id: batchId })
       .whereNull('deleted_at')
       .first();
@@ -190,7 +190,7 @@ export class SalesRepository {
    * Get batch for sale with stock info
    */
   static async getBatchForSale(batchId: string, trx: Knex.Transaction) {
-    return trx('batches')
+    return trx('production_batches')
       .where({ id: batchId })
       .whereNull('deleted_at')
       .first();
@@ -214,7 +214,7 @@ export class SalesRepository {
       const [seller, buyer, batch] = await Promise.all([
         trx('users').where({ id: input.seller_id, is_active: true }).first(),
         trx('users').where({ id: input.buyer_id, is_active: true }).first(),
-        trx('batches').where({ id: input.batch_id }).whereNull('deleted_at').first(),
+        trx('production_batches').where({ id: input.batch_id }).whereNull('deleted_at').first(),
       ]);
 
       if (!seller) throw new Error(`Seller not found or inactive: ${input.seller_id}`);
@@ -286,6 +286,28 @@ export class SalesRepository {
       logger.error(' Find sales by seller failed', { sellerId, error });
       throw error;
     }
+  }
+
+  /**
+   * Get all employee sales with names
+   */
+  static async getAllEmployeeSales(limit = 50, offset = 0) {
+    return db('employee_sales')
+      .join('users as seller', 'employee_sales.seller_id', 'seller.id')
+      .join('users as buyer', 'employee_sales.buyer_id', 'buyer.id')
+      .join('production_batches', 'employee_sales.batch_id', 'production_batches.id')
+      .join('recipes', 'production_batches.recipe_id', 'recipes.id')
+      .select(
+        'employee_sales.*',
+        'seller.full_name as seller_name',
+        'buyer.full_name as buyer_name',
+        'recipes.name as recipe_name',
+        'production_batches.batch_number'
+      )
+      .whereNull('employee_sales.deleted_at')
+      .orderBy('employee_sales.created_at', 'desc')
+      .limit(limit)
+      .offset(offset);
   }
 
   /**
@@ -377,7 +399,7 @@ export class SalesRepository {
 
       // Verify batch if provided
       if (input.batch_id) {
-        const batch = await connection('batches')
+        const batch = await connection('production_batches')
           .where('id', input.batch_id)
           .whereNull('deleted_at')
           .first();
@@ -720,8 +742,8 @@ export class SalesRepository {
    */
   static async getTopSellingProductsWithRecipeNames(limit = 5) {
     return db('employee_sales')
-      .join('batches', 'employee_sales.batch_id', 'batches.id')
-      .join('recipes', 'batches.recipe_id', 'recipes.id')
+      .join('production_batches', 'employee_sales.batch_id', 'production_batches.id')
+      .join('recipes', 'production_batches.recipe_id', 'recipes.id')
       .select('recipes.name')
       .sum('employee_sales.quantity_sold as total_qty')
       .whereNull('employee_sales.deleted_at')

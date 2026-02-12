@@ -1,5 +1,5 @@
 import apiClient from '../lib/api/axios';
-import { Recipe, ApiResponse } from '../types';
+import { Recipe, APIResponse } from '../types';
 
 export interface RecipeWithIngredients extends Recipe {
   ingredients?: {
@@ -21,40 +21,44 @@ export interface RecipeIngredientInput {
  * Fetch all recipes
  */
 export const fetchRecipes = async (): Promise<Recipe[]> => {
-  const { data } = await apiClient.get<ApiResponse<Recipe[]>>('/recipes');
-  return data.data!;
+  const response = await apiClient.get<APIResponse<Recipe[]>>('/recipes');
+  return response.data.data ?? [];
 };
 
 /**
  * Fetch single recipe by ID
  */
 export const fetchRecipeById = async (id: string): Promise<Recipe> => {
-  const { data } = await apiClient.get<ApiResponse<Recipe>>(`/recipes/${id}`);
-  return data.data!;
+  const response = await apiClient.get<APIResponse<Recipe>>(`/recipes/${id}`);
+  if (!response.data.data) throw new Error('Recipe not found');
+  return response.data.data;
 };
 
 /**
  * Fetch recipe with all ingredients
  */
 export const fetchRecipeWithIngredients = async (id: string): Promise<RecipeWithIngredients> => {
-  const { data } = await apiClient.get<ApiResponse<RecipeWithIngredients>>(`/recipes/${id}/full`);
-  return data.data!;
+  const response = await apiClient.get<APIResponse<RecipeWithIngredients>>(`/recipes/${id}/full`);
+  if (!response.data.data) throw new Error('Recipe not found');
+  return response.data.data;
 };
 
 /**
  * Create new recipe
  */
 export const createRecipe = async (recipeData: Partial<Recipe>): Promise<Recipe> => {
-  const { data } = await apiClient.post<ApiResponse<Recipe>>('/recipes', recipeData);
-  return data.data!;
+  const response = await apiClient.post<APIResponse<Recipe>>('/recipes', recipeData);
+  if (!response.data.data) throw new Error('Failed to create recipe');
+  return response.data.data;
 };
 
 /**
  * Update existing recipe
  */
 export const updateRecipe = async (id: string, recipeData: Partial<Recipe>): Promise<Recipe> => {
-  const { data } = await apiClient.put<ApiResponse<Recipe>>(`/recipes/${id}`, recipeData);
-  return data.data!;
+  const response = await apiClient.put<APIResponse<Recipe>>(`/recipes/${id}`, recipeData);
+  if (!response.data.data) throw new Error('Failed to update recipe');
+  return response.data.data;
 };
 
 /**
@@ -71,8 +75,8 @@ export const addIngredientToRecipe = async (
   recipeId: string,
   ingredientData: RecipeIngredientInput
 ): Promise<unknown> => {
-  const { data } = await apiClient.post<ApiResponse>(`/recipes/${recipeId}/ingredients`, ingredientData);
-  return data.data;
+  const response = await apiClient.post<APIResponse>(`/recipes/${recipeId}/ingredients`, ingredientData);
+  return response.data.data;
 };
 
 /**
@@ -111,6 +115,7 @@ export interface ImportRecipeResult {
 }
 
 export const importRecipes = async (payload: ImportRecipePayload): Promise<ImportRecipeResult> => {
-  const { data } = await apiClient.post<ApiResponse<ImportRecipeResult>>('/recipes/import', payload);
-  return data.data!;
+  const response = await apiClient.post<APIResponse<ImportRecipeResult>>('/recipes/import', payload);
+  if (!response.data.data) throw new Error('Failed to import recipes');
+  return response.data.data;
 };

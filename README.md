@@ -94,7 +94,7 @@ Integrated B2B/B2C sales dashboard with Stripe payment processing. Visualizes re
 ## 👨‍💻 Author
 
 **Mebratu**  
-*Senior Full-Stack Developer*
+* Full-Stack Developer*
 
 Specializing in building robust, improved, scalable web applications with a focus on clean architecture and exceptional user experience.
 

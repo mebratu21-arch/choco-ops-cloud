@@ -1,11 +1,11 @@
 import React, { useState, FormEvent } from 'react';
-import { Star, ThermometerSun, Droplets, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Alert } from '../ui/Alert';
 import { useQC } from '../../hooks/useQC';
 import { useProduction } from '../../hooks/useProduction';
-import { BatchStatus, QCResult, ProductionBatch } from '../../types';
+import { QCResult, ProductionBatch } from '../../types';
 
 interface QCInspectionFormProps {
   onSuccess?: () => void;
@@ -180,10 +180,10 @@ const QCInspectionForm: React.FC<QCInspectionFormProps> = ({ onSuccess }) => {
         </Alert>
       )}
 
-      {(createQCMutation.error || validationError) && (
+      {(createQCMutation.error ?? validationError) && (
         <Alert variant="error" className="mb-6 bg-red-50 border-red-200 text-red-800">
           <h4 className="font-bold uppercase text-xs tracking-widest mb-1">System Exception</h4>
-          <p className="text-sm">{validationError || (createQCMutation.error as any)?.message || 'Failed to process audit data'}</p>
+          <p className="text-sm">{validationError ?? (createQCMutation.error instanceof Error ? createQCMutation.error.message : 'Failed to process audit data')}</p>
         </Alert>
       )}
 

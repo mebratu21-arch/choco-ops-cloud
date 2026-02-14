@@ -1,6 +1,4 @@
 import React from 'react';
-import PageHeader from '../../components/layout/PageHeader';
-import { toast } from 'sonner';
 import StatsCard from '../../components/dashboard/StatsCard';
 import { 
   Package, 

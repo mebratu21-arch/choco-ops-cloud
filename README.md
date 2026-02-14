@@ -17,7 +17,7 @@
 
 **A production-grade Manufacturing Execution System (MES) built from real operational experience at Max Brenner Chocolate Factory. Manages production batches, quality control, smart inventory, predictive maintenance, AI-powered insights, and integrated commerce — all in one platform.**
 
-[View Demo](#) · [Report Bug](https://github.com/mebratu21-arch/choco-ops-cloud/issues/new?template=bug_report.yml) · [Request Feature](https://github.com/mebratu21-arch/choco-ops-cloud/issues/new?template=feature_request.yml)
+[▶️ View Demo](https://www.loom.com/share/cdd0e54e1e994b97bdcc0ec57180e4ba) · [Report Bug](https://github.com/mebratu21-arch/choco-ops-cloud/issues/new?template=bug_report.yml) · [Request Feature](https://github.com/mebratu21-arch/choco-ops-cloud/issues/new?template=feature_request.yml)
 
 </div>
 
@@ -438,6 +438,7 @@ Built from real operational experience at **Max Brenner Chocolate Factory**, Pet
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mebratu21)
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mebratu21-arch)
 [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=google-chrome&logoColor=white)](https://github.com/mebratu21-arch/Mebratu-Mengstu---Portfolio-Website)
+[![Demo Video](https://img.shields.io/badge/Demo_Video-FF0000?style=for-the-badge&logo=loom&logoColor=white)](https://www.loom.com/share/cdd0e54e1e994b97bdcc0ec57180e4ba)
 
 ---
 

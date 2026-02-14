@@ -44,6 +44,75 @@ export class SalesService {
     });
   }
 
+  /**
+   * Process POS/Online Sale (Auto-selects batches FIFO)
+   */
+  static async processPOSSale(userId: string, items: { productId: string, quantity: number, price: number }[], paymentMethod: string, paymentReference: string) {
+    return await db.transaction(async (trx) => {
+      const saleRecords = [];
+
+      for (const item of items) {
+        let remainingQty = item.quantity;
+        
+        // Find batches with available quantity (oldest first)
+        const batches = await trx('production_batches')
+          .where('product_id', item.productId)
+          .where('quantity_produced', '>', 0)
+          .orderBy('created_at', 'asc')
+          .forUpdate();
+
+        if (batches.length === 0) {
+           // For demo purposes, if no batch exists, we just record the sale without linking to a batch (or create a 'backorder')
+           // In a strict system, this would throw an error.
+           // logger.warn(`No inventory for product ${item.productId}, recording as backorder/unfulfilled`);
+        }
+
+        for (const batch of batches) {
+          if (remainingQty <= 0) break;
+
+          const available = Number(batch.quantity_produced);
+          const deduct = Math.min(available, remainingQty);
+
+          await trx('production_batches')
+            .where('id', batch.id)
+            .decrement('quantity_produced', deduct);
+
+          remainingQty -= deduct;
+
+          // Record part of the sale linked to this batch
+          const sale = await SalesRepository.createEmployeeSale({
+            seller_id: userId,
+            buyer_id: '00000000-0000-0000-0000-000000000000', // Walking Customer / Guest
+            batch_id: batch.id,
+            quantity_sold: deduct,
+            unit: 'unit', // expanded: defaulting to unit for POS sales, ideally product should have unit
+            original_price: item.price,
+            final_amount: item.price * deduct,
+            payment_method: paymentMethod as any, // Cast to any to bypass strict literal check for now
+            notes: `POS/Crypto Sale: ${paymentReference}`
+          }, trx);
+          
+          saleRecords.push(sale);
+        }
+
+        // If we still have remaining quantity (meaning we ran out of stock or no batches found)
+        // usage: We might want to record this efficiently. For now, we'll verify if we want to block or allow details.
+        // For this simulation: we allow it but log it.
+        if (remainingQty > 0) {
+             logger.warn(`Sold ${remainingQty} of ${item.productId} without inventory deduction (OOS)`);
+        }
+      }
+
+      await Audit.logAction(userId, 'POS_SALE', 'sales', { 
+        itemsCount: items.length, 
+        totalValue: items.reduce((sum, i) => sum + (i.price * i.quantity), 0),
+        paymentMethod
+      }, trx);
+
+      return saleRecords;
+    });
+  }
+
   static async getOnlineOrders(limit = 20, offset = 0) {
       return SalesRepository.getOnlineOrders(limit, offset);
   }

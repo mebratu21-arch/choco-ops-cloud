@@ -40,4 +40,7 @@ router.patch(
 router.get('/orders', SalesController.getAllOrders);
 router.get('/employee', SalesController.getAllEmployeeSales);
 
+// Mock Crypto Verification
+router.post('/verification/crypto', SalesController.verifyCryptoMock);
+
 export default router;

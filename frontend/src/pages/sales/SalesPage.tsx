@@ -897,6 +897,7 @@ const SalesPage: React.FC = () => {
                                                                 ) : paymentMethod === 'CRYPTO' ? (
                                                                     <CryptoPaymentFlow 
                                                                         amount={cartTotalWithTax}
+                                                                        cart={cart}
                                                                         onSuccess={handleStripeSuccess}
                                                                     />
                                                                 ) : null}

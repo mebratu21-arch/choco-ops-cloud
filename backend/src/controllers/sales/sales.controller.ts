@@ -45,4 +45,46 @@ export class SalesController {
       res.status(500).json({ success: false, error: error.message });
     }
   }
+
+  static async verifyCryptoMock(req: Request, res: Response) {
+    try {
+      // Simulate network delay (2-5 seconds)
+      const delay = Math.floor(Math.random() * 3000) + 2000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+
+      const { amount, currency = 'ETH', items } = req.body;
+      let saleRecords = [];
+
+      // If items are provided, record the sale
+      if (items && Array.isArray(items) && items.length > 0) {
+          // Use a default 'system' or 'admin' user ID for this mock if req.user is missing
+          // In a real app, strict auth would be enforced.
+          // Using a placeholder UUID for "POS Terminal"
+          const posUserId = req.user?.id || '00000000-0000-0000-0000-000000000000'; 
+          
+          saleRecords = await SalesService.processPOSSale(
+              posUserId, 
+              items, 
+              'TRANSFER', // Recording as TRANSFER for Crypto
+              `Crypto ${currency} Transaction`
+          );
+      }
+
+      res.status(200).json({
+        success: true,
+        data: {
+          txHash: '0x' + Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+          status: 'CONFIRMED',
+          amount,
+          currency,
+          timestamp: new Date().toISOString(),
+          confirmations: 12,
+          saleRecordsCount: saleRecords.length
+        }
+      });
+    } catch (error: any) {
+      logger.error('Crypto verification failed', error);
+      res.status(500).json({ success: false, error: 'Verification failed' });
+    }
+  }
 }

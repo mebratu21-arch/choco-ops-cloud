@@ -53,6 +53,56 @@ Integrated B2B/B2C sales dashboard with Stripe payment processing. Visualizes re
 
 ---
 
+## 📂 Project Structure
+
+```
+choco-ops-cloud/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/        # Route handlers (auth, production, QC, etc.)
+│   │   ├── services/           # Business logic layer
+│   │   ├── models/             # Database models & queries
+│   │   ├── routes/             # Express route definitions
+│   │   ├── middleware/         # Auth, validation, error handling
+│   │   ├── config/             # App configuration
+│   │   └── utils/              # Shared utilities
+│   ├── migrations/             # Knex database migrations
+│   ├── seeds/                  # Database seed data
+│   ├── tests/                  # Unit & integration tests
+│   ├── docs/                   # API documentation
+│   └── scripts/
+│       ├── db/                 # Database utility scripts
+│       ├── debug/              # Debugging & diagnostics
+│       ├── fix/                # Schema & import fixes
+│       ├── seed/               # Data seeding scripts
+│       ├── admin/              # Admin & auth management
+│       ├── test/               # Test utilities & payloads
+│       ├── migration/          # Migration helpers
+│       └── maintenance/        # System maintenance utilities
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/         # Reusable UI components
+│   │   ├── pages/              # Route-level page components
+│   │   ├── presentation/       # Presentation layer components
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── services/           # API service layer
+│   │   ├── context/            # React context providers
+│   │   ├── store/              # Zustand state management
+│   │   ├── types/              # TypeScript type definitions
+│   │   ├── lib/                # Utility libraries
+│   │   └── data/               # Static data & constants
+│   ├── public/                 # Static assets & images
+│   ├── e2e/                    # Playwright E2E tests
+│   └── scripts/                # Build & analysis utilities
+│
+├── README.md
+├── PROJECT_STRUCTURE.md
+└── LICENSE
+```
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites

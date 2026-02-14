@@ -31,13 +31,19 @@ Thumbs.db
 
 # Testing
 coverage/
+test-results/
+playwright-report/
 
 # Temporary files
 tmp/
 temp/
-test-results/
 tsc_output.txt
 nul
 *_backup
 *.backup
 *.bak
+
+# Generated reports
+frontend/reports/
+backend/password.txt
+

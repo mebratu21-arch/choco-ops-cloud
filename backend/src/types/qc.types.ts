@@ -25,7 +25,7 @@ export interface QCCheck {
   result: QCResult;
   notes?: string;
   created_at: Date;
-  
+
   // Relations
   inspector_name?: string;
   batch_number?: string;
@@ -51,4 +51,9 @@ export interface QCStats {
     taste: number;
   };
   topDefects: { type: string; count: number }[];
+  byResult?: {
+    approved: number;
+    pending: number;
+    rejected: number;
+  };
 }

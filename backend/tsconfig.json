@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "lib": ["ES2022"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "rootDir": ".",
     "outDir": "./dist",
     "esModuleInterop": true,
@@ -20,7 +20,15 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src/**/*", "knexfile.ts"],
-  "exclude": ["node_modules", "dist"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/__tests__/**/*",
+    "src/**/*.test.ts",
+    "src/tests/**/*",
+    "src/utils/full_system_qa.ts",
+    "src/utils/smoke_test.ts"
+  ],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"

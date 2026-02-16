@@ -3,7 +3,7 @@ import { env } from '../config/env.js';
 
 // Initialize Stripe with secret key (optional - will work in test mode if not set)
 const stripe = env.STRIPE_SECRET_KEY
-  ? new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' })
+  ? new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2026-01-28.clover' })
   : null;
 
 export interface PaymentItem {

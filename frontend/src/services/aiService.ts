@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string) ?? 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string) ?? 'http://localhost:5003/api';
 
 interface SendChatMessageParams {
   message: string;
@@ -300,40 +300,40 @@ export function useGetAIStatus() {
 
 // Multilingual phrases for UI
 export const MULTILINGUAL_PHRASES: Record<Language, { greeting: string; error: string; thinking: string }> = {
-  en: { 
+  en: {
     greeting: 'Hello! I am your AI Inventory Advisor. How can I help you manage your cocoa stocks today?',
-    error: 'Sorry, I encountered an error. Please try again.', 
-    thinking: 'Thinking...' 
+    error: 'Sorry, I encountered an error. Please try again.',
+    thinking: 'Thinking...'
   },
-  ar: { 
+  ar: {
     greeting: 'مرحباً! أنا مستشارك الذكي للمخزون. كيف يمكنني مساعدتك في إدارة مخزون الكاكاو اليوم؟',
-    error: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.', 
-    thinking: 'يفكر...' 
+    error: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.',
+    thinking: 'يفكر...'
   },
-  he: { 
+  he: {
     greeting: 'שלום! אני יועץ המלאי החכם שלך. איך אוכל לעזור לך לנהל את מלאי הקקאו היום?',
-    error: 'סליחה, אירעה שגיאה. אנא נסה שנית.', 
-    thinking: 'חושב...' 
+    error: 'סליחה, אירעה שגיאה. אנא נסה שנית.',
+    thinking: 'חושב...'
   },
-  am: { 
+  am: {
     greeting: 'ሰላም! እኔ የእርስዎ የAI የክምችት አማካሪ ነኝ። ዛሬ የኮኮዋ ክምችትዎን ለማስተዳደር እንዴት ልረዳዎ እችላለሁ?',
-    error: 'ይቅርታ፣ ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።', 
-    thinking: 'እያሰበ ነው...' 
+    error: 'ይቅርታ፣ ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።',
+    thinking: 'እያሰበ ነው...'
   },
-  ru: { 
+  ru: {
     greeting: 'Здравствуйте! Я ваш ИИ-консультант по инвентарю. Чем я могу помочь вам в управлении запасами какао сегодня?',
-    error: 'Извините, произошла ошибка. Пожалуйста, попробуйте еще раз.', 
-    thinking: 'Думает...' 
+    error: 'Извините, произошла ошибка. Пожалуйста, попробуйте еще раз.',
+    thinking: 'Думает...'
   },
-  uk: { 
+  uk: {
     greeting: 'Вітаю! Я ваш ІІ-консультант з інвентарю. Чим я можу допомогти вам в управлінні запасами какао сьогодні?',
-    error: 'Вибачте, сталася помилка. Будь ласка, спробуйте ще раз.', 
-    thinking: 'Думає...' 
+    error: 'Вибачте, сталася помилка. Будь ласка, спробуйте ще раз.',
+    thinking: 'Думає...'
   },
-  fr: { 
+  fr: {
     greeting: 'Bonjour ! Je suis votre conseiller en inventaire IA. Comment puis-je vous aider à gérer vos stocks de cacao aujourd\'hui ?',
-    error: 'Désolé, une erreur s\'est produite. Veuillez réessayer.', 
-    thinking: 'Réfléchissant...' 
+    error: 'Désolé, une erreur s\'est produite. Veuillez réessayer.',
+    thinking: 'Réfléchissant...'
   },
 };
 
@@ -343,13 +343,13 @@ export const detectLanguage = (text: string): Language => {
   const arabicPattern = /[\u0600-\u06FF]/;
   const cyrillicPattern = /[\u0400-\u04FF]/; // Russian/Ukrainian
   const amharicPattern = /[\u1200-\u137F]/;
-  
+
   if (hebrewPattern.test(text)) return 'he';
   if (arabicPattern.test(text)) return 'ar';
   if (amharicPattern.test(text)) return 'am';
   if (cyrillicPattern.test(text)) {
     // Very naive distinction
-    if (text.includes('і') || text.includes('ї')) return 'uk'; 
+    if (text.includes('і') || text.includes('ї')) return 'uk';
     return 'ru';
   }
   return 'en'; // Default

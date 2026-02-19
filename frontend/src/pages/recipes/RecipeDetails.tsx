@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
-import { 
-  ArrowLeft, 
-  ChefHat, 
-  Clock, 
-  Bot, 
+import {
+  ArrowLeft,
+  ChefHat,
+  Clock,
+  Bot,
   CheckCircle2,
   Trash2,
   Edit,
@@ -33,12 +33,12 @@ const RecipeDetails = () => {
 
     const handleTranslate = async (lang: string) => {
         if (!recipe?.instructions) return;
-        
+
         setIsTranslating(true);
         try {
             const baseInstructions = Array.isArray(recipe.instructions) ? recipe.instructions.join('\n') : recipe.instructions;
             const token = localStorage.getItem('token');
-            const API_BASE = (import.meta.env.VITE_API_URL as string) ?? 'http://localhost:5000/api';
+            const API_BASE = (import.meta.env.VITE_API_URL as string) ?? 'http://localhost:5003/api';
             const res = await fetch(`${API_BASE}/ai/translate`, {
                 method: 'POST',
                 headers: {
@@ -80,7 +80,7 @@ const RecipeDetails = () => {
             <div className="text-center py-20 bg-white/30 rounded-3xl border border-white/40 backdrop-blur-sm">
                 <AlertCircle className="h-12 w-12 text-chocolate-200 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-chocolate-900">Formulation Not Found</h2>
-                <Button 
+                <Button
                     onClick={() => navigate('/recipes')}
                     className="mt-6 bg-chocolate-900 text-white"
                 >
@@ -94,12 +94,12 @@ const RecipeDetails = () => {
         <div className="space-y-8 pb-20 animate-fade-in max-w-6xl mx-auto">
             {/* Top Navigation & Actions */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                <button 
+                <button
                     onClick={() => navigate('/recipes')}
                     className="group flex items-center gap-2 text-sm font-bold text-chocolate-900/40 hover:text-chocolate-900 transition-colors uppercase tracking-[0.2em]"
                 >
                     <div className="p-1.5 rounded-full bg-white border border-chocolate-900/10 group-hover:border-chocolate-900/30 transition-colors">
-                        <ArrowLeft className="w-4 h-4" /> 
+                        <ArrowLeft className="w-4 h-4" />
                     </div>
                     Back to Library
                 </button>
@@ -112,7 +112,7 @@ const RecipeDetails = () => {
                         <Edit className="w-4 h-4" />
                         Modify
                     </button>
-                    <button 
+                    <button
                         onClick={() => setIsBatchModalOpen(true)}
                         className="flex items-center gap-2 px-8 py-3 bg-chocolate-900 text-white font-bold rounded-2xl hover:bg-chocolate-800 shadow-xl shadow-chocolate-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
@@ -131,11 +131,11 @@ const RecipeDetails = () => {
                             <span className="h-px w-10 bg-gold-500/50"></span>
                             <span className="text-[10px] font-black tracking-[0.4em] text-gold-600 uppercase">Production Protocol 04</span>
                         </div>
-                        
+
                         <h1 className="text-5xl md:text-6xl font-black text-chocolate-950 tracking-tight leading-[1.1] mb-6">
                             {recipe.name}
                         </h1>
-                        
+
                         <div className="flex flex-wrap items-center gap-6 mb-8 pt-4">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black text-chocolate-900/30 uppercase tracking-widest mb-1">Recipe SKU</span>
@@ -165,9 +165,9 @@ const RecipeDetails = () => {
                     {/* Right side: Image Hero */}
                     <div className="h-[400px] md:h-auto relative bg-chocolate-50 overflow-hidden">
                         {recipe.image_url ? (
-                            <img 
-                                src={recipe.image_url} 
-                                alt={recipe.name} 
+                            <img
+                                src={recipe.image_url}
+                                alt={recipe.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                             />
                         ) : (
@@ -200,7 +200,7 @@ const RecipeDetails = () => {
                                     { code: 'he', label: 'עבר' },
                                     { code: 'es', label: 'ESP' },
                                 ].map(lang => (
-                                    <button 
+                                    <button
                                         key={lang.code}
                                         onClick={() => { void handleTranslate(lang.code); }}
                                         disabled={isTranslating}
@@ -216,7 +216,7 @@ const RecipeDetails = () => {
                              <div className="absolute top-0 right-0 p-8 h-32 w-32 opacity-5 pointer-events-none">
                                 <Bot className="w-full h-full text-chocolate-900" />
                              </div>
-                             
+
                              <div className="relative z-10 font-medium text-chocolate-900/80 leading-loose text-lg whitespace-pre-wrap">
                                 {isTranslating ? (
                                     <div className="flex flex-col gap-4 animate-pulse">
@@ -228,9 +228,9 @@ const RecipeDetails = () => {
                                     translatedInstructions ?? (Array.isArray(recipe.instructions) ? recipe.instructions.join('\n\n') : recipe.instructions)
                                 )}
                              </div>
-                             
+
                              {translatedInstructions && (
-                                 <button 
+                                 <button
                                     onClick={() => setTranslatedInstructions(null)}
                                     className="mt-8 text-xs font-black text-gold-600 uppercase tracking-widest hover:text-gold-700 underline underline-offset-4"
                                  >
@@ -246,9 +246,9 @@ const RecipeDetails = () => {
                     {/* Batch Settings Sidebar */}
                     <div className="bg-[#1A0C06] text-white p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full blur-[40px] pointer-events-none" />
-                        
+
                         <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-8 relative z-10">Standard Metrics</h3>
-                        
+
                         <div className="space-y-6 relative z-10">
                             <div className="flex justify-between items-center group">
                                 <span className="text-white/40 font-bold text-xs uppercase tracking-wide">Standard Yield</span>
@@ -257,9 +257,9 @@ const RecipeDetails = () => {
                                     <span className="text-[10px] text-white/20 font-mono mt-0.5">{recipe.yield_unit}</span>
                                 </div>
                             </div>
-                            
+
                             <div className="h-px bg-white/5" />
-                            
+
                             <div className="flex justify-between items-center group">
                                 <span className="text-white/40 font-bold text-xs uppercase tracking-wide">Target QC Score</span>
                                 <span className="font-black text-white text-lg">9.8<span className="text-[10px] text-white/20 ml-1">/ 10</span></span>
@@ -310,8 +310,8 @@ const RecipeDetails = () => {
                     </div>
                 </div>
             </div>
-            
-            <StartBatchModal 
+
+            <StartBatchModal
                 isOpen={isBatchModalOpen}
                 onClose={() => setIsBatchModalOpen(false)}
                 recipe={recipe}

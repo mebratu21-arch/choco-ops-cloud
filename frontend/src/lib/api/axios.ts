@@ -24,7 +24,7 @@ interface QueueItem {
 
 // Create axios instance
 const apiClient = axios.create({
-  baseURL: (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://127.0.0.1:5001/api',
+  baseURL: (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:5003/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -113,18 +113,18 @@ apiClient.interceptors.response.use(
 
         if (data.success && data.data) {
           const { accessToken, refreshToken: newRefreshToken } = data.data;
-          
+
           // Update tokens in store
           useAuthStore.getState().setTokens(accessToken, newRefreshToken);
-          
+
           // Update the failed request with new token
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           }
-          
+
           // Process queued requests
           processQueue(null, accessToken);
-          
+
           // Retry original request
           return apiClient(originalRequest);
         } else {

@@ -30,12 +30,12 @@ export default defineConfig(({ mode }) => {
       // Proxy API requests to backend during development
       proxy: {
         '/api': {
-          target: env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000',
+          target: env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5003',
           changeOrigin: true,
           secure: false,
         },
         '/socket.io': {
-          target: env.VITE_WS_URL || 'http://localhost:5000',
+          target: env.VITE_WS_URL || 'http://localhost:5003',
           changeOrigin: true,
           ws: true,
         },

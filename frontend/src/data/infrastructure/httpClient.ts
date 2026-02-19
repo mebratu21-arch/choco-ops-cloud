@@ -18,7 +18,7 @@ interface ErrorData {
 }
 
 const api = axios.create({
-  baseURL: (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:5001/api', // Matches backend PORT=5001
+  baseURL: (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:5003/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ api.interceptors.response.use(
         if (!refreshToken) throw new Error('No refresh token');
 
         const { data } = await axios.post<RefreshResponse>(`${api.defaults.baseURL}/auth/refresh`, { refreshToken });
-        
+
         if (data.token) {
           localStorage.setItem('token', data.token);
           // Retry original request with new token

@@ -63,7 +63,7 @@ class SocketService {
   }
 
   private connect() {
-    const SOCKET_URL = (import.meta.env.VITE_WS_URL as string) ?? 'http://localhost:5000';
+    const SOCKET_URL = (import.meta.env.VITE_WS_URL as string) ?? 'http://localhost:5003';
 
     this.socket = io(SOCKET_URL, {
       auth: {
@@ -84,9 +84,9 @@ class SocketService {
     this.socket.on('connect', () => {
       console.log('✅ Socket connected:', this.socket?.id);
       this.reconnectAttempts = 0;
-      toast.success('Real-time connection established', { 
+      toast.success('Real-time connection established', {
         duration: 2000,
-        position: 'bottom-right' 
+        position: 'bottom-right'
       });
     });
 
@@ -101,7 +101,7 @@ class SocketService {
     this.socket.on('connect_error', (error: Error) => {
       console.error('Socket connection error:', error);
       this.reconnectAttempts++;
-      
+
       if (this.reconnectAttempts >= this.maxReconnectAttempts) {
         toast.error('Unable to establish real-time connection', {
           duration: 5000,
@@ -113,13 +113,13 @@ class SocketService {
     // Custom events
     // Note: 'reconnect' is a Manager event, not strictly on the Socket type in v4,
     // but often works. For strict typing, we rely on the specific ServerToClientEvents.
-    // However, the 'io' client manager handles reconnection logic. 
+    // However, the 'io' client manager handles reconnection logic.
     // We'll keep the logic simple here.
     this.socket.on('reconnect', (attemptNumber: number) => {
        console.log(`✅ Socket reconnected after ${attemptNumber} attempts`);
-       toast.success('Connection restored', { 
+       toast.success('Connection restored', {
          duration: 2000,
-         position: 'bottom-right' 
+         position: 'bottom-right'
        });
     });
   }

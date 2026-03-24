@@ -1,0 +1,72 @@
+[
+  {
+    "id": "616f75af-da26-43ad-8c76-3ba0aed4fad1",
+    "batch_number": "BATCH-2023-001",
+    "recipe_id": "7b91ff19-aa3e-4e4e-82a7-db77bd33c02a",
+    "status": "completed",
+    "created_at": "2026-02-10T13:04:41.749Z"
+  },
+  {
+    "id": "8ffb903d-7238-447a-85e1-4b9ba66ff79c",
+    "batch_number": "B-2026-034",
+    "recipe_id": "7b91ff19-aa3e-4e4e-82a7-db77bd33c02a",
+    "status": "completed",
+    "created_at": "2026-02-09T21:54:08.995Z"
+  },
+  {
+    "id": "5340d1a1-cc67-419c-982a-6410d8324290",
+    "batch_number": "B-2026-009",
+    "recipe_id": "a004af33-4d4a-4d6a-9bfc-a3452d70cd37",
+    "status": "completed",
+    "created_at": "2026-02-09T18:49:05.922Z"
+  },
+  {
+    "id": "13d20717-6677-4410-b2c7-258a678b8c68",
+    "batch_number": "B-2026-002",
+    "recipe_id": "0f46ff33-03d4-4ade-ab5a-ff0d2d75c6e8",
+    "status": "completed",
+    "created_at": "2026-02-09T07:01:22.842Z"
+  },
+  {
+    "id": "afee3dde-6ad7-41e2-a4ae-56914ee1d3ab",
+    "batch_number": "B-2026-027",
+    "recipe_id": "53e555af-9908-4a3f-b9f3-e93ade344fcb",
+    "status": "completed",
+    "created_at": "2026-02-09T04:26:20.626Z"
+  },
+  {
+    "id": "aae7c4b3-74f8-41cf-993e-5324b24d344c",
+    "batch_number": "B-2026-033",
+    "recipe_id": "53e555af-9908-4a3f-b9f3-e93ade344fcb",
+    "status": "completed",
+    "created_at": "2026-02-08T20:35:22.043Z"
+  },
+  {
+    "id": "2eea6018-56bc-48b1-8177-11ed662cf0b9",
+    "batch_number": "B-2026-014",
+    "recipe_id": "545a60ad-3a15-45ea-8e71-67aaa3e59c57",
+    "status": "completed",
+    "created_at": "2026-02-08T09:51:07.281Z"
+  },
+  {
+    "id": "122991e8-d21a-4cea-8e3c-7040cf9fa108",
+    "batch_number": "B-2026-025",
+    "recipe_id": "53e555af-9908-4a3f-b9f3-e93ade344fcb",
+    "status": "completed",
+    "created_at": "2026-02-07T10:26:14.496Z"
+  },
+  {
+    "id": "b98e93a3-ca56-4160-8b8e-c49ae2c280d9",
+    "batch_number": "B-2026-039",
+    "recipe_id": "7837f9ef-68f3-41c2-9dca-1d673d1c2a61",
+    "status": "mixing",
+    "created_at": "2026-02-07T08:36:38.800Z"
+  },
+  {
+    "id": "2b90c2b1-051a-4950-a1fd-bddebafa064e",
+    "batch_number": "B-2026-013",
+    "recipe_id": "ef71dc34-6e32-495b-a8a2-571285c0f055",
+    "status": "completed",
+    "created_at": "2026-02-06T14:23:23.223Z"
+  }
+]

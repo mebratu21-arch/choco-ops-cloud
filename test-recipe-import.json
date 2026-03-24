@@ -1,0 +1,93 @@
+{
+  "scaling_factor": 1,
+  "recipes": [
+    {
+      "title": "Toffee Peanut Candies with Sea Salt",
+      "batch_size": "1.5 kg",
+      "description": "Luxury toffee candies with roasted peanuts and sea salt finish",
+      "ingredients": [
+        { "item": "Butter", "amount": 200, "unit": "grams" },
+        { "item": "Sugar", "amount": 30, "unit": "grams" },
+        { "item": "Milk Chocolate", "amount": 150, "unit": "grams" },
+        { "item": "Sea Salt", "amount": 5, "unit": "grams" }
+      ],
+      "instructions": [
+        "Line baking dish with greased parchment paper",
+        "Melt butter and sugar in thick-bottom saucepan, stir until golden brown and thermometer reaches 150°C",
+        "Add peanuts carefully, stir and pour over parchment, flatten evenly",
+        "Let harden 1 minute, sprinkle chocolate, wait 1 minute, spread evenly",
+        "Sprinkle sea salt on top, cool 45 minutes, cut into cubes"
+      ]
+    },
+    {
+      "title": "Cosmopolitan White Chocolate Cocktail",
+      "batch_size": "2 servings",
+      "description": "Elegant cocktail featuring white chocolate and cranberry",
+      "ingredients": [
+        { "item": "White Chocolate", "amount": 150, "unit": "grams" },
+        { "item": "Milk", "amount": 240, "unit": "ml" },
+        { "item": "Cranberry Juice", "amount": 105, "unit": "ml" }
+      ],
+      "instructions": [
+        "Bring milk to boil in thick-bottom saucepan",
+        "Pour hot milk over white chocolate in heat-proof bowl, wait 1 minute, whisk well, let cool",
+        "Pour Quantro, vodka, cranberry juice, lemon juice and chocolate sauce into shaker with ice",
+        "Shake well, pour into tall glasses and serve"
+      ]
+    },
+    {
+      "title": "Cat Tongues - Chocolate Dipped Cookies",
+      "batch_size": "36 cookies",
+      "description": "Delicate cookies dipped in chocolate with pistachio garnish",
+      "ingredients": [
+        { "item": "Sugar", "amount": 200, "unit": "grams" },
+        { "item": "Milk Chocolate", "amount": 200, "unit": "grams" }
+      ],
+      "instructions": [
+        "Preheat oven to 180°C, line baking dish with greased parchment",
+        "Sift flour and salt together",
+        "Beat egg whites with 1 tbsp sugar until shiny and stable",
+        "Beat yolks with remaining sugar until thick (5 min), add lemon juice and vanilla",
+        "Fold flour into yolk foam, then fold in egg whites until uniform",
+        "Pipe 10cm strips on parchment with 1cm tip, bake 10 minutes until golden",
+        "Dip cookies in melted chocolate, sprinkle pistachios and coconut, cool",
+        "Dust with powdered sugar before serving"
+      ]
+    },
+    {
+      "title": "Yogurt White Chocolate Strawberry Milkshake",
+      "batch_size": "5 servings",
+      "description": "Refreshing milkshake with white chocolate and fresh strawberries",
+      "ingredients": [
+        { "item": "Milk", "amount": 500, "unit": "ml" },
+        { "item": "White Chocolate", "amount": 40, "unit": "grams" },
+        { "item": "Sugar", "amount": 75, "unit": "grams" }
+      ],
+      "instructions": [
+        "Boil milk with mint, remove from heat, let absorb 10 minutes",
+        "Remove mint, add chocolate to milk, wait 1 minute, stir until smooth, cool to room temperature",
+        "Blend strawberries, white chocolate cream, yogurt and ice cubes in high-speed blender",
+        "Serve in tall glasses with tablespoon of ice cream on top"
+      ]
+    },
+    {
+      "title": "French Hot Chocolate - Very Thick",
+      "batch_size": "4 servings",
+      "description": "Luxurious thick hot chocolate with sweet whipped cream",
+      "ingredients": [
+        { "item": "Milk", "amount": 900, "unit": "ml" },
+        { "item": "Sugar", "amount": 200, "unit": "grams" },
+        { "item": "Dark Chocolate", "amount": 115, "unit": "grams" }
+      ],
+      "instructions": [
+        "Mix cornstarch with glass of milk in metal bowl, whisk until dissolved",
+        "Add sugar and yolks to cornstarch mixture, whisk until uniform",
+        "Boil 2 cups milk with vanilla in saucepan, remove vanilla stick and scrape grains back in",
+        "Slowly add hot milk to yolk mixture while whisking, place over fire and stir until boils",
+        "Remove from heat, pass through sieve",
+        "Add dark chocolate, bring remaining milk to boil and add to chocolate mixture, stir until smooth",
+        "Pour into cups, top with whipped heavy cream and serve hot"
+      ]
+    }
+  ]
+}

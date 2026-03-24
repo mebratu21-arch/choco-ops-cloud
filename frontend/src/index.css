@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 28 35% 97%; /* Chocolate-50 */
+    --foreground: 12 18% 22%; /* Chocolate-900 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 12 18% 22%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 12 18% 22%;
+ 
+    --primary: 15 22% 44%; /* Chocolate-600 */
+    --primary-foreground: 30 20% 97%;
+ 
+    --secondary: 25 30% 90%; /* Chocolate-100 */
+    --secondary-foreground: 12 18% 22%;
+ 
+    --muted: 24 10% 92%;
+    --muted-foreground: 15 8% 40%;
+ 
+    --accent: 38 92% 50%; /* Gold-500 */
+    --accent-foreground: 12 18% 22%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 24 15% 85%;
+    --input: 24 15% 85%;
+    --ring: 15 22% 44%;
+ 
+    --radius: 0.75rem;
+  }
+ 
+  .dark {
+    --background: 12 18% 12%; /* Chocolate-950 */
+    --foreground: 30 20% 97%;
+ 
+    --card: 12 18% 15%; /* Chocolate-900 mostly */
+    --card-foreground: 30 20% 97%;
+ 
+    --popover: 12 18% 15%;
+    --popover-foreground: 30 20% 97%;
+ 
+    --primary: 38 92% 50%; /* Gold-500 as primary in dark mode */
+    --primary-foreground: 12 18% 12%;
+ 
+    --secondary: 12 18% 20%;
+    --secondary-foreground: 30 20% 97%;
+ 
+    --muted: 12 18% 20%;
+    --muted-foreground: 24 10% 70%;
+ 
+    --accent: 38 92% 50%;
+    --accent-foreground: 12 18% 12%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 30 20% 97%;
+ 
+    --border: 12 18% 25%;
+    --input: 12 18% 25%;
+    --ring: 38 92% 50%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground tracking-tight;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .glass-panel {
+    @apply bg-white/70 dark:bg-black/50 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass;
+  }
+  
+  .premium-gradient {
+    @apply bg-gradient-to-br from-chocolate-900 via-chocolate-800 to-black;
+  }
+
+  .gold-gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gold-400 via-gold-200 to-gold-500;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Custom Scrollbar for rich feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-chocolate-300 dark:bg-chocolate-700 rounded-full hover:bg-gold-500 transition-colors;
+  }
+}

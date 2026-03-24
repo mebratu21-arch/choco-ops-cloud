@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Environment variables — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Builds
+dist/
+build/
+out/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+
+# Temporary files
+tmp/
+temp/
+tsc_output.txt
+nul
+*_backup
+*.backup
+*.bak
+
+# Generated reports
+frontend/reports/
+backend/password.txt
+
+
+.vercel

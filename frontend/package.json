@@ -29,7 +29,7 @@
     "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/react-transition-group": "^4.4.12",
-    "axios": "^1.6.2",
+    "axios": "^1.14.0",
     "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
